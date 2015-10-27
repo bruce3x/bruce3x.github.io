@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Brucezz's Blog</title><link href="http://xiaotianzheng.github.io/" rel="alternate"></link><link href="http://xiaotianzheng.github.io/feeds/others.atom.xml" rel="self"></link><id>http://xiaotianzheng.github.io/</id><updated>2015-10-25T22:14:19+08:00</updated><entry><title>Test Image ..</title><link href="http://xiaotianzheng.github.io/articles/2015/10/25/test-image/" rel="alternate"></link><updated>2015-10-25T22:14:19+08:00</updated><author><name>Brucezz</name></author><id>tag:xiaotianzheng.github.io,2015-10-25:articles/2015/10/25/test-image/</id><summary type="html">&lt;blockquote&gt;
+&lt;p&gt;Just a test...&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;img alt="ALt TTT" src="/images/favicon.ico" /&gt;&lt;/p&gt;</summary><category term="test"></category></entry><entry><title>test tag something..</title><link href="http://xiaotianzheng.github.io/articles/2015/10/25/test-tag-something/" rel="alternate"></link><updated>2015-10-25T14:18:41+08:00</updated><author><name>Brucezz</name></author><id>tag:xiaotianzheng.github.io,2015-10-25:articles/2015/10/25/test-tag-something/</id><summary type="html">&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;Hello World!&amp;#39;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;</summary><category term="Python"></category><category term="test"></category></entry><entry><title>Test blog</title><link href="http://xiaotianzheng.github.io/articles/2015/10/24/test-blog/" rel="alternate"></link><updated>2015-10-24T16:02:52+08:00</updated><author><name>Brucezz</name></author><id>tag:xiaotianzheng.github.io,2015-10-24:articles/2015/10/24/test-blog/</id><summary type="html">&lt;h1&gt;Test&lt;/h1&gt;
+&lt;h2&gt;Test&lt;/h2&gt;
+&lt;h3&gt;Test&lt;/h3&gt;
+&lt;h4&gt;Test&lt;/h4&gt;</summary></entry></feed>
