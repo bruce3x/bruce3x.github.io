@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh"
+>
+<head>
+    <title>强引用、弱引用、软引用、虚引用 - Brucezz's Blog</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="../../../../..//images/favicon.ico" rel="icon">
+
+<link rel="canonical" href="../../../../../articles/2015/11/23/four-kind-of-reference/">
+
+        <meta name="author" content="Brucezz" />
+        <meta name="keywords" content="引用" />
+        <meta name="description" content="最近听小伙伴聊到弱引用、软引用，原来只是听说过，不知道怎么用，特此查阅了一些资料，学习一下。 从JDK1.2版本开始，把对象的引用分为四种级别，这四种级别由高到低依次为 ..." />
+
+        <meta property="og:site_name" content="Brucezz's Blog" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="强引用、弱引用、软引用、虚引用"/>
+        <meta property="og:url" content="../../../../../articles/2015/11/23/four-kind-of-reference/"/>
+        <meta property="og:description" content="最近听小伙伴聊到弱引用、软引用，原来只是听说过，不知道怎么用，特此查阅了一些资料，学习一下。 从JDK1.2版本开始，把对象的引用分为四种级别，这四种级别由高到低依次为 ..."/>
+        <meta property="article:published_time" content="2015-11-23" />
+            <meta property="article:section" content="Java" />
+            <meta property="article:tag" content="引用" />
+            <meta property="article:author" content="Brucezz" />
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="../../../../../theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="../../../../../theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="../../../../../theme/css/pygments/colorful.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../../../../theme/css/style.css" type="text/css"/>
+        <link href="../../../../../extra/custom.css" rel="stylesheet">
+
+
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+	<div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="../../../../../" class="navbar-brand">
+Brucezz's Blog            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/categories.html">分类</a></li>
+                    <li><a href="/tags.html">标签</a></li>
+                    <li><a href="/pages/about.html">关于我</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="../../../../../archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+<!-- Banner -->
+<!-- End Banner -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="../../../../../articles/2015/11/23/four-kind-of-reference/"
+                       rel="bookmark"
+                       title="Permalink to 强引用、弱引用、软引用、虚引用">
+                        强引用、弱引用、软引用、虚引用
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2015-11-23T00:00:00+08:00"> 2015-11-23</time>
+    </span>
+
+        <span class="label label-default">Category</span>
+        <a href="../../../../../category/java.html">Java</a>
+
+
+<span class="label label-default">Tags</span>
+	<a href="../../../../../tag/yin-yong.html">引用</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <hr />
+<p>最近听小伙伴聊到弱引用、软引用，原来只是听说过，不知道怎么用，特此查阅了一些资料，学习一下。</p>
+<p>从JDK1.2版本开始，把对象的引用分为四种级别，这四种级别由高到低依次为：<strong>强引用、软引用、弱引用、虚引用。</strong></p>
+<h2>1.强引用（StrongReference）</h2>
+<p>强引用是最常用的引用方式，如果一个对象具有强引用，那么垃圾回收器绝不会回收它。</p>
+<div class="highlight"><pre><span class="cm">/**</span>
+<span class="cm"> * Created by zero on 2015/11/23.</span>
+<span class="cm"> * SimpleCodeDemo</span>
+<span class="cm"> */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">StrongReferenceDemo</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">String</span> <span class="n">ref</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="s">&quot;StrongReference&quot;</span><span class="o">);</span><span class="c1">//强引用</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">gc</span><span class="o">();</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">runFinalization</span><span class="o">();</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">ref</span><span class="o">);</span><span class="c1">//对象并没有被回收</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>当内存不足时，Java虚拟器宁愿跑出<code>OutOfMemoryError</code>错误，终止程序，也不会靠随意回收强引用对象来解决内存不足的问题。</p>
+<div class="highlight"><pre><span class="n">Object</span> <span class="n">o</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Object</span><span class="o">();</span><span class="c1">//强引用</span>
+<span class="n">o</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span><span class="c1">//显式置为null</span>
+</pre></div>
+
+
+<p>显式设置为<code>null</code>，或者超出对象的生命周期范围，该对象不存在强引用，这个时候就可以被回收了。</p>
+<h2>2.软引用（SoftReference）</h2>
+<p>如果一个对象具有软引用，内存足够时，gc不会回收它；内存不足时，gc就会回收这个对象的内存。只要垃圾回收器没有回收它，该对象就可以被程序使用。<strong>软引用可用来实现内存敏感的高速缓存。</strong></p>
+<div class="highlight"><pre><span class="cm">/**</span>
+<span class="cm"> * Created by zero on 2015/11/23.</span>
+<span class="cm"> * SimpleCodeDemo</span>
+<span class="cm"> */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">SoftReferenceDemo</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">String</span> <span class="n">ref</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="s">&quot;SoftReference&quot;</span><span class="o">);</span><span class="c1">//强引用</span>
+        <span class="n">SoftReference</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">softRef</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SoftReference</span><span class="o">&lt;&gt;(</span><span class="n">ref</span><span class="o">);</span><span class="c1">//软引用</span>
+
+        <span class="n">ref</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span><span class="c1">//强引用置为null,由于软引用存在，对象并不会被回收，直到内存不足</span>
+
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>在Android开发中，经常会用到大量图片，如果每次都读取图片，涉及IO操作速度慢。将图片缓存到内存里，需要的时候直接拿来用。</p>
+<p>由于图片占用内存较大，缓存图片很多的话容易发生OOM，可以用软引用来避免这一问题。</p>
+<div class="highlight"><pre><span class="cm">/**</span>
+<span class="cm"> * Created by zero on 2015/11/23.</span>
+<span class="cm"> * SimpleCodeDemo</span>
+<span class="cm"> */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ImageCacheDemo</span> <span class="o">{</span>
+
+    <span class="c1">//用HashMap来保存软引用对象</span>
+    <span class="kd">private</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">SoftReference</span><span class="o">&lt;</span><span class="n">Bitmap</span><span class="o">&gt;&gt;</span> <span class="n">imageCache</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;();</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">addBitmapToCache</span><span class="o">(</span><span class="n">String</span> <span class="n">path</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Bitmap</span> <span class="n">bitmap</span> <span class="o">=</span> <span class="n">BitmapFactory</span><span class="o">.</span><span class="na">decodeFile</span><span class="o">(</span><span class="n">path</span><span class="o">);</span><span class="c1">//强引用</span>
+        <span class="n">SoftReference</span><span class="o">&lt;</span><span class="n">Bitmap</span><span class="o">&gt;</span> <span class="n">softBitmap</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SoftReference</span><span class="o">&lt;</span><span class="n">Bitmap</span><span class="o">&gt;(</span><span class="n">bitmap</span><span class="o">);</span><span class="c1">//软引用</span>
+
+        <span class="n">imageCache</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">path</span><span class="o">,</span> <span class="n">softBitmap</span><span class="o">);</span><span class="c1">//添加到map里缓存</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="n">Bitmap</span> <span class="nf">getBitmapByPath</span><span class="o">(</span><span class="n">String</span> <span class="n">path</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">//从map缓存中取出软引用对象</span>
+        <span class="n">SoftReference</span><span class="o">&lt;</span><span class="n">Bitmap</span><span class="o">&gt;</span> <span class="n">softBitmap</span> <span class="o">=</span> <span class="n">imageCache</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">path</span><span class="o">);</span>
+        <span class="c1">//判断是否存在软引用</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">softBitmap</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="c1">//若内存不足Bitmap被回收，会取得null</span>
+        <span class="k">return</span> <span class="n">softBitmap</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>使用了软引用，在OOM发生之前，这些缓存的图片资源占用的内存会被释放掉，避免Crash。</p>
+<p>值得注意的地方:</p>
+<blockquote>
+<p>在gc之前，<code>SoftReference</code>类的<code>get()</code>方法会返回对象的强引用，一旦gc回收该对象之后，<code>get()</code>方法会返回<code>null</code>。所以，在获取软引用对象的时候，要判断是否为<code>null</code>，防止<code>NullPointerException</code>异常导致应用挂掉。</p>
+</blockquote>
+<h2>3.弱引用（WeakReference）</h2>
+<p>在垃圾回收器线程扫描它所管辖的内存区域的过程中，一旦发现了只具有弱引用的对象，<strong>不管当前内存空间足够与否，都会回收它的内存</strong>。</p>
+<p>相比于软引用，只具有弱引用的对象拥有更短暂的生命周期。</p>
+<p>由于垃圾回收器是一个优先级很低的线程，因此不一定会很快发现那些只具有弱引用的对象。</p>
+<div class="highlight"><pre><span class="cm">/**</span>
+<span class="cm"> * Created by zero on 2015/11/23.</span>
+<span class="cm"> * SimpleCodeDemo</span>
+<span class="cm"> */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">WeakReferenceDemo</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">String</span> <span class="n">ref</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="s">&quot;WeakReference&quot;</span><span class="o">);</span><span class="c1">//强引用</span>
+        <span class="n">WeakReference</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">weakRef</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WeakReference</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;(</span><span class="n">ref</span><span class="o">);</span><span class="c1">//弱引用</span>
+        <span class="n">ref</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">weakRef</span><span class="o">.</span><span class="na">get</span><span class="o">());</span><span class="c1">//WeakReference</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">gc</span><span class="o">();</span><span class="c1">//强制gc</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">weakRef</span><span class="o">.</span><span class="na">get</span><span class="o">());</span><span class="c1">//null</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>输出结果：</p>
+<div class="highlight"><pre>WeakReference
+null
+</pre></div>
+
+
+<h2>4.虚引用（PhantomReference）</h2>
+<p>“虚引用”顾名思义，就是形同虚设，与其他几种引用都不同，虚引用并不会决定对象的生命周期。如果一个对象仅持有虚引用，那么它就和没有任何引用一样，在任何时候都可能被垃圾回收器回收。</p>
+<p>虚引用主要用来跟踪对象被垃圾回收器回收的活动。虚引用与软引用和弱引用的一个区别在于：虚引用必须和引用队列 （ReferenceQueue）联合使用。当垃圾回收器准备回收一个对象时，如果发现它还有虚引用，就会在回收对象的内存之前，把这个虚引用加入到与之 关联的引用队列中。</p>
+            </div>
+            <!-- /.entry-content -->
+                                
+ 
+    <div class="comments"> 
+    <br/><br/>
+        <!-- Duoshuo Comment BEGIN --> 
+        <div class="ds-thread"></div> 
+        <script type="text/javascript"> 
+            var duoshuoQuery = {short_name:"brucezz"}; 
+            (function() {
+                var ds = document.createElement('script');
+                ds.type = 'text/javascript';
+                ds.async = true;
+                ds.src = 'http://static.duoshuo.com/embed.js';
+                ds.charset = 'UTF-8';
+                (document.getElementsByTagName('head')[0]
+                || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+        </script>
+        <noscript>Please enable JavaScript to view the comments.</noscript> 
+        <!-- Duoshuo Comment END --> 
+    </div>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<div class="hidden-phone" id="aboutme">
+        <p>
+            <img width="100%" class="img-thumbnail" src="/images/avatar.jpeg"/>
+        </p>
+ <!--    <p>
+        　　<a href="http://github.com/brucezz" target="_blank"><i class="fa fa-github-square fa-lg"></i>　Brucezz</a><br/>
+        　　<a href="http://weibo.com/u/1947300213" target="_blank"><i class="fa fa-weibo fa-lg"></i>　@im_brucezz</a>
+    </p>  -->
+</div>
+<div class="hidden-phone" height="120" width="150" align="center"><embed height="120" width="150" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" src="http://chabudai.sakura.ne.jp/blogparts/honehoneclock/honehone_clock_tr.swf" quality="high" autostart="1" wmode="transparent"></div>
+
+<section class="well well-sm">
+	 
+
+    <ul class="list-group list-group-flush">
+<li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+    <ul class="list-group" id="social">
+
+        <li class="list-group-item"><a href="http://github.com/brucezz" target="_blank"><i class="fa fa-github-square fa-lg"></i>Brucezz</a></li>
+        <li class="list-group-item"><a href="http://weibo.com/u/1947300213" target="_blank"><i class="fa fa-weibo fa-lg"></i>im_brucezz</a></li>
+
+    </ul>
+</li>
+
+            <li class="list-group-item"><a href="../../../../../"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Categories</span></h4></a>
+                <ul class="list-group" id="categories">
+                    <li class="list-group-item">
+                        <a href="../../../../../category/java.html">
+                            <i class="fa fa-folder-open fa-lg"></i> Java
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="../../../../../category/mian-shi.html">
+                            <i class="fa fa-folder-open fa-lg"></i> 面试
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="../../../../../category/suan-fa.html">
+                            <i class="fa fa-folder-open fa-lg"></i> 算法
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="../../../../../category/za.html">
+                            <i class="fa fa-folder-open fa-lg"></i> 杂
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+    <li class="list-group-item"><h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+      <ul class="list-group" id="links">
+        <li class="list-group-item">
+            <a href="http://laobie.github.io/" target="_blank">
+                Jaeger/laobie
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://developer.android.com/" target="_blank">
+                Android developer
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="https://pelican-docs-chs.readthedocs.org/en/latest/" target="_blank">
+                Pelican documentation
+            </a>
+        </li>
+      </ul>
+    </li>
+    </ul>
+</section>
+            </aside>
+        </div>
+    </div>
+</div>
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2015 Brucezz
+            &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="../../../../../theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="../../../../../theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="../../../../../theme/js/respond.min.js"></script>
+
+    <script src="../../../../../theme/js/bodypadding.js"></script>
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1256702937'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1256702937%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+</body>
+</html>
