@@ -96,7 +96,20 @@ Brucezz's Blog            </a>
     
 </footer><!-- /.post-info -->                    </div>
                 </div>
-                <h2>多个有序数组求最小范围</h2>
+                <p><strong>目录</strong></p>
+<!-- MarkdownTOC -->
+
+<ul>
+<li><a href="#多个有序数组求最小范围">多个有序数组求最小范围</a></li>
+<li><a href="#找出数组中是否有重复的数">找出数组中是否有重复的数</a></li>
+<li><a href="#广度遍历非完全二叉树">广度遍历非完全二叉树</a></li>
+<li><a href="#毒药和小白鼠的问题">毒药和小白鼠的问题</a></li>
+</ul>
+<!-- /MarkdownTOC -->
+
+<p>最近又参加了一些笔试和面试，遇到几个试题，记录一下解决方案。</p>
+<p><a name="多个有序数组求最小范围"></a></p>
+<h2>多个有序数组求最小范围</h2>
 <p>有3个有序的数组，请找到一个最小的数字范围。使得这k个有序数组中，每个数组都至少有一个数字在该范围中。</p>
 <p>例如：</p>
 <p>[4, 10, 15, 24, 26]</p>
@@ -187,11 +200,13 @@ Brucezz's Blog            </a>
 </pre></div>
 
 
-<p>参考：<a href="http://blog.csdn.net/wdxin1322/article/details/12970913">http://blog.csdn.net/wdxin1322/article/details/12970913</a></p>
+<p>参考：</p>
+<p><a href="http://blog.csdn.net/wdxin1322/article/details/12970913">http://blog.csdn.net/wdxin1322/article/details/12970913</a></p>
 <blockquote>
 <p>一般有序数组的题目都会让人联想到有<strong>折半查找</strong>来解决，到有序数组为多个时，一般会联想到<strong>归并排序</strong>的思想。</p>
 </blockquote>
 <hr />
+<p><a name="找出数组中是否有重复的数"></a></p>
 <h2>找出数组中是否有重复的数</h2>
 <p>int数组a[N]，数组中的元素都在[0,N)的范围内，写出一个算法，判断如果有重复元素，任意返回一个即可，如果没有重复元素，返回-1.
 要求：空间复杂度O(1), 时间复杂度O(N).</p>
@@ -272,7 +287,7 @@ Brucezz's Blog            </a>
 </pre></div>
 
 
-<hr />
+<p><a name="广度遍历非完全二叉树"></a></p>
 <h2>广度遍历非完全二叉树</h2>
 <p>给定一个二叉树，广度遍历，按层打印出每个节点的值。</p>
 <div class="highlight"><pre><span class="cm">/**</span>
@@ -393,7 +408,7 @@ Brucezz's Blog            </a>
 </pre></div>
 
 
-<hr />
+<p><a name="毒药和小白鼠的问题"></a></p>
 <h2>毒药和小白鼠的问题</h2>
 <p>有10瓶一模一样的瓶子，其中9瓶普通的水，1瓶是毒药，任何喝下毒药的生物都会在24小时之后死亡。
 现在，你只有4只小白鼠和24小时的时间，如何检验出哪个瓶子里有毒药？</p>
