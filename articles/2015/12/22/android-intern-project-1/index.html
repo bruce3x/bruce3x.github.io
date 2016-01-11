@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh"
+>
+<head>
+    <title>实习项目第一期 - Brucezz's Blog</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="../../../../..//images/favicon.ico" rel="icon">
+
+<link rel="canonical" href="../../../../../articles/2015/12/22/android-intern-project-1/">
+
+        <meta name="author" content="Brucezz" />
+        <meta name="keywords" content="实习" />
+        <meta name="description" content="前两周找了家创业公司，去当 Android Intern，入职第一周配配环境，然后给老大写了个 Demo 就过去了。 这个 demo ..." />
+
+        <meta property="og:site_name" content="Brucezz's Blog" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="实习项目第一期"/>
+        <meta property="og:url" content="../../../../../articles/2015/12/22/android-intern-project-1/"/>
+        <meta property="og:description" content="前两周找了家创业公司，去当 Android Intern，入职第一周配配环境，然后给老大写了个 Demo 就过去了。 这个 demo ..."/>
+        <meta property="article:published_time" content="2015-12-22" />
+            <meta property="article:section" content="Android" />
+            <meta property="article:tag" content="实习" />
+            <meta property="article:author" content="Brucezz" />
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="../../../../../theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="../../../../../theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="../../../../../theme/css/pygments/colorful.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../../../../theme/css/style.css" type="text/css"/>
+        <link href="../../../../../extra/custom.css" rel="stylesheet">
+
+
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+	<div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="../../../../../" class="navbar-brand">
+Brucezz's Blog            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/categories.html">分类</a></li>
+                    <li><a href="/tags.html">标签</a></li>
+                    <li><a href="/pages/about.html">关于我</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="../../../../../archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+<!-- Banner -->
+<!-- End Banner -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="../../../../../articles/2015/12/22/android-intern-project-1/"
+                       rel="bookmark"
+                       title="Permalink to 实习项目第一期">
+                        实习项目第一期
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2015-12-22T00:00:00+08:00"> 2015-12-22</time>
+    </span>
+
+        <span class="label label-default">Category</span>
+        <a href="../../../../../category/android.html">Android</a>
+
+
+<span class="label label-default">Tags</span>
+	<a href="../../../../../tag/shi-xi.html">实习</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <hr />
+<p>前两周找了家创业公司，去当 Android Intern，入职第一周配配环境，然后给老大写了个 Demo 就过去了。
+这个 demo 就是个简洁的 ViewPager 的指示器( indicator )， github 地址在这里（<a href="https://github.com/brucezz/ViewPagerDotIndicator">点我点我</a>），欢迎来吐槽提建议什么的 →.→</p>
+<p>上周开始嘛，公司新一期的任务分配，App 改版，然后我就有活干咯，第一期项目就是重写公司 App 的首页 =。= ，老大说只要不涉及钱的，让我随便玩，对我真是放心呢。。</p>
+<p>写了两周项目，记录一下遇到的几个点。</p>
+<h2>RecyclerView 多类型 Item</h2>
+<p>APP的首页主要是一个列表，为了方便更新首页内容，给定了五六种 View 类型，然后按着服务器返回的数据来添加到列表里。</p>
+<p>这个是比较easy的了，主要以下几点：</p>
+<ol>
+<li>创建所需的几种不同的 ViewHolder</li>
+<li>实现 RecyclerView.Adapter 的 <code>getItemViewType()</code> 方法</li>
+<li>在 <code>onCreateViewHolder()</code> 方法里根据参数 <code>viewType</code> ，生成的holder的类型</li>
+<li>在 <code>onBindViewHolder()</code> 方法里根据参数 <code>position</code> ，判断类型，然后强转holder类型，进行相关 View 的操作</li>
+</ol>
+<p><strong>Show me the code ：</strong></p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">HomePageAdapter</span> <span class="kd">extends</span> <span class="n">RecyclerView</span><span class="o">.</span><span class="na">Adapter</span><span class="o">&lt;</span><span class="n">RecyclerView</span><span class="o">.</span><span class="na">ViewHolder</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="c1">//定义类型常量</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">TYPE_HEADER</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">TYPE_ITEM</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+
+    <span class="c1">//实现getItemViewType()方法</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getItemViewType</span><span class="o">(</span><span class="kt">int</span> <span class="n">position</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">//根据数据源的数据判断</span>
+        <span class="k">switch</span> <span class="o">(</span><span class="n">dataList</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">position</span><span class="o">).</span><span class="na">getType</span><span class="o">())</span> <span class="o">{</span>
+            <span class="k">case</span> <span class="s">&quot;header&quot;</span><span class="o">:</span>
+                <span class="k">return</span> <span class="n">TYPE_HEADER</span><span class="o">;</span>
+            <span class="k">case</span> <span class="s">&quot;item&quot;</span><span class="o">:</span>
+                <span class="k">return</span> <span class="n">TYPE_ITEM</span><span class="o">;</span>
+            <span class="k">default</span><span class="o">:</span>
+                <span class="k">return</span> <span class="n">TYPE_ITEM</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="c1">//创建对应的Holder</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">RecyclerView</span><span class="o">.</span><span class="na">ViewHolder</span> <span class="nf">onCreateViewHolder</span><span class="o">(</span><span class="n">ViewGroup</span> <span class="n">parent</span><span class="o">,</span> <span class="kt">int</span> <span class="n">viewType</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">switch</span> <span class="o">(</span><span class="n">viewType</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">case</span> <span class="n">TYPE_BANNER</span><span class="o">:</span>
+                <span class="k">return</span> <span class="k">new</span> <span class="n">HeaderHolder</span><span class="o">(</span>
+                        <span class="n">LayoutInflater</span><span class="o">.</span><span class="na">from</span><span class="o">(</span><span class="n">context</span><span class="o">)</span>
+                                <span class="o">.</span><span class="na">inflate</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">header</span><span class="o">,</span> <span class="n">parent</span><span class="o">,</span> <span class="kc">false</span><span class="o">));</span>
+                <span class="k">break</span><span class="o">;</span>
+            <span class="k">case</span> <span class="n">TYPE_ONE_PLACE</span><span class="o">:</span>
+                <span class="k">return</span> <span class="k">new</span> <span class="n">ItemHolder</span><span class="o">(</span>
+                        <span class="n">LayoutInflater</span><span class="o">.</span><span class="na">from</span><span class="o">(</span><span class="n">context</span><span class="o">)</span>
+                                <span class="o">.</span><span class="na">inflate</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">item</span><span class="o">,</span> <span class="n">parent</span><span class="o">,</span> <span class="kc">false</span><span class="o">));</span>
+                <span class="k">break</span><span class="o">;</span>
+            <span class="k">default</span><span class="o">:</span>
+                <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onBindViewHolder</span><span class="o">(</span><span class="n">RecyclerView</span><span class="o">.</span><span class="na">ViewHolder</span> <span class="n">holder</span><span class="o">,</span> <span class="kt">int</span> <span class="n">position</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">switch</span> <span class="o">(</span><span class="n">getItemViewType</span><span class="o">(</span><span class="n">position</span><span class="o">))</span> <span class="o">{</span>
+            <span class="k">case</span> <span class="n">TYPE_HEADER</span><span class="o">:</span>
+                <span class="o">((</span><span class="n">HeaderHolder</span><span class="o">)</span> <span class="n">holder</span><span class="o">).</span><span class="na">text</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">dataList</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">position</span><span class="o">).</span><span class="na">getText</span><span class="o">());</span>
+                <span class="c1">//do something ...</span>
+                <span class="k">break</span><span class="o">;</span>
+            <span class="k">case</span> <span class="n">TYPE_ITEM</span><span class="o">:</span>
+                <span class="c1">//do something ...</span>
+                <span class="k">break</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="c1">//other code here ...</span>
+
+<span class="o">}</span>
+</pre></div>
+
+
+<h2>RecyclerView 和 SwipeRefreshLayout 下拉滑动冲突</h2>
+<p>这个状况就是，RecyclerView 还没有滑动到顶端的时候，下拉会直接触发刷新，而不是先上滑到顶部。</p>
+<blockquote>
+<p>此处应有图片</p>
+</blockquote>
+<p>通过 google 在 stackoverflow 查到的解决方案主要就是，通过判断 RecyclerView 是否到达顶部，然后以此设置 SwipeRefreshLayout 的 <code>enable</code> 属性，防止不恰当地触发刷新。</p>
+<p>在 RecyclerView 中，通过 LinearLayoutManager 的 <code>findFirstCompletelyVisibleItemPosition()</code> 方法获得第一个完全可见的 item 的位置</p>
+<div class="highlight"><pre>    <span class="cm">/**</span>
+<span class="cm">     * 更新刷新控件的enable状态</span>
+<span class="cm">     */</span>
+    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">updateRefreshStatus</span><span class="o">()</span> <span class="o">{</span>
+        <span class="c1">//根据文档，RecyclerView中没有可见的item时，pos为-1</span>
+        <span class="kt">int</span> <span class="n">pos</span> <span class="o">=</span> <span class="o">((</span><span class="n">LinearLayoutManager</span><span class="o">)</span> <span class="n">recyclerView</span><span class="o">.</span><span class="na">getLayoutManager</span><span class="o">())</span>
+                <span class="o">.</span><span class="na">findFirstCompletelyVisibleItemPosition</span><span class="o">();</span>
+
+        <span class="c1">//判断RecyclerView是否滑到了顶部</span>
+        <span class="n">swipeLayout</span><span class="o">.</span><span class="na">setEnabled</span><span class="o">(</span><span class="n">pos</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="o">);</span>
+    <span class="o">}</span>
+</pre></div>
+
+
+<h2>ViewPager 和 SwipeRefreshLayout 横向滑动冲突</h2>
+<blockquote>
+<p>此处有效果图</p>
+</blockquote>
+<p>ViewPager 在 SwipeRefreshLayout 中横向滑动的时候，稍微有一点下滑的动作，就会触发刷新。</p>
+<p>解决方案：重写 SwipeRefreshLayout 的 <code>onInterceptTouchEvent()</code> 方法，横向位移足够大时，返回<code>false</code>，将触摸事件传递给子 View，即 ViewPager ，以此解决冲突。</p>
+<div class="highlight"><pre><span class="cm">/**</span>
+<span class="cm"> * Created by Bruce Zheng on 15-12-23.</span>
+<span class="cm"> */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">VerticalSwipeRefreshLayout</span> <span class="kd">extends</span> <span class="n">SwipeRefreshLayout</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">touchSlop</span><span class="o">;</span><span class="c1">//系统滑动常量</span>
+    <span class="kd">private</span> <span class="kt">float</span> <span class="n">lastX</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="nf">VerticalSwipeRefreshLayout</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">,</span> <span class="n">AttributeSet</span> <span class="n">attrs</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">attrs</span><span class="o">);</span>
+        <span class="n">touchSlop</span> <span class="o">=</span> <span class="n">ViewConfiguration</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">context</span><span class="o">).</span><span class="na">getScaledTouchSlop</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">onInterceptTouchEvent</span><span class="o">(</span><span class="n">MotionEvent</span> <span class="n">event</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">switch</span> <span class="o">(</span><span class="n">event</span><span class="o">.</span><span class="na">getAction</span><span class="o">())</span> <span class="o">{</span>
+            <span class="k">case</span> <span class="n">MotionEvent</span><span class="o">.</span><span class="na">ACTION_DOWN</span><span class="o">:</span>
+                <span class="n">lastX</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="na">getX</span><span class="o">();</span>
+                <span class="k">break</span><span class="o">;</span>
+            <span class="k">case</span> <span class="n">MotionEvent</span><span class="o">.</span><span class="na">ACTION_MOVE</span><span class="o">:</span>
+                <span class="kd">final</span> <span class="kt">float</span> <span class="n">eventX</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="na">getX</span><span class="o">();</span>
+                <span class="kt">float</span> <span class="n">diff</span> <span class="o">=</span> <span class="n">Math</span><span class="o">.</span><span class="na">abs</span><span class="o">(</span><span class="n">eventX</span> <span class="o">-</span> <span class="n">lastX</span><span class="o">);</span>
+
+                <span class="k">if</span> <span class="o">(</span><span class="n">diff</span> <span class="o">&gt;</span> <span class="n">touchSlop</span> <span class="o">+</span> <span class="mi">60</span><span class="o">)</span><span class="c1">//增大容差，x偏移足够大，false</span>
+                    <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="kd">super</span><span class="o">.</span><span class="na">onInterceptTouchEvent</span><span class="o">(</span><span class="n">event</span><span class="o">);</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+
+
+<h2>奇葩的 Tablayout 动画</h2>
+<p>后来，产品又提了个需求，要给 TabLayout 加 <del>特技</del> 动画，duang，效果如下：</p>
+<blockquote>
+<p>此处应有图片</p>
+</blockquote>
+<p>随着列表上滑，TabLayout 向左收缩，列表下拉，TabLayout 向右扩张。</p>
+<p>TabLayout 是放在一个 AppBarLayout 里面的，那么就是 AppBarLayout 上滑的时候，对 TabLayout 进行处理，让它收缩就好了嘛。</p>
+<p>AppBarLayout 可以添加 OnOffsetChangedListener 来监听滑动偏移量，回调函数 <code>onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset)</code> 在滑动时会不断被调用，在此计算偏移的进度，然后给 TabLayout 设置相应的缩放程度。</p>
+<p>其中小小的数学知识：
+顶部 title 的高度为 TOPBAR_SIZE，这也是 AppBarLayout 上滑的距离。
+最终 TabLayout 右端显示的图标大小为 ICON_SIZE，这也是 TabLayout 左移的距离。
+两者只要移动的进度(百分比)相同，那么就会同步完成缩放。</p>
+<p>即 <code>offset / TOPBAR_SIZE = tabWidthOffset / ICON_SIZE</code></p>
+<p>offset为 AppBarLayout 当前偏移量，根据上式就能算得当前 TabLayout 的宽度偏移量，然后给它的 LayoutParams 设置宽度。</p>
+<p>由于 AppBarLayout 在滑动时会不断调用 <code>onOffsetChanged()</code> 方法，然后不断修改 TabLayout 的 LayoutParams， 性能消耗不小，故设置了两个触发条件，间隔16ms刷新一次，位移3px刷新一次。这样减少了不少设置 LayoutParams 的次数，而动画效果基本不受影响。</p>
+<div class="highlight"><pre>    <span class="n">appBarLayout</span><span class="o">.</span><span class="na">addOnOffsetChangedListener</span><span class="o">(</span><span class="k">new</span> <span class="n">AppBarLayout</span><span class="o">.</span><span class="na">OnOffsetChangedListener</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kd">private</span> <span class="kt">long</span> <span class="n">lastTime</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span><span class="c1">//上一次触发时间</span>
+        <span class="kd">private</span> <span class="kt">int</span> <span class="n">lastOffset</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span><span class="c1">//上一次的offset</span>
+
+        <span class="kd">private</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">THRESHOLD_TIME</span> <span class="o">=</span> <span class="mi">16</span><span class="o">;</span><span class="c1">//时间间隔阈值</span>
+        <span class="kd">private</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">THRESHOLD_PIX</span> <span class="o">=</span> <span class="mi">3</span><span class="o">;</span><span class="c1">//像素偏移量阈值</span>
+
+        <span class="kd">private</span> <span class="kd">final</span> <span class="kt">float</span> <span class="n">ICON_SIZE</span> <span class="o">=</span> <span class="n">dp2px</span><span class="o">(</span><span class="mi">36</span><span class="n">f</span><span class="o">);</span><span class="c1">//tabLayout上的搜索Icon大小</span>
+        <span class="kd">private</span> <span class="kd">final</span> <span class="kt">float</span> <span class="n">TOPBAR_SIZE</span> <span class="o">=</span> <span class="n">dp2px</span><span class="o">(</span><span class="mi">48</span><span class="n">f</span><span class="o">);</span><span class="c1">//topBar 高度</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onOffsetChanged</span><span class="o">(</span><span class="n">AppBarLayout</span> <span class="n">appBarLayout</span><span class="o">,</span> <span class="kt">int</span> <span class="n">verticalOffset</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">//verticalOffset为负值，AppBarLayout未上滑收缩时，此参数为0</span>
+
+            <span class="c1">//时间间隔大于16ms刷新一次，位移大于3px刷新一次</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">()</span> <span class="o">-</span> <span class="n">lastTime</span> <span class="o">&lt;</span> <span class="n">THRESHOLD_TIME</span>
+                        <span class="o">&amp;&amp;</span> <span class="n">Math</span><span class="o">.</span><span class="na">abs</span><span class="o">(</span><span class="n">verticalOffset</span> <span class="o">-</span> <span class="n">lastOffset</span><span class="o">)</span> <span class="o">&lt;</span> <span class="n">THRESHOLD_PIX</span><span class="o">)</span> <span class="k">return</span><span class="o">;</span>
+                <span class="n">lastTime</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">();</span>
+                <span class="n">lastOffset</span> <span class="o">=</span> <span class="n">verticalOffset</span><span class="o">;</span>
+
+                <span class="c1">//收缩程度 (0 ~ 1.0)</span>
+                <span class="kt">float</span> <span class="n">ratio</span> <span class="o">=</span> <span class="o">-</span><span class="n">verticalOffset</span> <span class="o">/</span> <span class="n">TOPBAR_SIZE</span><span class="o">;</span>
+                <span class="c1">//获取 TabLayout 的 LayoutParams</span>
+                <span class="n">FrameLayout</span><span class="o">.</span><span class="na">LayoutParams</span> <span class="n">lp</span> <span class="o">=</span> <span class="o">(</span><span class="n">FrameLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">)</span> <span class="n">tabLayout</span><span class="o">.</span><span class="na">getLayoutParams</span><span class="o">();</span>
+                <span class="c1">//宽度减小，即右边界左移</span>
+                <span class="n">lp</span><span class="o">.</span><span class="na">width</span> <span class="o">=</span> <span class="n">appBarLayout</span><span class="o">.</span><span class="na">getWidth</span><span class="o">()</span> <span class="o">-</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span> <span class="o">(</span><span class="n">ratio</span> <span class="o">*</span> <span class="n">ICON_SIZE</span><span class="o">);</span>
+                <span class="n">tabLayout</span><span class="o">.</span><span class="na">setLayoutParams</span><span class="o">(</span><span class="n">lp</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+</pre></div>
+            </div>
+            <!-- /.entry-content -->
+                                
+ 
+    <div class="comments"> 
+    <br/><br/>
+        <!-- Duoshuo Comment BEGIN --> 
+        <div class="ds-thread"></div> 
+        <script type="text/javascript"> 
+            var duoshuoQuery = {short_name:"brucezz"}; 
+            (function() {
+                var ds = document.createElement('script');
+                ds.type = 'text/javascript';
+                ds.async = true;
+                ds.src = 'http://static.duoshuo.com/embed.js';
+                ds.charset = 'UTF-8';
+                (document.getElementsByTagName('head')[0]
+                || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+        </script>
+        <noscript>Please enable JavaScript to view the comments.</noscript> 
+        <!-- Duoshuo Comment END --> 
+    </div>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<div class="hidden-phone" id="aboutme">
+        <p>
+            <img width="100%" class="img-thumbnail" src="/images/avatar.jpeg"/>
+        </p>
+ <!--    <p>
+        　　<a href="http://github.com/brucezz" target="_blank"><i class="fa fa-github-square fa-lg"></i>　Brucezz</a><br/>
+        　　<a href="http://weibo.com/u/1947300213" target="_blank"><i class="fa fa-weibo fa-lg"></i>　@im_brucezz</a>
+    </p>  -->
+</div>
+<div class="hidden-phone" height="120" width="150" align="center"><embed height="120" width="150" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" src="http://chabudai.sakura.ne.jp/blogparts/honehoneclock/honehone_clock_tr.swf" quality="high" autostart="1" wmode="transparent"></div>
+
+<section class="well well-sm">
+	 
+
+    <ul class="list-group list-group-flush">
+<li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+    <ul class="list-group" id="social">
+
+        <li class="list-group-item"><a href="http://github.com/brucezz" target="_blank"><i class="fa fa-github-square fa-lg"></i>Brucezz</a></li>
+        <li class="list-group-item"><a href="http://weibo.com/u/1947300213" target="_blank"><i class="fa fa-weibo fa-lg"></i>im_brucezz</a></li>
+
+    </ul>
+</li>
+
+            <li class="list-group-item"><a href="../../../../../"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Categories</span></h4></a>
+                <ul class="list-group" id="categories">
+                    <li class="list-group-item">
+                        <a href="../../../../../category/android.html">
+                            <i class="fa fa-folder-open fa-lg"></i> Android
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="../../../../../category/java.html">
+                            <i class="fa fa-folder-open fa-lg"></i> Java
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="../../../../../category/mian-shi.html">
+                            <i class="fa fa-folder-open fa-lg"></i> 面试
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="../../../../../category/other.html">
+                            <i class="fa fa-folder-open fa-lg"></i> Other
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="../../../../../category/suan-fa.html">
+                            <i class="fa fa-folder-open fa-lg"></i> 算法
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+    <li class="list-group-item"><h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+      <ul class="list-group" id="links">
+        <li class="list-group-item">
+            <a href="http://laobie.github.io/" target="_blank">
+                Jaeger/laobie
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://developer.android.com/" target="_blank">
+                Android developer
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="https://pelican-docs-chs.readthedocs.org/en/latest/" target="_blank">
+                Pelican documentation
+            </a>
+        </li>
+      </ul>
+    </li>
+    </ul>
+</section>
+            </aside>
+        </div>
+    </div>
+</div>
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2016 Brucezz
+            &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="../../../../../theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="../../../../../theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="../../../../../theme/js/respond.min.js"></script>
+
+    <script src="../../../../../theme/js/bodypadding.js"></script>
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1256702937'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1256702937%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+</body>
+</html>
