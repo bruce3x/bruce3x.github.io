@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+            <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+
+        <title>实习项目第一期</title>
+
+
+        <!-- Bootstrap Core CSS -->
+        <link href="http://brucezz.github.io/theme/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link href="http://brucezz.github.io/theme/css/clean-blog.min.css" rel="stylesheet">
+
+        <!-- Code highlight color scheme -->
+            <link href="http://brucezz.github.io/theme/css/code_blocks/colorful.css" rel="stylesheet">
+
+
+        <!-- Custom Fonts -->
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+
+
+
+        <meta name="tags" contents="实习" />
+
+
+	                <meta property="og:locale" content="">
+		<meta property="og:site_name" content="Brucezz' blog">
+
+	<meta property="og:type" content="article">
+	<meta property="article:author" content="">
+	<meta property="og:url" content="http://brucezz.github.io/android-intern-project-1.html">
+	<meta property="og:title" content="实习项目第一期">
+	<meta property="og:description" content="">
+	<meta property="og:image" content="http://brucezz.github.io/">
+	<meta property="article:published_time" content="2015-12-22 00:00:00+08:00">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="http://brucezz.github.io/">Brucezz' blog</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                        <li><a href="/archives.html">归档</a></li>
+                        <li><a href="/categories.html">分类</a></li>
+                        <li><a href="/pages/about.html">关于我</a></li>
+
+                            <li><a href="http://brucezz.github.io/pages/about.html">关于我</a></li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Header -->
+        <header class="intro-header" style="background-image: url('http://brucezz.github.io/theme/images/home-bg.jpg')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <div class="post-heading">
+                        <h1>实习项目第一期</h1>
+                        <span class="meta">Posted by
+                                <a href="http://brucezz.github.io/author/brucezz.html">Brucezz</a>
+                             on 二 22 十二月 2015
+                        </span>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+    <!-- Post Content -->
+    <article>
+        <hr />
+<p>前两周找了家创业公司，去当 Android Intern，入职第一周配配环境，然后给老大写了个 Demo 就过去了。
+这个 demo 就是个简洁的 ViewPager 的指示器( indicator )， github 地址在这里（<a href="https://github.com/brucezz/ViewPagerDotIndicator">点我点我</a>），欢迎来吐槽提建议什么的 →.→</p>
+<p>上周开始嘛，公司新一期的任务分配，App 改版，然后我就有活干咯，第一期项目就是重写公司 App 的首页 =。= ，老大说只要不涉及钱的，让我随便玩，对我真是放心呢。。</p>
+<p>写了两周项目，记录一下遇到的几个点。</p>
+<h2>RecyclerView 多类型 Item</h2>
+<p>APP的首页主要是一个列表，为了方便更新首页内容，给定了五六种 View 类型，然后按着服务器返回的数据来添加到列表里。</p>
+<p>这个是比较easy的了，主要以下几点：</p>
+<ol>
+<li>创建所需的几种不同的 ViewHolder</li>
+<li>实现 RecyclerView.Adapter 的 <code>getItemViewType()</code> 方法</li>
+<li>在 <code>onCreateViewHolder()</code> 方法里根据参数 <code>viewType</code> ，生成的holder的类型</li>
+<li>在 <code>onBindViewHolder()</code> 方法里根据参数 <code>position</code> ，判断类型，然后强转holder类型，进行相关 View 的操作</li>
+</ol>
+<p><strong>Show me the code ：</strong></p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">HomePageAdapter</span> <span class="kd">extends</span> <span class="n">RecyclerView</span><span class="o">.</span><span class="na">Adapter</span><span class="o">&lt;</span><span class="n">RecyclerView</span><span class="o">.</span><span class="na">ViewHolder</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="c1">//定义类型常量</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">TYPE_HEADER</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">TYPE_ITEM</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+
+    <span class="c1">//实现getItemViewType()方法</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getItemViewType</span><span class="o">(</span><span class="kt">int</span> <span class="n">position</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">//根据数据源的数据判断</span>
+        <span class="k">switch</span> <span class="o">(</span><span class="n">dataList</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">position</span><span class="o">).</span><span class="na">getType</span><span class="o">())</span> <span class="o">{</span>
+            <span class="k">case</span> <span class="s">&quot;header&quot;</span><span class="o">:</span>
+                <span class="k">return</span> <span class="n">TYPE_HEADER</span><span class="o">;</span>
+            <span class="k">case</span> <span class="s">&quot;item&quot;</span><span class="o">:</span>
+                <span class="k">return</span> <span class="n">TYPE_ITEM</span><span class="o">;</span>
+            <span class="k">default</span><span class="o">:</span>
+                <span class="k">return</span> <span class="n">TYPE_ITEM</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="c1">//创建对应的Holder</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">RecyclerView</span><span class="o">.</span><span class="na">ViewHolder</span> <span class="nf">onCreateViewHolder</span><span class="o">(</span><span class="n">ViewGroup</span> <span class="n">parent</span><span class="o">,</span> <span class="kt">int</span> <span class="n">viewType</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">switch</span> <span class="o">(</span><span class="n">viewType</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">case</span> <span class="n">TYPE_BANNER</span><span class="o">:</span>
+                <span class="k">return</span> <span class="k">new</span> <span class="n">HeaderHolder</span><span class="o">(</span>
+                        <span class="n">LayoutInflater</span><span class="o">.</span><span class="na">from</span><span class="o">(</span><span class="n">context</span><span class="o">)</span>
+                                <span class="o">.</span><span class="na">inflate</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">header</span><span class="o">,</span> <span class="n">parent</span><span class="o">,</span> <span class="kc">false</span><span class="o">));</span>
+                <span class="k">break</span><span class="o">;</span>
+            <span class="k">case</span> <span class="n">TYPE_ONE_PLACE</span><span class="o">:</span>
+                <span class="k">return</span> <span class="k">new</span> <span class="n">ItemHolder</span><span class="o">(</span>
+                        <span class="n">LayoutInflater</span><span class="o">.</span><span class="na">from</span><span class="o">(</span><span class="n">context</span><span class="o">)</span>
+                                <span class="o">.</span><span class="na">inflate</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">item</span><span class="o">,</span> <span class="n">parent</span><span class="o">,</span> <span class="kc">false</span><span class="o">));</span>
+                <span class="k">break</span><span class="o">;</span>
+            <span class="k">default</span><span class="o">:</span>
+                <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onBindViewHolder</span><span class="o">(</span><span class="n">RecyclerView</span><span class="o">.</span><span class="na">ViewHolder</span> <span class="n">holder</span><span class="o">,</span> <span class="kt">int</span> <span class="n">position</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">switch</span> <span class="o">(</span><span class="n">getItemViewType</span><span class="o">(</span><span class="n">position</span><span class="o">))</span> <span class="o">{</span>
+            <span class="k">case</span> <span class="n">TYPE_HEADER</span><span class="o">:</span>
+                <span class="o">((</span><span class="n">HeaderHolder</span><span class="o">)</span> <span class="n">holder</span><span class="o">).</span><span class="na">text</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">dataList</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">position</span><span class="o">).</span><span class="na">getText</span><span class="o">());</span>
+                <span class="c1">//do something ...</span>
+                <span class="k">break</span><span class="o">;</span>
+            <span class="k">case</span> <span class="n">TYPE_ITEM</span><span class="o">:</span>
+                <span class="c1">//do something ...</span>
+                <span class="k">break</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="c1">//other code here ...</span>
+
+<span class="o">}</span>
+</pre></div>
+
+
+<h2>RecyclerView 和 SwipeRefreshLayout 下拉滑动冲突</h2>
+<p>这个状况就是，RecyclerView 还没有滑动到顶端的时候，下拉会直接触发刷新，而不是先上滑到顶部。</p>
+<blockquote>
+<p>此处应有图片</p>
+</blockquote>
+<p>通过 google 在 stackoverflow 查到的解决方案主要就是，通过判断 RecyclerView 是否到达顶部，然后以此设置 SwipeRefreshLayout 的 <code>enable</code> 属性，防止不恰当地触发刷新。</p>
+<p>在 RecyclerView 中，通过 LinearLayoutManager 的 <code>findFirstCompletelyVisibleItemPosition()</code> 方法获得第一个完全可见的 item 的位置</p>
+<div class="highlight"><pre>    <span class="cm">/**</span>
+<span class="cm">     * 更新刷新控件的enable状态</span>
+<span class="cm">     */</span>
+    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">updateRefreshStatus</span><span class="o">()</span> <span class="o">{</span>
+        <span class="c1">//根据文档，RecyclerView中没有可见的item时，pos为-1</span>
+        <span class="kt">int</span> <span class="n">pos</span> <span class="o">=</span> <span class="o">((</span><span class="n">LinearLayoutManager</span><span class="o">)</span> <span class="n">recyclerView</span><span class="o">.</span><span class="na">getLayoutManager</span><span class="o">())</span>
+                <span class="o">.</span><span class="na">findFirstCompletelyVisibleItemPosition</span><span class="o">();</span>
+
+        <span class="c1">//判断RecyclerView是否滑到了顶部</span>
+        <span class="n">swipeLayout</span><span class="o">.</span><span class="na">setEnabled</span><span class="o">(</span><span class="n">pos</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="o">);</span>
+    <span class="o">}</span>
+</pre></div>
+
+
+<h2>ViewPager 和 SwipeRefreshLayout 横向滑动冲突</h2>
+<blockquote>
+<p>此处有效果图</p>
+</blockquote>
+<p>ViewPager 在 SwipeRefreshLayout 中横向滑动的时候，稍微有一点下滑的动作，就会触发刷新。</p>
+<p>解决方案：重写 SwipeRefreshLayout 的 <code>onInterceptTouchEvent()</code> 方法，横向位移足够大时，返回<code>false</code>，将触摸事件传递给子 View，即 ViewPager ，以此解决冲突。</p>
+<div class="highlight"><pre><span class="cm">/**</span>
+<span class="cm"> * Created by Bruce Zheng on 15-12-23.</span>
+<span class="cm"> */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">VerticalSwipeRefreshLayout</span> <span class="kd">extends</span> <span class="n">SwipeRefreshLayout</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">touchSlop</span><span class="o">;</span><span class="c1">//系统滑动常量</span>
+    <span class="kd">private</span> <span class="kt">float</span> <span class="n">lastX</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="nf">VerticalSwipeRefreshLayout</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">,</span> <span class="n">AttributeSet</span> <span class="n">attrs</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">attrs</span><span class="o">);</span>
+        <span class="n">touchSlop</span> <span class="o">=</span> <span class="n">ViewConfiguration</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">context</span><span class="o">).</span><span class="na">getScaledTouchSlop</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">onInterceptTouchEvent</span><span class="o">(</span><span class="n">MotionEvent</span> <span class="n">event</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">switch</span> <span class="o">(</span><span class="n">event</span><span class="o">.</span><span class="na">getAction</span><span class="o">())</span> <span class="o">{</span>
+            <span class="k">case</span> <span class="n">MotionEvent</span><span class="o">.</span><span class="na">ACTION_DOWN</span><span class="o">:</span>
+                <span class="n">lastX</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="na">getX</span><span class="o">();</span>
+                <span class="k">break</span><span class="o">;</span>
+            <span class="k">case</span> <span class="n">MotionEvent</span><span class="o">.</span><span class="na">ACTION_MOVE</span><span class="o">:</span>
+                <span class="kd">final</span> <span class="kt">float</span> <span class="n">eventX</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="na">getX</span><span class="o">();</span>
+                <span class="kt">float</span> <span class="n">diff</span> <span class="o">=</span> <span class="n">Math</span><span class="o">.</span><span class="na">abs</span><span class="o">(</span><span class="n">eventX</span> <span class="o">-</span> <span class="n">lastX</span><span class="o">);</span>
+
+                <span class="k">if</span> <span class="o">(</span><span class="n">diff</span> <span class="o">&gt;</span> <span class="n">touchSlop</span> <span class="o">+</span> <span class="mi">60</span><span class="o">)</span><span class="c1">//增大容差，x偏移足够大，false</span>
+                    <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="kd">super</span><span class="o">.</span><span class="na">onInterceptTouchEvent</span><span class="o">(</span><span class="n">event</span><span class="o">);</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+
+
+<h2>奇葩的 Tablayout 动画</h2>
+<p>后来，产品又提了个需求，要给 TabLayout 加 <del>特技</del> 动画，duang，效果如下：</p>
+<blockquote>
+<p>此处应有图片</p>
+</blockquote>
+<p>随着列表上滑，TabLayout 向左收缩，列表下拉，TabLayout 向右扩张。</p>
+<p>TabLayout 是放在一个 AppBarLayout 里面的，那么就是 AppBarLayout 上滑的时候，对 TabLayout 进行处理，让它收缩就好了嘛。</p>
+<p>AppBarLayout 可以添加 OnOffsetChangedListener 来监听滑动偏移量，回调函数 <code>onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset)</code> 在滑动时会不断被调用，在此计算偏移的进度，然后给 TabLayout 设置相应的缩放程度。</p>
+<p>其中小小的数学知识：
+顶部 title 的高度为 TOPBAR_SIZE，这也是 AppBarLayout 上滑的距离。
+最终 TabLayout 右端显示的图标大小为 ICON_SIZE，这也是 TabLayout 左移的距离。
+两者只要移动的进度(百分比)相同，那么就会同步完成缩放。</p>
+<p>即 <code>offset / TOPBAR_SIZE = tabWidthOffset / ICON_SIZE</code></p>
+<p>offset为 AppBarLayout 当前偏移量，根据上式就能算得当前 TabLayout 的宽度偏移量，然后给它的 LayoutParams 设置宽度。</p>
+<p>由于 AppBarLayout 在滑动时会不断调用 <code>onOffsetChanged()</code> 方法，然后不断修改 TabLayout 的 LayoutParams， 性能消耗不小，故设置了两个触发条件，间隔16ms刷新一次，位移3px刷新一次。这样减少了不少设置 LayoutParams 的次数，而动画效果基本不受影响。</p>
+<div class="highlight"><pre>    <span class="n">appBarLayout</span><span class="o">.</span><span class="na">addOnOffsetChangedListener</span><span class="o">(</span><span class="k">new</span> <span class="n">AppBarLayout</span><span class="o">.</span><span class="na">OnOffsetChangedListener</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kd">private</span> <span class="kt">long</span> <span class="n">lastTime</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span><span class="c1">//上一次触发时间</span>
+        <span class="kd">private</span> <span class="kt">int</span> <span class="n">lastOffset</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span><span class="c1">//上一次的offset</span>
+
+        <span class="kd">private</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">THRESHOLD_TIME</span> <span class="o">=</span> <span class="mi">16</span><span class="o">;</span><span class="c1">//时间间隔阈值</span>
+        <span class="kd">private</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">THRESHOLD_PIX</span> <span class="o">=</span> <span class="mi">3</span><span class="o">;</span><span class="c1">//像素偏移量阈值</span>
+
+        <span class="kd">private</span> <span class="kd">final</span> <span class="kt">float</span> <span class="n">ICON_SIZE</span> <span class="o">=</span> <span class="n">dp2px</span><span class="o">(</span><span class="mi">36</span><span class="n">f</span><span class="o">);</span><span class="c1">//tabLayout上的搜索Icon大小</span>
+        <span class="kd">private</span> <span class="kd">final</span> <span class="kt">float</span> <span class="n">TOPBAR_SIZE</span> <span class="o">=</span> <span class="n">dp2px</span><span class="o">(</span><span class="mi">48</span><span class="n">f</span><span class="o">);</span><span class="c1">//topBar 高度</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onOffsetChanged</span><span class="o">(</span><span class="n">AppBarLayout</span> <span class="n">appBarLayout</span><span class="o">,</span> <span class="kt">int</span> <span class="n">verticalOffset</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">//verticalOffset为负值，AppBarLayout未上滑收缩时，此参数为0</span>
+
+            <span class="c1">//时间间隔大于16ms刷新一次，位移大于3px刷新一次</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">()</span> <span class="o">-</span> <span class="n">lastTime</span> <span class="o">&lt;</span> <span class="n">THRESHOLD_TIME</span>
+                        <span class="o">&amp;&amp;</span> <span class="n">Math</span><span class="o">.</span><span class="na">abs</span><span class="o">(</span><span class="n">verticalOffset</span> <span class="o">-</span> <span class="n">lastOffset</span><span class="o">)</span> <span class="o">&lt;</span> <span class="n">THRESHOLD_PIX</span><span class="o">)</span> <span class="k">return</span><span class="o">;</span>
+                <span class="n">lastTime</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">();</span>
+                <span class="n">lastOffset</span> <span class="o">=</span> <span class="n">verticalOffset</span><span class="o">;</span>
+
+                <span class="c1">//收缩程度 (0 ~ 1.0)</span>
+                <span class="kt">float</span> <span class="n">ratio</span> <span class="o">=</span> <span class="o">-</span><span class="n">verticalOffset</span> <span class="o">/</span> <span class="n">TOPBAR_SIZE</span><span class="o">;</span>
+                <span class="c1">//获取 TabLayout 的 LayoutParams</span>
+                <span class="n">FrameLayout</span><span class="o">.</span><span class="na">LayoutParams</span> <span class="n">lp</span> <span class="o">=</span> <span class="o">(</span><span class="n">FrameLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">)</span> <span class="n">tabLayout</span><span class="o">.</span><span class="na">getLayoutParams</span><span class="o">();</span>
+                <span class="c1">//宽度减小，即右边界左移</span>
+                <span class="n">lp</span><span class="o">.</span><span class="na">width</span> <span class="o">=</span> <span class="n">appBarLayout</span><span class="o">.</span><span class="na">getWidth</span><span class="o">()</span> <span class="o">-</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span> <span class="o">(</span><span class="n">ratio</span> <span class="o">*</span> <span class="n">ICON_SIZE</span><span class="o">);</span>
+                <span class="n">tabLayout</span><span class="o">.</span><span class="na">setLayoutParams</span><span class="o">(</span><span class="n">lp</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+</pre></div>
+    </article>
+
+        <div class="tags">
+            <p>tags: <a href="http://brucezz.github.io/tag/shi-xi.html">实习</a>, </p>
+        </div>
+
+<hr>
+<div class="sharing">
+</div>
+    <hr>
+
+ 
+    <div class="comments"> 
+    <br/><br/>
+        <!-- Duoshuo Comment BEGIN --> 
+        <div class="ds-thread"></div> 
+        <script type="text/javascript"> 
+            var duoshuoQuery = {short_name:"brucezz"}; 
+            (function() {
+                var ds = document.createElement('script');
+                ds.type = 'text/javascript';
+                ds.async = true;
+                ds.src = 'http://static.duoshuo.com/embed.js';
+                ds.charset = 'UTF-8';
+                (document.getElementsByTagName('head')[0]
+                || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+        </script>
+        <noscript>Please enable JavaScript to view the comments.</noscript> 
+        <!-- Duoshuo Comment END --> 
+    </div>
+
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                            <li>
+                                <a href="http://github.com/brucezz">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="http://weibo.com/u/1947300213">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                    </ul>
+<p class="copyright text-muted">
+    Blog powered by <a href="http://getpelican.com">Pelican</a>,
+    which takes great advantage of <a href="http://python.org">Python</a>.
+</p>                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="http://brucezz.github.io/theme/js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="http://brucezz.github.io/theme/js/bootstrap.min.js"></script>
+
+        <!-- Custom Theme JavaScript -->
+        <script src="http://brucezz.github.io/theme/js/clean-blog.min.js"></script>
+
+</body>
+
+</html>

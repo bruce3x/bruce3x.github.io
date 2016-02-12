@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+            <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+
+        <title>抓取斗鱼直播弹幕</title>
+
+
+        <!-- Bootstrap Core CSS -->
+        <link href="http://brucezz.github.io/theme/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link href="http://brucezz.github.io/theme/css/clean-blog.min.css" rel="stylesheet">
+
+        <!-- Code highlight color scheme -->
+            <link href="http://brucezz.github.io/theme/css/code_blocks/colorful.css" rel="stylesheet">
+
+
+        <!-- Custom Fonts -->
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+
+
+
+        <meta name="tags" contents="爬虫" />
+
+
+	                <meta property="og:locale" content="">
+		<meta property="og:site_name" content="Brucezz' blog">
+
+	<meta property="og:type" content="article">
+	<meta property="article:author" content="">
+	<meta property="og:url" content="http://brucezz.github.io/douyu-crawler.html">
+	<meta property="og:title" content="抓取斗鱼直播弹幕">
+	<meta property="og:description" content="">
+	<meta property="og:image" content="http://brucezz.github.io/">
+	<meta property="article:published_time" content="2016-01-11 00:00:00+08:00">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="http://brucezz.github.io/">Brucezz' blog</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                        <li><a href="/archives.html">归档</a></li>
+                        <li><a href="/categories.html">分类</a></li>
+                        <li><a href="/pages/about.html">关于我</a></li>
+
+                            <li><a href="http://brucezz.github.io/pages/about.html">关于我</a></li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Header -->
+        <header class="intro-header" style="background-image: url('http://brucezz.github.io/theme/images/home-bg.jpg')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <div class="post-heading">
+                        <h1>抓取斗鱼直播弹幕</h1>
+                        <span class="meta">Posted by
+                                <a href="http://brucezz.github.io/author/brucezz.html">Brucezz</a>
+                             on 一 11 一月 2016
+                        </span>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+    <!-- Post Content -->
+    <article>
+        <hr />
+<p>前几天看了知乎的一个问题（<a href="https://www.zhihu.com/question/29027665">如何获取斗鱼直播间的弹幕信息？</a>）之后，才有了这个想法。一直对抓取信息比较感兴趣，这次也不会错过咯，尝试一下 →.→</p>
+<p>抓取数据的基本思路就是： 抓包 → 分析请求信息 → 模拟发送请求 → 获得数据</p>
+<blockquote>
+<p>知乎回答地址：<a href="https://www.zhihu.com/question/29027665/answer/80169234">如何获取斗鱼直播间的弹幕信息？ - Brucezz 的回答 - 知乎</a></p>
+<p>Github 项目代码地址：<a href="https://github.com/brucezz/DouyuCrawler">brucezz/DouyuCrawler</a></p>
+</blockquote>
+<p>最常见的就是用 Chrome 的开发者工具(F12)，然后看 Network 栏，有什么相关的 GET/POST 请求，然后构造相应的参数，用同样的方法发送给服务器，就能得到相应数据了，一般静态网页里的数据用这种方法就能搞定。当然，如果就这个简单的话，这篇博客也没有记录的必要啦，哈哈哈。</p>
+<p>另外一个工具 Fiddler，可以捕获 HTTP/HTTPS 协议的流量。</p>
+<p>还有一个开源的网络数据包分析软件 Wireshark，这款软件功能更为强大，支持多种协议，能够显示出最为详细的网络数据包数据。</p>
+<h2>0x01 初探</h2>
+<p>在直播页面的 HTML 源码里随便翻翻，发现了几点相关的 js 代码：</p>
+<ul>
+<li><code>var $ROOM ={ ... }</code></li>
+<li><code>var room_args = { ... }</code></li>
+</ul>
+<p>这是定义了两个 js 的字典对象，也就是 JSON 格式的数据咯。用个工具格式化（<a href="http://www.kjson.com/jsoneditor/">JSON在线编辑</a>）一下，看起来就很清晰啦。(省略了一些list里面的数据)</p>
+<div class="highlight"><pre><span class="p">{</span>
+  <span class="nt">&quot;room_id&quot;</span><span class="p">:</span> <span class="mi">16101</span><span class="p">,</span>
+  <span class="nt">&quot;room_name&quot;</span><span class="p">:</span> <span class="s2">&quot;微笑：  新年快乐啦啦啦~(≧▽≦)&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;room_gg&quot;</span><span class="p">:</span> <span class="p">{</span>  <span class="p">},</span>
+  <span class="nt">&quot;room_pic&quot;</span><span class="p">:</span> <span class="s2">&quot;http://staticlive.douyutv.com/upload/web_pic/201601/1/16101_1601111612_thumb.jpg&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;owner_uid&quot;</span><span class="p">:</span> <span class="mi">391270</span><span class="p">,</span>
+  <span class="nt">&quot;owner_name&quot;</span><span class="p">:</span> <span class="s2">&quot;微笑&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;show_status&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="nt">&quot;room_url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://www.douyutv.com/weixiao&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;show_id&quot;</span><span class="p">:</span> <span class="mi">8557130</span><span class="p">,</span>
+  <span class="nt">&quot;room_pwd&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="nt">&quot;cate_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="nt">&quot;cate_name&quot;</span><span class="p">:</span> <span class="s2">&quot;英雄联盟&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;cate_url&quot;</span><span class="p">:</span> <span class="s2">&quot;/directory/game/LOL&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;near_show_time&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="nt">&quot;game_cate_list&quot;</span><span class="p">:</span> <span class="p">{</span>  <span class="p">},</span>
+  <span class="nt">&quot;all_tag_list&quot;</span><span class="p">:</span> <span class="p">{</span>  <span class="p">},</span>
+  <span class="nt">&quot;room_tag_list&quot;</span><span class="p">:</span> <span class="p">[</span>  <span class="p">],</span>
+  <span class="nt">&quot;show_time&quot;</span><span class="p">:</span> <span class="mi">1452496988</span><span class="p">,</span>
+  <span class="nt">&quot;widgetType&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="nt">&quot;widgetPosition&quot;</span><span class="p">:</span> <span class="mi">0</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>其中，一些参数的含义：</p>
+<ul>
+<li>room_id：房间id</li>
+<li>owner_name：主播名</li>
+<li>show_status：当前直播状态，正在直播为1</li>
+<li>room_url：房间地址</li>
+</ul>
+<div class="highlight"><pre><span class="p">{</span>
+  <span class="nt">&quot;rpc_switch&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="nt">&quot;leve_json&quot;</span><span class="p">:</span> <span class="p">{</span>  <span class="p">},</span>
+  <span class="nt">&quot;exp_level&quot;</span><span class="p">:</span> <span class="p">{</span>  <span class="p">},</span>
+  <span class="nt">&quot;no_home&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="nt">&quot;no_home_time&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;live_url&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="nt">&quot;res_path&quot;</span><span class="p">:</span> <span class="s2">&quot;/common/&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;swf_url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://staticlive.douyutv.com/common/simplayer/WebRoom.swf?v21680&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;server_config&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nt">&quot;ip&quot;</span><span class="p">:</span> <span class="s2">&quot;119.90.49.109&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;port&quot;</span><span class="p">:</span> <span class="s2">&quot;8044&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="nt">&quot;ip&quot;</span><span class="p">:</span> <span class="s2">&quot;119.90.49.104&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;port&quot;</span><span class="p">:</span> <span class="s2">&quot;8017&quot;</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="nt">&quot;def_disp_gg&quot;</span><span class="p">:</span> <span class="mi">0</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>其中，<code>server_config</code> 字段的数据需要 UrlDecode 解码一下(<a href="http://tool.chinaz.com/tools/urlencode.aspx">UrlEncode编码/UrlDecode解码</a>)，才能看到原本的面目。(省略了其他几个服务器地址)</p>
+<p>参数：</p>
+<ul>
+<li>leve_json：定义了一些房间粉丝等级的标签</li>
+<li>server_config：一组服务器地址 ip:port ，后面会用到</li>
+</ul>
+<p>页面里还输出了其他几个JSON数据<code>effectConfig</code>，<code>giftBatterConfig</code>，分别是定义了一些礼物的前端效果和对应代码，有需要的时候再去分析。</p>
+<h2>0x02 抓包分析</h2>
+<p>既然上面拿到的服务器的地址，就尝试监听一下这几个端口吧，看看有些什么数据发送到服务器了。</p>
+<p>用 Wireshark 监听当前网络，过滤条件设置为</p>
+<p><code>tcp.port==8046||tcp.port==8044||tcp.port==8071||tcp.port==8068||
+tcp.port==8058||tcp.port==8059||tcp.port==8054||tcp.port==8045||tcp.port==8061&amp;&amp;tcp.flags.push==1</code></p>
+<p>就是过滤监听相应的几个端口，然后我们就能看到本地和服务器通信的数据包啦。</p>
+<p>这里有个小插曲，上面这段过滤条件很长嘛，我每次调试的时候它都会变，就得重新拼接这么长个字符串。我实在忍不了了，就写了个 <a href="/extra/port_filter.py">Python 小脚本</a>（可以右键另存），自动生成过滤字符串！用法如下：</p>
+<ul>
+<li>启动脚本，输入从直播房间 HTML 上复制下来的源代码</li>
+<li>复制出生成的过滤条件字符串</li>
+<li>粘贴到 Wireshark 里就OK啦！</li>
+</ul>
+<p>注：不用刻意去复制对称的引号/括号等等，只要包含整个 <code>server_config</code> 字段就好了，如图</p>
+<p>效果图 Here～</p>
+<p><img alt="prot_filter.py效果图" src="/images/douyu-crawler-port-filter.png" /></p>
+<p>好了，先看第一个包，长得就是下面这样了。</p>
+<p><img alt="登录服务器抓包" src="/images/douyu-crawler-1.png" /></p>
+<p>前面是tcp三次握手的数据包，就不详写了。从蓝色框框位置开始，是正文内容。</p>
+<p>正文包含五个部分：</p>
+<ol>
+<li>数据长度，大小为后四部分的字节长度，占4个字节</li>
+<li>内容和第一部分一样，4字节</li>
+<li>斗鱼固定的请求码，本地-&gt;服务器是 <code>0xb1,0x02,0x00,0x00</code>，服务器-&gt;本地是 <code>0xb2,0x02,0x00,0x00</code>，4字节</li>
+<li>消息内容</li>
+<li>尾部一个空字节 <code>0x00</code></li>
+</ol>
+<p>消息内容：</p>
+<div class="highlight"><pre>type@=loginreq/ # 请求类型
+username@=/ # 用户名，匿名为空
+ct@=0/ # 未知，设为0即可
+password@=/ # 密码
+roomid@=16101/ # 直播房间id
+devid@=1C01371705D8B13361396AE2FAD50D6F/ # 设备id 32位大写16进制
+rt@=1452508198/ # 请求时间戳 秒
+vk@=2dcf0e6f1d16e45932a343bb71d5d0ad/ # 某一种key 32位
+ver@=20150929/. # 版本号
+</pre></div>
+
+
+<p>然后，看服务器返回了什么东西。</p>
+<p><img alt="登录服务器返回数据" src="/images/douyu-crawler-2.png" /></p>
+<p>这张图片就证实了，前面说的斗鱼固定的请求码，服务器返回的是 <code>0xb2,0x02,0x00,0x00</code> 四个字节。然后返回了匿名用户的用户名，基本上没什么用。</p>
+<p>紧接着，服务器又返回了一条数据。</p>
+<p><img alt="登录服务器返回数据2" src="/images/douyu-crawler-3.png" /></p>
+<p>这条包大概是多条返回数据合并到一起了，没关系，一个一个来看。</p>
+<p>消息类型为 <code>msgrepeaterlist</code>, 里面包含了一组可用的弹幕服务器地址，数据看起来包含了一堆@符号，是因为用了js代码进行编码。</p>
+<p>我用 Chrome 找到了相应的js文件，然后把代码转化为 Java 代码，大概就长下面这个样子：</p>
+<div class="highlight"><pre> <span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">deFilterStr</span><span class="o">(</span><span class="n">String</span> <span class="n">str</span><span class="o">)</span> <span class="o">{</span>
+      <span class="k">if</span> <span class="o">(</span><span class="n">str</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+      <span class="k">return</span> <span class="n">str</span><span class="o">.</span><span class="na">trim</span><span class="o">().</span><span class="na">replace</span><span class="o">(</span><span class="s">&quot;@A&quot;</span><span class="o">,</span> <span class="s">&quot;@&quot;</span><span class="o">).</span><span class="na">replace</span><span class="o">(</span><span class="s">&quot;@S&quot;</span><span class="o">,</span> <span class="s">&quot;/&quot;</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">filterStr</span><span class="o">(</span><span class="n">String</span> <span class="n">str</span><span class="o">)</span> <span class="o">{</span>
+      <span class="k">if</span> <span class="o">(</span><span class="n">str</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+      <span class="k">return</span> <span class="n">str</span><span class="o">.</span><span class="na">trim</span><span class="o">().</span><span class="na">replace</span><span class="o">(</span><span class="s">&quot;@&quot;</span><span class="o">,</span> <span class="s">&quot;@A&quot;</span><span class="o">).</span><span class="na">replace</span><span class="o">(</span><span class="s">&quot;/&quot;</span><span class="o">,</span> <span class="s">&quot;@S&quot;</span><span class="o">);</span>
+  <span class="o">}</span>
+</pre></div>
+
+
+<p>解码出来，通过 <code>/</code> 字符可以把字符串分割成多个以 <code>@=</code> 连接的键值对。其实这个操作也可以用正则来完成。</p>
+<p>这样就能得到弹幕服务器的地址了，总共就四个：</p>
+<div class="highlight"><pre>danmu.douyutv.com:8061
+danmu.douyutv.com:8062
+danmu.douyutv.com:12601
+danmu.douyutv.com:12602
+</pre></div>
+
+
+<p>后面一条消息，类型为 <code>setmsggroup</code>， 里面包含了房间编号即 <code>rid</code> 和弹幕群组编号即 <code>gid</code> 。</p>
+<p>其余的消息，暂时没发现有什么用途。</p>
+<p>然后来监听下弹幕服务器的端口，看看有什么数据。
+设置下过滤条件： <code>tcp.port==8061||tcp.port==8062||tcp.port==12601||tcp.port==12602&amp;&amp;tcp.flags.push==1</code></p>
+<p>一来就发现了要找的数据包。</p>
+<p><img alt="弹幕服务器请求数据" src="/images/douyu-crawler-4.png" /></p>
+<p>向弹幕服务器发送了一条类型为 <code>loginreq</code> 的消息，消息格式如下：</p>
+<div class="highlight"><pre>type@=loginreq/
+username@=visitor503535/
+password@=1234567890123456/
+roomid@=16101/.
+</pre></div>
+
+
+<p>这个包的格式比较简单，匿名登陆的话，用户名和密码随意就好，<code>roomid</code> 就是目标房间的id。</p>
+<p>此时，服务器对应返回了一条没有价值的消息，忽略掉。</p>
+<p>然后本地又发送了一条请求加入弹幕群组的消息。</p>
+<p><img alt="弹幕服务器请求数据2" src="/images/douyu-crawler-5.png" /></p>
+<div class="highlight"><pre>type@=joingroup/
+rid@=16101/
+gid@=27/.
+</pre></div>
+
+
+<p>其中，<code>rid</code> 就是房间id，<code>gid</code> 是前面从服务器拿到的弹幕群组编号。</p>
+<p>这两条消息发送完之后，就是登陆成功了。服务器不断向本地发送弹幕数据，以及鱼丸礼物信息等等。</p>
+<p>我这里只简单地解析下弹幕的数据包，对于其他数据包方法一样。</p>
+<p><img alt="弹幕服务器返回数据" src="/images/douyu-crawler-6.png" /></p>
+<p>消息类型为 <code>chatmessage</code> , 其中：</p>
+<ul>
+<li>sender大概和用户id类似</li>
+<li>content为弹幕内容，由于是非 ASCII 字符，在 Wireshark 里没有显示出来</li>
+<li>snick为用户昵称</li>
+<li>chatmsgid为弹幕唯一id</li>
+</ul>
+<p>可以直接用正则表达式提取出来。</p>
+<p>另外，根据<a href="http://baike.baidu.com/view/1491229.htm">心跳包机制</a>，我们要不断向服务器发送心跳包，以保持连接。</p>
+<p>通过抓包能看到心跳包的样子：</p>
+<p><img alt="心跳包数据" src="/images/douyu-crawler-7.png" /></p>
+<p>一条类型为 <code>mrkl</code>(mark keep live ?) 的消息。</p>
+<p>至此，抓包分析基本上就搞定了，每一个包的格式也搞明白了，接下来就是模拟发送相同的包，去请求服务器了。</p>
+<h2>0x03 模拟请求</h2>
+<p>根据前面抓包分析的结果，模拟过程大概是这样子的：</p>
+<ol>
+<li>获取直播房间 HTML 页面，提取出服务器地址和房间ID号</li>
+<li>选择一个服务器，发送登陆消息</li>
+<li>接收服务器返回的弹幕群组编号 <code>gid</code> 和弹幕服务器地址</li>
+<li>选择一个弹幕服务器，发送登陆请求和加入群组的请求</li>
+<li>读取服务器返回的弹幕数据</li>
+<li>定时发送心跳包</li>
+</ol>
+<p>这里主要写一下第三步，向服务器发送请求，获取 <code>gid</code> , 数据格式如下：</p>
+<div class="highlight"><pre>type@=loginreq/ # 请求类型
+username@=/ # 用户名，匿名为空
+ct@=0/ # 未知，设为0即可
+password@=/ # 密码
+roomid@=16101/ # 直播房间id
+devid@=1C01371705D8B13361396AE2FAD50D6F/ # 设备id 32位大写16进制
+rt@=1452508198/ # 请求时间戳 秒
+vk@=2dcf0e6f1d16e45932a343bb71d5d0ad/ # 某一种key 32位
+ver@=20150929/. # 版本号
+</pre></div>
+
+
+<p>对应的 Java 请求代码</p>
+<div class="highlight"><pre>    <span class="n">socket</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Socket</span><span class="o">(</span><span class="n">server</span><span class="o">.</span><span class="na">getHost</span><span class="o">(),</span> <span class="n">server</span><span class="o">.</span><span class="na">getPort</span><span class="o">());</span><span class="c1">//Socket连接服务器</span>
+
+    <span class="n">String</span> <span class="n">timestamp</span> <span class="o">=</span> <span class="n">String</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">()</span> <span class="o">/</span> <span class="mi">1000</span><span class="o">);</span><span class="c1">//获取当前时间戳</span>
+    <span class="n">String</span> <span class="n">uuid</span> <span class="o">=</span> <span class="n">UUID</span><span class="o">.</span><span class="na">randomUUID</span><span class="o">().</span><span class="na">toString</span><span class="o">().</span><span class="na">replace</span><span class="o">(</span><span class="s">&quot;-&quot;</span><span class="o">,</span> <span class="s">&quot;&quot;</span><span class="o">).</span><span class="na">toUpperCase</span><span class="o">();</span><span class="c1">//构造uuid作为devid参数</span>
+    <span class="n">String</span> <span class="n">vk</span> <span class="o">=</span> <span class="n">MD5Util</span><span class="o">.</span><span class="na">MD5</span><span class="o">(</span><span class="n">timestamp</span> <span class="o">+</span> <span class="s">&quot;7oE9nPEG9xXV69phU31FYCLUagKeYtsF&quot;</span> <span class="o">+</span> <span class="n">uuid</span><span class="o">);</span><span class="c1">//vk参数</span>
+    <span class="c1">//发送登陆请求</span>
+    <span class="n">MessageHandler</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="n">socket</span><span class="o">,</span> <span class="n">Request</span><span class="o">.</span><span class="na">gid</span><span class="o">(</span><span class="n">rid</span><span class="o">,</span> <span class="n">uuid</span><span class="o">,</span> <span class="n">timestamp</span><span class="o">,</span> <span class="n">vk</span><span class="o">));</span>
+    <span class="c1">//等待接收</span>
+    <span class="n">MessageHandler</span><span class="o">.</span><span class="na">receive</span><span class="o">(</span><span class="n">socket</span><span class="o">,</span> <span class="n">loginListener</span><span class="o">);</span>
+</pre></div>
+
+
+<blockquote>
+<p>其中vk参数的算法， <code>vk = MD5(timestamp + "7oE9nPEG9xXV69phU31FYCLUagKeYtsF" + devid)</code> ，
+我还不是很明白，在 Github 上看到的。<a href="https://github.com/reusu/DouyuAssistant">reusu/DouyuAssistant - Github</a></p>
+</blockquote>
+<p>最终在控制台的效果，就是这样啦，当然也可以顺便保存到数据库里，可以积累数据然后进行分析。</p>
+<p><img alt="控制台效果图" src="/images/douyu-crawler-final.png" /></p>
+<h2>0x04 后记</h2>
+<p>这次抓取斗鱼弹幕，涨了不少姿势呢。</p>
+<ul>
+<li>Wireshark 过滤数据包技巧</li>
+<li>从抓取 HTTP 数据到抓取 TCP 数据</li>
+<li>Java Socket / IO / Thread coding （虽然依然很low）</li>
+</ul>
+<hr />
+<blockquote>
+<p>知乎回答地址：<a href="https://www.zhihu.com/question/29027665/answer/80169234">如何获取斗鱼直播间的弹幕信息？ - Brucezz 的回答 - 知乎</a></p>
+<p>Github 项目代码地址：<a href="https://github.com/brucezz/DouyuCrawler">brucezz/DouyuCrawler</a></p>
+</blockquote>
+<hr />
+<p>参考：</p>
+<ol>
+<li><a href="https://www.zhihu.com/question/29027665/answer/75117632">如何获取斗鱼直播间的弹幕信息？ - 天白才痴 的回答</a></li>
+<li><a href="http://ndrlslz.github.io/2015/12/26/%E6%96%97%E9%B1%BC%E5%BC%B9%E5%B9%95%E6%8A%93%E5%8F%96/">斗鱼弹幕抓取 | 霹雳啪啦程序汪</a></li>
+<li><a href="https://github.com/reusu/DouyuAssistant">reusu/DouyuAssistant - Github</a></li>
+</ol>
+    </article>
+
+        <div class="tags">
+            <p>tags: <a href="http://brucezz.github.io/tag/pa-chong.html">爬虫</a>, </p>
+        </div>
+
+<hr>
+<div class="sharing">
+</div>
+    <hr>
+
+ 
+    <div class="comments"> 
+    <br/><br/>
+        <!-- Duoshuo Comment BEGIN --> 
+        <div class="ds-thread"></div> 
+        <script type="text/javascript"> 
+            var duoshuoQuery = {short_name:"brucezz"}; 
+            (function() {
+                var ds = document.createElement('script');
+                ds.type = 'text/javascript';
+                ds.async = true;
+                ds.src = 'http://static.duoshuo.com/embed.js';
+                ds.charset = 'UTF-8';
+                (document.getElementsByTagName('head')[0]
+                || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+        </script>
+        <noscript>Please enable JavaScript to view the comments.</noscript> 
+        <!-- Duoshuo Comment END --> 
+    </div>
+
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                            <li>
+                                <a href="http://github.com/brucezz">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="http://weibo.com/u/1947300213">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                    </ul>
+<p class="copyright text-muted">
+    Blog powered by <a href="http://getpelican.com">Pelican</a>,
+    which takes great advantage of <a href="http://python.org">Python</a>.
+</p>                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="http://brucezz.github.io/theme/js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="http://brucezz.github.io/theme/js/bootstrap.min.js"></script>
+
+        <!-- Custom Theme JavaScript -->
+        <script src="http://brucezz.github.io/theme/js/clean-blog.min.js"></script>
+
+</body>
+
+</html>
