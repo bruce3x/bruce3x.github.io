@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 
 <head>
             <meta charset="utf-8">
@@ -9,8 +9,10 @@
         <meta name="author" content="">
 
 
-        <title>唯品会笔试编程题</title>
+        <title>开始玩博客</title>
 
+
+            <link rel="shortcut icon" href="/images/favicon.ico">
 
         <!-- Bootstrap Core CSS -->
         <link href="http://brucezz.github.io/theme/css/bootstrap.min.css" rel="stylesheet">
@@ -44,11 +46,11 @@
 
 	<meta property="og:type" content="article">
 	<meta property="article:author" content="">
-	<meta property="og:url" content="http://brucezz.github.io/vip-interview-problem-1.html">
-	<meta property="og:title" content="唯品会笔试编程题">
+	<meta property="og:url" content="http://brucezz.github.io/articles/2015/10/27/play-with-blog/">
+	<meta property="og:title" content="开始玩博客">
 	<meta property="og:description" content="">
 	<meta property="og:image" content="http://brucezz.github.io/">
-	<meta property="article:published_time" content="2015-10-28 00:00:00+08:00">
+	<meta property="article:published_time" content="2015-10-27 00:00:00+08:00">
 </head>
 
 <body>
@@ -74,7 +76,6 @@
                         <li><a href="/categories.html">分类</a></li>
                         <li><a href="/pages/about.html">关于我</a></li>
 
-                            <li><a href="http://brucezz.github.io/pages/about.html">关于我</a></li>
                 </ul>
             </div>
             <!-- /.navbar-collapse -->
@@ -88,10 +89,10 @@
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                     <div class="post-heading">
-                        <h1>唯品会笔试编程题</h1>
+                        <h1>开始玩博客</h1>
                         <span class="meta">Posted by
                                 <a href="http://brucezz.github.io/author/brucezz.html">Brucezz</a>
-                             on 2015-10-28
+                             on 2015-10-27
                         </span>
                         
                     </div>
@@ -106,53 +107,27 @@
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
     <!-- Post Content -->
     <article>
-        <p>编写一个程序，创建三个线程，id分别为A, B, C, 各自打印十次自己的id，要求按照字母顺序输出，如“ABCABCABC...”</p>
-<div class="highlight"><pre><span class="cm">/**</span>
-<span class="cm"> * Created by zero on 2015/10/17.</span>
-<span class="cm"> * MutilThreadPrint</span>
-<span class="cm"> */</span>
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Demo</span> <span class="o">{</span>
-    <span class="kd">final</span> <span class="n">String</span><span class="o">[]</span> <span class="n">ids</span> <span class="o">=</span> <span class="o">{</span><span class="s">&quot;A&quot;</span><span class="o">,</span> <span class="s">&quot;B&quot;</span><span class="o">,</span> <span class="s">&quot;C&quot;</span><span class="o">};</span>
-    <span class="kt">int</span> <span class="n">current</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
-
-    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
-        <span class="n">Demo</span> <span class="n">demo</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Demo</span><span class="o">();</span>
-
-        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Start...&quot;</span><span class="o">);</span>
-        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">demo</span><span class="o">.</span><span class="na">ids</span><span class="o">.</span><span class="na">length</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
-            <span class="k">new</span> <span class="n">Thread</span><span class="o">(</span><span class="k">new</span> <span class="n">Task</span><span class="o">(</span><span class="n">demo</span><span class="o">,</span> <span class="n">i</span><span class="o">)).</span><span class="na">start</span><span class="o">();</span>
-
-        <span class="o">}</span>
-    <span class="o">}</span>
-<span class="o">}</span>
-
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Task</span> <span class="kd">implements</span> <span class="n">Runnable</span> <span class="o">{</span>
-
-    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Demo</span> <span class="n">demo</span><span class="o">;</span>
-    <span class="kd">private</span> <span class="kt">int</span> <span class="n">idIndex</span><span class="o">;</span>
-
-    <span class="kd">public</span> <span class="nf">Task</span><span class="o">(</span><span class="n">Demo</span> <span class="n">demo</span><span class="o">,</span> <span class="kt">int</span> <span class="n">idIndex</span><span class="o">)</span> <span class="o">{</span>
-        <span class="k">this</span><span class="o">.</span><span class="na">demo</span> <span class="o">=</span> <span class="n">demo</span><span class="o">;</span>
-        <span class="k">this</span><span class="o">.</span><span class="na">idIndex</span> <span class="o">=</span> <span class="n">idIndex</span><span class="o">;</span>
-    <span class="o">}</span>
-
-    <span class="nd">@Override</span>
-    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
-
-        <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
-        <span class="k">while</span> <span class="o">(</span><span class="n">count</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="o">)</span> <span class="o">{</span>
-
-            <span class="kd">synchronized</span> <span class="o">(</span><span class="n">demo</span><span class="o">)</span> <span class="o">{</span>
-                <span class="k">if</span> <span class="o">(</span><span class="n">demo</span><span class="o">.</span><span class="na">current</span> <span class="o">==</span> <span class="n">idIndex</span><span class="o">)</span> <span class="o">{</span>
-                    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">demo</span><span class="o">.</span><span class="na">ids</span><span class="o">[</span><span class="n">idIndex</span><span class="o">]);</span>
-                    <span class="n">count</span><span class="o">++;</span>
-                    <span class="n">demo</span><span class="o">.</span><span class="na">current</span> <span class="o">=</span> <span class="o">(++</span><span class="n">demo</span><span class="o">.</span><span class="na">current</span><span class="o">)</span> <span class="o">%</span> <span class="n">demo</span><span class="o">.</span><span class="na">ids</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
-                <span class="o">}</span>
-            <span class="o">}</span>
-        <span class="o">}</span>
-    <span class="o">}</span>
-<span class="o">}</span>
-</pre></div>
+        <p>对于github.io早就有所了解，因为懒，一直没有动手。经过四五天折腾，终于把这个博客搭建的差不多了。从此开始了个人博客的折腾之路。
+之前也有尝试过CSDN什么的的，用起来总少了一种感觉。就是折腾的感觉。</p>
+<h1>搭博客的目的</h1>
+<ul>
+<li>记录学习 &amp; 总结</li>
+<li>折腾！</li>
+<li>增加逼格</li>
+<li>好玩而已</li>
+</ul>
+<h1>博客结构</h1>
+<p>基于 <a href="https://pages.github.com/">Github Pages</a></p>
+<p>框架采用的Python写的 <a href="http://blog.getpelican.com/">Pelican</a>，也有看过Ruby写的 <a href="http://jekyllrb.com/">Jekyll</a>，但我更喜欢玩Python一些 =.=</p>
+<p>主题用的 <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3">Pelican-bootstrap3</a>，不满意的地方自己改改</p>
+<p>不少细节地方还不满意。折腾起来！</p>
+<h1>Timeline</h1>
+<ul>
+<li>2015.10 搭建博客 Github Pages + Pelican + pelican-bootstrap3</li>
+<li>2015.11 本地用 Sublime Text3 + MarkDown Extended + MarkDownTOC 插件 写md文本</li>
+<li>2016.01 修改本地 Python 虚拟环境，导致 Pelican 跑不起来 ╮(╯▽╰)╭，重新生成了一个virtualenv</li>
+<li>折腾中...</li>
+</ul>
     </article>
 
 
