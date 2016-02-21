@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+            <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+
+        <title>如何更高效地使用 OkHttp</title>
+
+
+            <link rel="shortcut icon" href="/images/favicon.ico">
+
+        <!-- Bootstrap Core CSS -->
+        <link href="http://brucezz.github.io/theme/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link href="http://brucezz.github.io/theme/css/clean-blog.min.css" rel="stylesheet">
+
+        <!-- Code highlight color scheme -->
+            <link href="http://brucezz.github.io/theme/css/code_blocks/colorful.css" rel="stylesheet">
+
+
+        <!-- Custom Fonts -->
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+
+
+
+        <meta name="tags" contents="翻译" />
+        <meta name="tags" contents="OkHttp" />
+
+
+	                <meta property="og:locale" content="">
+		<meta property="og:site_name" content="Brucezz's Corner">
+
+	<meta property="og:type" content="article">
+	<meta property="article:author" content="">
+	<meta property="og:url" content="http://brucezz.github.io/articles/2016/02/21/effective-okhttp/">
+	<meta property="og:title" content="如何更高效地使用 OkHttp">
+	<meta property="og:description" content="">
+	<meta property="og:image" content="http://brucezz.github.io/">
+	<meta property="article:published_time" content="2016-02-21 00:00:00+08:00">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="http://brucezz.github.io/">Brucezz's Corner</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                        <li><a href="/archives.html">归档</a></li>
+                        <li><a href="/categories.html">分类</a></li>
+                        <li><a href="/pages/about.html">关于我</a></li>
+
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Header -->
+        <header class="intro-header" style="background-image: url('http://brucezz.github.io/theme/images/home-bg.jpg')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <div class="post-heading">
+                        <h1>如何更高效地使用 OkHttp</h1>
+                        <span class="meta">Posted by
+                                <a href="http://brucezz.github.io/author/brucezz.html">Brucezz</a>
+                             on 2016-02-21
+                        </span>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+    <!-- Post Content -->
+    <article>
+        <blockquote>
+<ul>
+<li>原文链接: <a href="http://omgitsmgp.com/2015/12/02/effective-okhttp/">Effective OkHttp</a></li>
+<li>原文作者 : <a href="http://omgitsmgp.com/">Michael Parker</a></li>
+<li>译文出自 : <a href="https://github.com/xitu/gold-miner">掘金翻译计划</a></li>
+<li>译者 : <a href="https://github.com/brucezz">Brucezz</a></li>
+<li>校对者: <a href="https://github.com/iThreeKing">iThreeKing</a>, <a href="https://github.com/shenxn">Adam Shen</a>, <a href="https://github.com/laobie">Jaeger</a></li>
+</ul>
+</blockquote>
+<p>在为<a href="https://www.khanacademy.org/">可汗学院</a>开发 <a href="https://play.google.com/store/apps/details?id=org.khanacademy.android">Android app</a> 时，<a href="http://square.github.io/okhttp/">OkHttp</a> 是一个很重要的开源库。虽然它的默认配置已经提供了很好的效果，但是我们还是采取了一些措施提高 OkHttp 的可用性和自我检查能力：</p>
+<h3>1. 在文件系统中开启响应缓存</h3>
+<p>有些响应消息通过包含 <code>Cache-Control</code> HTTP 首部字段允许缓存，但是默认情况下，OkHttp 并不会缓存这些响应消息。因此你的客户端可能会因为不断请求相同的资源而浪费时间和带宽，而不是简单地读取一下首次响应消息的缓存副本。</p>
+<p>为了在文件系统中开启响应缓存，需要配置一个 <code>com.squareup.okhttp.Cache</code> 实例，然后把它传递给 <code>OkHttpClient</code> 实例的 <code>setCache</code> 方法。你必须用一个表示目录的 <code>File</code> 对象和最大字节数来实例化 <code>Cache</code> 对象。那些能够缓存的响应消息会被写在指定的目录中。如果已缓存的响应消息导致目录内容超过了指定的大小，响应消息会按照最近最少使用（<a href="https://en.wikipedia.org/wiki/Cache_algorithms#LRU">LRU Policy</a>）的策略被移除。</p>
+<p>正如 <a href="http://stackoverflow.com/a/32752861/400717">Jesse Wilson 所建议的</a>，我们将响应消息缓存在 <code>context.getCacheDir()</code> 的子文件夹中：</p>
+<div class="highlight"><pre><span class="c1">// 缓存根目录，由这里推荐 -&gt; http://stackoverflow.com/a/32752861/400717.</span>
+<span class="c1">// 小心可能为空，参考下面两个链接</span>
+<span class="c1">// https://groups.google.com/d/msg/android-developers/-694j87eXVU/YYs4b6kextwJ 和</span>
+<span class="c1">// http://stackoverflow.com/q/4441849/400717.</span>
+<span class="kd">final</span> <span class="nd">@Nullable</span> <span class="n">File</span> <span class="n">baseDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getCacheDir</span><span class="o">();</span>
+<span class="k">if</span> <span class="o">(</span><span class="n">baseDir</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+  <span class="kd">final</span> <span class="n">File</span> <span class="n">cacheDir</span> <span class="o">=</span> <span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="n">baseDir</span><span class="o">,</span> <span class="s">&quot;HttpResponseCache&quot;</span><span class="o">);</span>
+  <span class="n">okHttpClient</span><span class="o">.</span><span class="na">setCache</span><span class="o">(</span><span class="k">new</span> <span class="n">Cache</span><span class="o">(</span><span class="n">cacheDir</span><span class="o">,</span> <span class="n">HTTP_RESPONSE_DISK_CACHE_MAX_SIZE</span><span class="o">));</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>在可汗学院的应用中，我们指定了 <code>HTTP_RESPONSE_DISK_CACHE_MAX_SIZE</code> 的大小为 <code>10 * 1024 * 1024</code>，即 10MB。</p>
+<h3>2. 集成 Stetho</h3>
+<p><a href="http://facebook.github.io/stetho/">Stetho</a> 是一个 Facebook 出品的超赞的开源库，它可以让你用 Chrome 的功能——<a href="https://developers.google.com/web/tools/setup/workspace/setup-devtools">开发者工具</a> 来检查调试你的 Android 应用。</p>
+<p>Stetho 不仅能够检查应用的 SQLite 数据库和视图层次，还可以检查 OkHttp 的每一条请求和响应消息：</p>
+<p><img alt="Image of Stetho" src="http://omgitsmgp.com/assets/images/posts/stetho-inspector-network.png" /></p>
+<p>这种自我检查方式（Introspection）有效地确保了服务器返回允许缓存资源的 HTTP 首部时，且核缓存资源存在时，不再发出任何请求。</p>
+<p>开启 Stetho，只用简单地添加一个 <code>StethoInterceptor</code> 实例到网络拦截器（Network Interceptor）的列表中去：</p>
+<div class="highlight"><pre><span class="n">okHttpClient</span><span class="o">.</span><span class="na">networkInterceptors</span><span class="o">().</span><span class="na">add</span><span class="o">(</span><span class="k">new</span> <span class="n">StethoInterceptor</span><span class="o">());</span>
+</pre></div>
+
+
+<p>应用运行完毕之后，打开 Chrome 然后跳转到 <code>chrome://inspect</code>。设备、应用以及应用标识符信息会被陈列出来。直接点击“inspect”链接就可以打开开发者工具，然后切换到 Network 标签开始监测 OkHttp 发出的请求。</p>
+<h3>3. 使用 Picasso 和 Retrofit</h3>
+<p>可能和我们一样，你使用 <a href="http://square.github.io/picasso/">Picasso</a> 来加载网络图片，或者使用 <a href="http://square.github.io/retrofit/">Retrofit</a> 来简化网络请求和解析响应消息。在默认情况下，如果你没有显式地指定一个 <code>OkHttpClient</code>，这些开源库会隐式地创建它们自己的 <code>OkHttpClient</code> 实例以供内部使用。以下代码来自于 Picasso 2.5.2 版本的 <code>OkHttpDownloader</code> 类：</p>
+<div class="highlight"><pre><span class="kd">private</span> <span class="kd">static</span> <span class="n">OkHttpClient</span> <span class="nf">defaultOkHttpClient</span><span class="o">()</span> <span class="o">{</span>
+  <span class="n">OkHttpClient</span> <span class="n">client</span> <span class="o">=</span> <span class="k">new</span> <span class="n">OkHttpClient</span><span class="o">();</span>
+  <span class="n">client</span><span class="o">.</span><span class="na">setConnectTimeout</span><span class="o">(</span><span class="n">Utils</span><span class="o">.</span><span class="na">DEFAULT_CONNECT_TIMEOUT_MILLIS</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">MILLISECONDS</span><span class="o">);</span>
+  <span class="n">client</span><span class="o">.</span><span class="na">setReadTimeout</span><span class="o">(</span><span class="n">Utils</span><span class="o">.</span><span class="na">DEFAULT_READ_TIMEOUT_MILLIS</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">MILLISECONDS</span><span class="o">);</span>
+  <span class="n">client</span><span class="o">.</span><span class="na">setWriteTimeout</span><span class="o">(</span><span class="n">Utils</span><span class="o">.</span><span class="na">DEFAULT_WRITE_TIMEOUT_MILLIS</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">MILLISECONDS</span><span class="o">);</span>
+  <span class="k">return</span> <span class="n">client</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>Retrofit 也有类似的工厂方法用来创建它自己的 <code>OkHttpClient</code>。</p>
+<p>图片是应用中需要加载的最大的资源之一。Picasso 是严格地按照 LRU 策略在内存中维护它的图片缓存。如果客户端尝试用 Picasso 加载一张图片，并且 Picasso 没有在内存缓存中找到该图片，那么它会委托内部的 <code>OkHttpClient</code> 实例来加载该图片。在默认情况下，由于前面的 <code>defaultOkHttpClient</code> 方法没有在文件系统中配置响应缓存，该实例会一直从服务器加载图片。</p>
+<p>自定义一个 <code>OkHttpClient</code> 实例，将从文件系统返回一个已缓存的响应消息这种情况考虑在内。没有一张图片直接从服务器加载。这在应用第一次加载时是尤为重要的。在这个时候，Picasso 的内存中的缓存是 <a href="http://stackoverflow.com/a/22756972/400717">“冷”</a>的，它会频繁地委托 <code>OkHttpClient</code> 实例去加载图片。</p>
+<p>这就需要构建一个用你的 <code>OkHttpClient</code> 配置的 <code>Picasso</code> 实例。如果你在代码中使用  <code>Picasso.with(context).load(...)</code> 来加载图片，你所使用的 <code>Picasso</code> 单例对象，是在  <code>with</code> 方法中用自己的 <code>OkHttpClient</code> 延迟加载和配置的。因此我们必须在第一次调用 <code>with</code> 方法之前指定自己的 <code>Picasso</code> 实例作为单例对象。</p>
+<p>简单地把 <code>OkHttpClient</code> 实例包装到一个 <code>OkHttpDownloader</code> 对象中，然后传递给 <code>Picasso.Builder</code> 实例的 <code>downloader</code> 方法：</p>
+<div class="highlight"><pre><span class="kd">final</span> <span class="n">Picasso</span> <span class="n">picasso</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Picasso</span><span class="o">.</span><span class="na">Builder</span><span class="o">(</span><span class="n">context</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">downloader</span><span class="o">(</span><span class="k">new</span> <span class="n">OkHttpDownloader</span><span class="o">(</span><span class="n">okHttpClient</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
+<span class="c1">//客户端应该在任何需要的时候来创建这个实例</span>
+<span class="c1">//以防万一，替换掉那个单例对象</span>
+<span class="n">Picasso</span><span class="o">.</span><span class="na">setSingletonInstance</span><span class="o">(</span><span class="n">picasso</span><span class="o">);</span>
+</pre></div>
+
+
+<p>在 Retrofit 1.9.x 中，通过 <code>RestAdapter</code> 使用你的 <code>OkHttpClient</code> 实例，把 <code>OkHttpClient</code> 实例包装到一个 <code>OkClient</code> 实例中，然后传递给 <code>RestAdapter.Builder</code> 实例的 <code>setClient</code> 方法：</p>
+<div class="highlight"><pre>restAdapterBuilder.setClient(new OkClient(httpClient));
+</pre></div>
+
+
+<p>在 Retrofit 2.0 中，直接把 <code>OkHttpClient</code> 实例传递给 <code>Retrofit.Builder</code> 实例的 <code>client</code> 即可。 </p>
+<p>在可汗学院的应用中，我们使用 <a href="http://google.github.io/dagger/">Dagger</a> 来确保只有一个 <code>OkHttpClient</code> 实例，而且 Picasso 和 Retrofit 都会使用到它。我们为带 <code>@Singleton</code> 注解的 <code>OkHttpClient</code> 实例创建了一个 provider：</p>
+<div class="highlight"><pre><span class="nd">@Provides</span>
+<span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="n">OkHttpClient</span> <span class="nf">okHttpClient</span><span class="o">(</span><span class="kd">final</span> <span class="n">Context</span> <span class="n">context</span><span class="o">,</span> <span class="o">...)</span> <span class="o">{</span>
+  <span class="kd">final</span> <span class="n">OkHttpClient</span> <span class="n">okHttpClient</span> <span class="o">=</span> <span class="k">new</span> <span class="n">OkHttpClient</span><span class="o">();</span>
+  <span class="n">configureClient</span><span class="o">(</span><span class="n">okHttpClient</span><span class="o">,</span> <span class="o">...);</span>
+  <span class="k">return</span> <span class="n">okHttpClient</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>这个 <code>OkHttpClient</code> 实例随后通过 Dagger 注入到其他用来创建 <code>RestAdapter</code> 和 <code>Picasso</code> 实例的 provider 里。</p>
+<h3>4. 设置用户代理拦截器（User-Agent Interceptor）</h3>
+<p>当客户端在每一次请求中都提供一个详细的 <code>User-Agent</code> 头部信息时，日志文件和分析数据提供了很有用的信息。默认情况下，OkHttp 的 <code>User-Agent</code> 值仅仅只有它的版本号。要设定你自己的 User-Agent，创建一个拦截器（Interceptor）然后替换掉默认值，参考 <a href="http://stackoverflow.com/a/27840834/400717">StackOverflow 上的建议</a>：</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">UserAgentInterceptor</span> <span class="kd">implements</span> <span class="n">Interceptor</span> <span class="o">{</span>
+  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">USER_AGENT_HEADER_NAME</span> <span class="o">=</span> <span class="s">&quot;User-Agent&quot;</span><span class="o">;</span>
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">userAgentHeaderValue</span><span class="o">;</span>
+
+  <span class="kd">public</span> <span class="nf">UserAgentInterceptor</span><span class="o">(</span><span class="n">String</span> <span class="n">userAgentHeaderValue</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">userAgentHeaderValue</span> <span class="o">=</span> <span class="n">Preconditions</span><span class="o">.</span><span class="na">checkNotNull</span><span class="o">(</span><span class="n">userAgentHeaderValue</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="n">Response</span> <span class="nf">intercept</span><span class="o">(</span><span class="n">Chain</span> <span class="n">chain</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+    <span class="kd">final</span> <span class="n">Request</span> <span class="n">originalRequest</span> <span class="o">=</span> <span class="n">chain</span><span class="o">.</span><span class="na">request</span><span class="o">();</span>
+    <span class="kd">final</span> <span class="n">Request</span> <span class="n">requestWithUserAgent</span> <span class="o">=</span> <span class="n">originalRequest</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">removeHeader</span><span class="o">(</span><span class="n">USER_AGENT_HEADER_NAME</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">addHeader</span><span class="o">(</span><span class="n">USER_AGENT_HEADER_NAME</span><span class="o">,</span> <span class="n">userAgentHeaderValue</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+    <span class="k">return</span> <span class="n">chain</span><span class="o">.</span><span class="na">proceed</span><span class="o">(</span><span class="n">requestWithUserAgent</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>使用任何你觉得有价值的信息，来创建 <code>User-Agent</code> 值，然后传递给 <code>UserAgentInterceptor</code> 的构造函数。我们使用了这些字段：</p>
+<ul>
+<li><code>os</code> 字段，值设置为 <code>Android</code>，明确表明这是一个 Android 设备</li>
+<li><code>Build.MODEL</code> 字段，即用户可见的终端产品的名称</li>
+<li><code>Build.BRAND</code> 字段，即消费者可见的跟产品或硬件相关的商标</li>
+<li><code>Build.VERSION.SDK_INT</code> 字段，即用户可见的 [Android] 框架版本号</li>
+<li><code>BuildConfig.APPLICATION_ID</code> 字段</li>
+<li><code>BuildConfig.VERSION_NAME</code> 字段</li>
+<li><code>BuildConfig.VERSION_CODE</code>字段</li>
+</ul>
+<p>最后三个字段是根据我们的 Gradle 构建脚本中的 <code>applicationId</code>, <code>versionCode</code> 和 <code>versionName</code> 的值来确定的。了解更多信息请参考文档 <a href="http://developer.android.com/tools/publishing/versioning.html">应用版本控制</a>，和 <a href="http://tools.android.com/tech-docs/new-build-system/applicationid-vs-packagename">使用 Gradle 配置你的 <code>applicationId</code></a>。</p>
+<p>小提示：如果你的应用中用到了 <code>WebView</code>，你可以配置使用相同的 <code>User-Agent</code> 值，即之前创建的 <code>UserAgentInterceptor</code>：</p>
+<div class="highlight"><pre><span class="n">WebSettings</span> <span class="n">settings</span> <span class="o">=</span> <span class="n">webView</span><span class="o">.</span><span class="na">getSettings</span><span class="o">();</span>
+<span class="n">settings</span><span class="o">.</span><span class="na">setUserAgentString</span><span class="o">(</span><span class="n">userAgentHeaderValue</span><span class="o">);</span>
+</pre></div>
+
+
+<h3>5. 指定合理的超时</h3>
+<p>在 2.5.0 版本之前，OkHttp 请求默认永不超时。从 2.5.0 版本开始，如果建立了一个连接，或从连接读取下一个字节，或者向连接写入下一个字节，用时超过了10秒，请求就会超时。分别调用 <code>setConnectTimeout</code>，<code>setReadTimeout</code> 或 <code>setWriteTimeout</code> 方法可以重写那些默认值。</p>
+<p>小提示：Picasso 和 Retrofit 为它们的默认 <code>OkHttpClient</code> 实例指定不同的超时时长。
+默认情况下， Picasso 设定如下：</p>
+<ul>
+<li>连接超时15秒</li>
+<li>读取超时20秒</li>
+<li>写入超时20秒</li>
+</ul>
+<p>Retrofit 设定如下：</p>
+<ul>
+<li>连接超时15秒</li>
+<li>读取超时20秒</li>
+<li>写入无超时</li>
+</ul>
+<p>用你自己的 <code>OkHttpClient</code> 实例配置好 Picasso 和 Retrofit 之后，就能确保所有请求超时的一致性了。</p>
+<h3>结论</h3>
+<p>再次强调，OkHttp 的默认配置提供了显著的效果，但是采取以上的措施，可以提高 OkHttp 的可用性和自我检查能力，并且提升你的应用的质量。</p>
+    </article>
+
+        <div class="tags">
+            <p>tags: <a href="http://brucezz.github.io/tag/fan-yi.html">翻译</a>, <a href="http://brucezz.github.io/tag/okhttp.html">OkHttp</a>, </p>
+        </div>
+
+<hr>
+<div class="sharing">
+</div>
+    <hr>
+
+ 
+    <div class="comments"> 
+    <br/><br/>
+        <!-- Duoshuo Comment BEGIN --> 
+        <div class="ds-thread"></div> 
+        <script type="text/javascript"> 
+            var duoshuoQuery = {short_name:"brucezz"}; 
+            (function() {
+                var ds = document.createElement('script');
+                ds.type = 'text/javascript';
+                ds.async = true;
+                ds.src = 'http://static.duoshuo.com/embed.js';
+                ds.charset = 'UTF-8';
+                (document.getElementsByTagName('head')[0]
+                || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+        </script>
+        <noscript>Please enable JavaScript to view the comments.</noscript> 
+        <!-- Duoshuo Comment END --> 
+    </div>
+
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                            <li>
+                                <a href="http://github.com/brucezz">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="http://weibo.com/u/1947300213">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                    </ul>
+<p class="copyright text-muted">
+    Blog powered by <a href="http://getpelican.com">Pelican</a>,
+    which takes great advantage of <a href="http://python.org">Python</a>.
+</p>                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="http://brucezz.github.io/theme/js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="http://brucezz.github.io/theme/js/bootstrap.min.js"></script>
+
+        <!-- Custom Theme JavaScript -->
+        <script src="http://brucezz.github.io/theme/js/clean-blog.min.js"></script>
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1256702937'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1256702937%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+</body>
+
+</html>
