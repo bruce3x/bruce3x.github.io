@@ -108,6 +108,9 @@
     <!-- Post Content -->
     <article>
         <h2>0x00 要干啥？</h2>
+<p>好久没写博客了，最近被两个毕设折腾成狗，这两天部署程序长了点姿势，记录一下。</p>
+<p>毕设需要自己做一个后端程序，为我的 APP 提供 API 数据支持。我就用 Flask 写了个简单的程序，在本地跑起来了，接下来就是部署到服务器上。我原以为把代码放上去，然后 <code>python manage.py</code> 就 ok 了，原来是我太 naive。。。</p>
+<p>Flask 自带的 server 性能太差，只够调试用的，那么我只好另找途径了。搜索一番，Nginx + uWSGI + Flask 的套路大家用的挺多的，那我也就选择这套方案啦。</p>
 <h2>0x01 Ngnix/uWSGI 是什么</h2>
 <p><img alt="wsgi-server" src="images/wsgi-server.png" /></p>
 <p><a href="http://nginx.org/en/">Nginx</a> 是一款高性能的 Web 和 反向代理 服务器。</p>
