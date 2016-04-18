@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+            <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+
+        <title>使用 Nginx + uWSGI 在 CentOS 云服务器上部署 Flask 程序</title>
+
+
+            <link rel="shortcut icon" href="/images/favicon.ico">
+
+        <!-- Bootstrap Core CSS -->
+        <link href="http://brucezz.github.io/theme/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link href="http://brucezz.github.io/theme/css/clean-blog.min.css" rel="stylesheet">
+
+        <!-- Code highlight color scheme -->
+            <link href="http://brucezz.github.io/theme/css/code_blocks/colorful.css" rel="stylesheet">
+
+
+        <!-- Custom Fonts -->
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+
+
+
+
+
+	                <meta property="og:locale" content="">
+		<meta property="og:site_name" content="Brucezz's Corner">
+
+	<meta property="og:type" content="article">
+	<meta property="article:author" content="">
+	<meta property="og:url" content="http://brucezz.github.io/articles/2016/04/18/nginx-uwsgi-flask-deploy-on-centos/">
+	<meta property="og:title" content="使用 Nginx + uWSGI 在 CentOS 云服务器上部署 Flask 程序">
+	<meta property="og:description" content="">
+	<meta property="og:image" content="http://brucezz.github.io//images/cover/nginx-uwsgi-flask.png">
+	<meta property="article:published_time" content="2016-04-18 00:00:00+08:00">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="http://brucezz.github.io/">Brucezz's Corner</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                        <li><a href="/archives.html">归档</a></li>
+                        <li><a href="/categories.html">分类</a></li>
+                        <li><a href="/pages/about.html">关于我</a></li>
+
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Header -->
+        <header class="intro-header" style="background-image: url('/images/cover/nginx-uwsgi-flask.png')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <div class="post-heading">
+                        <h1>使用 Nginx + uWSGI 在 CentOS 云服务器上部署 Flask 程序</h1>
+                        <span class="meta">Posted by
+                                <a href="http://brucezz.github.io/author/brucezz.html">Brucezz</a>
+                             on 2016-04-18
+                        </span>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+    <!-- Post Content -->
+    <article>
+        <h2>0x00 要干啥？</h2>
+<h2>0x01 Ngnix/uWSGI 是什么</h2>
+<p><img alt="wsgi-server" src="images/wsgi-server.png" /></p>
+<p><a href="http://nginx.org/en/">Nginx</a> 是一款高性能的 Web 和 反向代理 服务器。</p>
+<p>WSGI, Web 服务器网关接口（Python Web Server Gateway Interface)。</p>
+<p><a href="https://uwsgi-docs.readthedocs.org/en/latest/">uWSGI</a>，一个实现了 WSGI，uwsgi，http 等协议的服务器，与 nginx 在一个层次, 提供网关服务。</p>
+<p><a href="http://docs.jinkan.org/docs/flask/">Flask</a> 是一个使用 Python 编写的轻量级 Web 应用框架。</p>
+<h2>0x02 用 Ngnix/uWSGI 部署 Flask</h2>
+<h3>1.环境</h3>
+<p>CentOS 7.2, Python / 2.7.5, uwsgi / 2.0.12, nginx / 1.6.3</p>
+<h3>2.部署 Flask 程序</h3>
+<p>在项目目录下，放置 Flask 程序，最简单的 <code>hello.py</code> 如下:</p>
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s1">&#39;Hello Python&#39;</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+
+
+<p>执行 <code>python hello.py</code> 会看到 </p>
+<blockquote>
+<p>* Running on http://127.0.0.1:5000/</p>
+</blockquote>
+<p>即 Flask 程序跑起来啦~</p>
+<h3>3.配置 uWSGI 服务器网关服务</h3>
+<p>通过 pip 安装 &gt; <code>pip install uwsgi</code></p>
+<p>可以通过下面的命令启动应用</p>
+<p><code>uwsgi -s /tmp/uwsgi.sock --module hello --callable app</code> </p>
+<p><code>uwsgi -s /tmp/uwsgi.sock -w hello</code></p>
+<p>也可以从配置文件中加载参数启动：</p>
+<p>创建 uwsgi 配置文件 <code>vim /etc/uwsgi/apps-enabled/hello.ini</code></p>
+<div class="highlight"><pre><span class="k">[uwsgi]</span>
+<span class="err">//</span> <span class="err">开启主线程</span>
+<span class="na">master</span> <span class="o">=</span> <span class="s">true</span>
+
+<span class="err">//</span> <span class="err">项目目录</span>
+<span class="na">base</span> <span class="o">=</span> <span class="s">/home/bruce/web</span>
+
+<span class="err">//</span> <span class="err">移动到项目目录</span> <span class="err">cd</span>
+<span class="na">chdir</span> <span class="o">=</span> <span class="s">%(base)</span>
+
+<span class="err">//</span> <span class="err">本地的ip和端口</span>
+<span class="na">socket</span> <span class="o">=</span> <span class="s">127.0.0.1:5000</span>
+
+<span class="err">//</span> <span class="err">Python</span> <span class="err">虚拟环境目录</span>
+<span class="na">home</span> <span class="o">=</span> <span class="s">%(base)/ENV</span>
+
+<span class="err">//</span> <span class="err">程序启动文件</span>
+<span class="na">wsgi-file</span> <span class="o">=</span> <span class="s">hello.py</span>
+
+<span class="err">//</span> <span class="err">项目中引用</span> <span class="err">flask</span> <span class="err">实例的变量名</span>
+<span class="na">callable</span> <span class="o">=</span> <span class="s">app</span>
+
+<span class="err">//</span> <span class="err">处理器数</span>
+<span class="na">processes</span> <span class="o">=</span> <span class="s">2</span>
+
+<span class="err">//</span> <span class="err">线程数</span>
+<span class="na">threads</span> <span class="o">=</span> <span class="s">4</span>
+
+<span class="err">//</span> <span class="err">获取uwsgi统计信息的服务地址</span>
+<span class="na">stats</span> <span class="o">=</span> <span class="s">127.0.0.1:9191</span>
+</pre></div>
+
+
+<p>保存配置文件，通过 <code>uwsgi -i /etc/uwsgi/apps-enabled/hello.ini</code>，来启动 uwsgi。</p>
+<h3>3.安装配置 Nginx 代理</h3>
+<p>先添加软件源，然后安装 Nginx</p>
+<div class="highlight"><pre>sudo su -c &#39;rpm -Uvh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm&#39;
+
+sudo yum install -y nginx
+</pre></div>
+
+
+<p>在 <code>/etc/nginx/ngixn.conf</code> 文件的 <code>http</code> 部分添加一条 include 内容，即最后一行</p>
+<div class="highlight"><pre>http {
+    include       mime.types;
+    default_type  application/octet-stream;
+    sendfile        on;
+    keepalive_timeout  65;
+    include /etc/nginx/sites-enabled/*;
+}
+</pre></div>
+
+
+<p>创建配置文件 <code>vim /etc/nginx/sites-enabled/hello.conf</code></p>
+<div class="highlight"><pre><span class="nt">server</span> <span class="p">{</span>
+
+    <span class="err">#</span> <span class="n">Running</span> <span class="n">port</span>
+    <span class="n">listen</span> <span class="m">80</span><span class="p">;</span>
+    <span class="err">#</span> <span class="err">服务器</span><span class="n">ip</span> <span class="err">或者域名</span>
+    <span class="n">server_name</span> <span class="n">xxx</span><span class="o">.</span><span class="n">xxx</span><span class="o">.</span><span class="n">xx</span><span class="o">.</span><span class="n">xxx</span><span class="p">;</span>
+
+    <span class="err">#</span> <span class="n">Proxying</span> <span class="n">connections</span> <span class="n">to</span> <span class="n">application</span> <span class="n">servers</span>
+    <span class="n">location</span> <span class="o">/</span> <span class="err">{</span>
+
+        <span class="n">include</span>            <span class="n">uwsgi_params</span><span class="p">;</span>
+        <span class="n">uwsgi_pass</span>         <span class="m">127</span><span class="o">.</span><span class="m">0</span><span class="o">.</span><span class="m">0</span><span class="o">.</span><span class="m">1</span><span class="o">:</span><span class="m">5000</span><span class="p">;</span><span class="o">//</span><span class="err">和</span> <span class="n">uWSGI</span> <span class="err">配置文件中的</span> <span class="n">ip</span><span class="err">端口一致</span>
+    <span class="p">}</span>
+<span class="err">}</span>
+</pre></div>
+
+
+<p>使用命令 <code>sudo nginx -t</code> 测试配置文件是否正确。如果出现下面的文字，测试就是通过的啦！</p>
+<blockquote>
+<p>nginx: the configuration file /etc/nginx/nginx.conf syntax is ok</p>
+<p>nginx: configuration file /etc/nginx/nginx.conf test is successful</p>
+</blockquote>
+<p>然后使用 <code>sudo nginx -s reload</code> 可以平滑重启服务。</p>
+<p>现在就可以通过域名或ip访问项目了，web的请求会转发到 5000 端口。</p>
+<h2>0x03 设置自启动</h2>
+<p>由于这些服务是放在服务器上长期运行的，最好将 Nginx 和 uWSGI 配置为系统服务，并且开机自启动。</p>
+<h3>1.配置 Nginx 开启启动</h3>
+<p><code>sudo vim /etc/init.d/nginx</code></p>
+<p>写入下列内容</p>
+<div class="highlight"><pre><span class="ch">#!/bin/bash</span>
+<span class="c1"># chkconfig: - 85 15</span>
+<span class="nv">nginx</span><span class="o">=</span>/usr/sbin/nginx
+<span class="nv">conf</span><span class="o">=</span>/etc/nginx/nginx.conf
+
+<span class="k">case</span> <span class="nv">$1</span> in
+    start<span class="o">)</span>
+        <span class="nb">echo</span> -n <span class="s2">&quot;Starting Nginx&quot;</span>
+        $nginx -c <span class="nv">$c</span>onf
+        <span class="nb">echo</span> <span class="s2">&quot; done&quot;</span>
+    <span class="p">;;</span>
+
+    stop<span class="o">)</span>
+        <span class="nb">echo</span> -n <span class="s2">&quot;Stopping Nginx&quot;</span>
+        $nginx -s stop
+        <span class="nb">echo</span> <span class="s2">&quot; done&quot;</span>
+    <span class="p">;;</span>
+
+    <span class="nb">test</span><span class="o">)</span>
+        $nginx -t -c <span class="nv">$c</span>onf
+    <span class="p">;;</span>
+
+    reload<span class="o">)</span>
+        <span class="nb">echo</span> -n <span class="s2">&quot;Reloading Nginx&quot;</span>
+        $nginx -s reload
+        <span class="nb">echo</span> <span class="s2">&quot; done&quot;</span>
+    <span class="p">;;</span>
+
+    restart<span class="o">)</span>
+        <span class="nv">$0</span> stop
+        <span class="nv">$0</span> start
+    <span class="p">;;</span>
+
+    show<span class="o">)</span>
+        ps -aux<span class="p">|</span>grep nginx
+    <span class="p">;;</span>
+
+    *<span class="o">)</span>
+        <span class="nb">echo</span> -n <span class="s2">&quot;Usage: </span><span class="nv">$0</span><span class="s2"> {start|restart|reload|stop|test|show}&quot;</span>
+    <span class="p">;;</span>
+
+<span class="k">esac</span>
+</pre></div>
+
+
+<p>粗略地看一下，也就是通过命令后第一个参数，case 判断相应的操作(start, stop, test, reload, restart, show )。</p>
+<p>给脚本添加可执行属性 <code>sudo chmod +x /etc/init.d/nginx</code></p>
+<p>添加为系统服务（开机自启动）</p>
+<div class="highlight"><pre>sudo chkconfig --add nginx
+sudo chkconfig nginx on
+</pre></div>
+
+
+<p>启动 Nginx 服务</p>
+<p><code>sudo service nginx start</code></p>
+<h3>2.配置 uWSGI 开机启动</h3>
+<p>和 nginx 类似的操作：</p>
+<p>创建脚本</p>
+<p><code>sudo vim /etc/init.d/uwsgi</code></p>
+<p>写入</p>
+<div class="highlight"><pre><span class="ch">#!/bin/bash</span>
+<span class="c1"># chkconfig: - 85 15</span>
+<span class="nv">uwsgi</span><span class="o">=</span>/usr/bin/uwsgi
+<span class="nv">hello_conf</span><span class="o">=</span>/etc/uwsgi/apps-enabled/hello.ini
+
+<span class="k">case</span> <span class="nv">$1</span> in
+    start<span class="o">)</span>
+        <span class="nb">echo</span> -n <span class="s2">&quot;Starting uWsgi&quot;</span>
+        nohup $uwsgi -i $hello_conf &gt;/var/log/uwsgi/hello.log 2&gt;<span class="p">&amp;</span><span class="m">1</span> <span class="p">&amp;</span>
+        <span class="nb">echo</span> <span class="s2">&quot; done&quot;</span>
+    <span class="p">;;</span>
+
+    stop<span class="o">)</span>
+        <span class="nb">echo</span> -n <span class="s2">&quot;Stopping uWsgi&quot;</span>
+        killall -9 uwsgi
+        <span class="nb">echo</span> <span class="s2">&quot; done&quot;</span>
+    <span class="p">;;</span>
+
+    restart<span class="o">)</span>
+        <span class="nv">$0</span> stop
+        <span class="nv">$0</span> start
+    <span class="p">;;</span>
+
+    show<span class="o">)</span>
+        ps -ef<span class="p">|</span>grep uwsgi
+    <span class="p">;;</span>
+
+    *<span class="o">)</span>
+        <span class="nb">echo</span> -n <span class="s2">&quot;Usage: </span><span class="nv">$0</span><span class="s2"> {start|restart|stop|show}&quot;</span>
+    <span class="p">;;</span>
+
+<span class="k">esac</span>
+</pre></div>
+
+
+<p>添加可执行属性</p>
+<p><code>sudo chmod +x /etc/init.d/uwsgi</code></p>
+<p>添加为系统服务</p>
+<div class="highlight"><pre>sudo chkconfig --add uwsgi
+sudo chkconfig uwsgi on
+</pre></div>
+
+
+<p>启动 uWSGI 服务</p>
+<p><code>sudo service uwsgi start</code></p>
+<p>注：脚本开头要写上 <code># chkconfig: - 85 15</code> ，不然无法添加为系统服务（网上有的代码少了这句话）。</p>
+<h2>0x04 小题普丝(tips) ╰(<em>°▽°</em>)╯</h2>
+<ul>
+<li>熟练掌握 vi/vim 读写保存文件</li>
+<li>更改 Nginx 配置之后，使用 <code>sudo service nginx test</code> 测试</li>
+<li>测试通过 Nginx 配置之后，使用 <code>sudo service nginx reload</code> 平滑重启服务</li>
+<li>常查 log，有 bug 一般在日志文件中会有报错<ul>
+<li>Nginx 在 <code>/var/log/nginx</code> 目录下有 <code>access.log</code> 和 <code>error.log</code> 两个日志文件</li>
+<li>uWSGI 在 <code>/var/log/uwsgi</code> 目录下有项目对应日志</li>
+<li>Flask 程序可以自己保存日志</li>
+</ul>
+</li>
+<li>改配置文件什么的，最好备个份，免得改挂掉了一脸懵逼ʘʚʘ，不要问我怎么知道的。。</li>
+<li>用 <code>ps -ef | grep uwsgi</code> 可以查看当前 uwsgi 的进程，必要时能根据 pid 把它 kill 掉。nginx 同理</li>
+<li>待续 ...</li>
+</ul>
+<h2>Reference</h2>
+<p><a href="http://sagerblog.github.io/blog/2013/01/15/linux-nginx-uwsgi/">Linux配置Nginx+uWsgi环境 - SagerXiao's Blog</a></p>
+<p><a href="http://sagerblog.github.io/blog/2013/01/15/linux-service-auto-startup/">配置Nginx和uWsig服务开机自动启动 - SagerXiao's Blog</a></p>
+<p><a href="http://fedepot.com/zai-centos-shang-shi-yong-nginx/">在 CentOS 上使用 Nginx/uWSGI 部署 Flask 网站应用</a></p>
+    </article>
+
+
+<hr>
+<div class="sharing">
+</div>
+    <hr>
+
+ 
+    <div class="comments"> 
+    <br/><br/>
+        <!-- Duoshuo Comment BEGIN --> 
+        <div class="ds-thread"></div> 
+        <script type="text/javascript"> 
+            var duoshuoQuery = {short_name:"brucezz"}; 
+            (function() {
+                var ds = document.createElement('script');
+                ds.type = 'text/javascript';
+                ds.async = true;
+                ds.src = 'http://static.duoshuo.com/embed.js';
+                ds.charset = 'UTF-8';
+                (document.getElementsByTagName('head')[0]
+                || document.getElementsByTagName('body')[0]).appendChild(ds);
+                })();
+        </script>
+        <noscript>Please enable JavaScript to view the comments.</noscript> 
+        <!-- Duoshuo Comment END --> 
+    </div>
+
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                            <li>
+                                <a href="http://github.com/brucezz">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="http://weibo.com/u/1947300213">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                    </ul>
+<p class="copyright text-muted">
+    Blog powered by <a href="http://getpelican.com">Pelican</a>,
+    which takes great advantage of <a href="http://python.org">Python</a>.
+</p>                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="http://brucezz.github.io/theme/js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="http://brucezz.github.io/theme/js/bootstrap.min.js"></script>
+
+        <!-- Custom Theme JavaScript -->
+        <script src="http://brucezz.github.io/theme/js/clean-blog.min.js"></script>
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1256702937'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1256702937%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+</body>
+
+</html>
