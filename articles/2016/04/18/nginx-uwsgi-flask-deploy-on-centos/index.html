@@ -137,7 +137,7 @@ virtualenv ENV
 <p>生成依赖清单可以用命令</p>
 <p><code>pip freeze &gt; requirements.txt</code></p>
 <p>搞定！</p>
-<h3>2.部署 Flask 程序</h3>
+<h3>3.部署 Flask 程序</h3>
 <p>在项目目录下，放置 Flask 程序，最简单的 <code>hello.py</code> 如下:</p>
 <div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
 
@@ -157,7 +157,7 @@ virtualenv ENV
 <p>* Running on http://127.0.0.1:5000/</p>
 </blockquote>
 <p>这样 Flask 程序就跑起来啦~</p>
-<h3>3.配置 uWSGI 服务器网关服务</h3>
+<h3>4.配置 uWSGI 服务器网关服务</h3>
 <p>通过 pip 安装 &gt; <code>pip install uwsgi</code></p>
 <p>可以通过下面的命令启动应用</p>
 <p><code>uwsgi -s /tmp/uwsgi.sock --module hello --callable app</code> </p>
@@ -198,7 +198,7 @@ virtualenv ENV
 
 
 <p>保存配置文件，通过 <code>uwsgi -i /etc/uwsgi/apps-enabled/hello.ini</code>，来启动 uwsgi。</p>
-<h3>3.安装配置 Nginx 代理</h3>
+<h3>5.安装配置 Nginx 代理</h3>
 <p>先添加软件源，然后安装 Nginx</p>
 <div class="highlight"><pre>sudo su -c &#39;rpm -Uvh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm&#39;
 
