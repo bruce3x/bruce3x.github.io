@@ -1,5 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Brucezz's Corner</title><link>http://brucezz.github.io/</link><description>/* Stay hungry, Stay foolish. */</description><atom:link href="http://brucezz.github.io//feeds/rss.xml" rel="self"></atom:link><lastBuildDate>Mon, 18 Apr 2016 00:00:00 +0800</lastBuildDate><item><title>在 CentOS 云服务器上使用 Nginx + uWSGI 部署 Flask 程序</title><link>http://brucezz.github.io/articles/2016/04/18/nginx-uwsgi-flask-deploy-on-centos/</link><description>&lt;h2&gt;0x00 要干啥？&lt;/h2&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Brucezz's Corner</title><link>http://brucezz.github.io/</link><description>/* Stay hungry, Stay foolish. */</description><atom:link href="http://brucezz.github.io//feeds/rss.xml" rel="self"></atom:link><lastBuildDate>Thu, 02 Jun 2016 00:00:00 +0800</lastBuildDate><item><title>RxBus 的简单实现</title><link>http://brucezz.github.io/articles/2016/06/02/a-simple-rxbus-implementation/</link><description>&lt;p&gt;今天写代码正好想到要用事件总线，先前都是使用 Square 的 Otto 或者 GreenRobot 的 EventBus ，听说 RxJava 能够轻易实现一个 Bus，所以就来研究研究这个车怎么开~&lt;/p&gt;
+&lt;p&gt;&lt;img alt="没时间解释了，快上车！" src="/images/no-time-to-explain.jpg" /&gt;&lt;/p&gt;
+&lt;p&gt;这辆车需要有一下功能：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;订阅者能够订阅某种事件 Event&lt;/li&gt;
+&lt;li&gt;发布某种 Event 时，该事件的订阅者们能够及时响应&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;在 RxJava 里有一个对象 Subject，既是 Observable 又是 Observer，可以把 Subject 理解成一个管道或者转发器，数据从一端输入，然后从另一端输出。&lt;/p&gt;
+&lt;p&gt;Subject 有好几种，这里可以使用最简单的 &lt;code&gt;PublishSubject&lt;/code&gt;。一旦数据从一端传入，结果会里立刻从另一端输出。&lt;/p&gt;
+&lt;p&gt;由于允许订阅者订阅某一种类型的 Event，所以注册订阅的时候需要一个 Class 对象对事件进行过滤。&lt;/p&gt;
+&lt;h3&gt;简单实现&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;RxBus&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="kd"&gt;private&lt;/span&gt; &lt;span class="kd"&gt;static&lt;/span&gt; &lt;span class="kd"&gt;volatile&lt;/span&gt; &lt;span class="n"&gt;RxBus&lt;/span&gt; &lt;span class="n"&gt;instance&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+    &lt;span class="kd"&gt;private&lt;/span&gt; &lt;span class="kd"&gt;final&lt;/span&gt; &lt;span class="n"&gt;Subject&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Object&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Object&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;BUS&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+
+    &lt;span class="kd"&gt;private&lt;/span&gt; &lt;span class="nf"&gt;RxBus&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;BUS&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;SerializedSubject&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;gt;(&lt;/span&gt;&lt;span class="n"&gt;PublishSubject&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;create&lt;/span&gt;&lt;span class="o"&gt;());&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+
+    &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;static&lt;/span&gt; &lt;span class="n"&gt;RxBus&lt;/span&gt; &lt;span class="nf"&gt;getDefault&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;instance&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+            &lt;span class="kd"&gt;synchronized&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;RxBus&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;class&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+                &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;instance&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+                    &lt;span class="n"&gt;instance&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;RxBus&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+                &lt;span class="o"&gt;}&lt;/span&gt;
+            &lt;span class="o"&gt;}&lt;/span&gt;
+        &lt;span class="o"&gt;}&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;instance&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+
+    &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;post&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Object&lt;/span&gt; &lt;span class="n"&gt;event&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;BUS&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;onNext&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;event&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+
+    &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;Observable&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="nf"&gt;toObserverable&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Class&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;eventType&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="c1"&gt;// ofType = filter + cast&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;BUS&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;ofType&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;eventType&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;其中，RxBus 使用了单例模式，确保应用中只有一辆车。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;post&lt;/code&gt; 方法发布一个 Event 对象给 bus，然后由 bus 转发给订阅者们。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;toObserverable&lt;/code&gt; 方法能够获得一个包含目标事件的 Observable，订阅者对其订阅即可响应。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;bus.ofType()&lt;/code&gt; 等效于  &lt;code&gt;bus.filter(eventType::isInstance).cast(eventType)&lt;/code&gt; ，即先过滤事件类型，然后发射给订阅者。&lt;/p&gt;
+&lt;h3&gt;开车啦&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;RxBusActivity&lt;/span&gt; &lt;span class="kd"&gt;extends&lt;/span&gt; &lt;span class="n"&gt;AppCompatActivity&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="kd"&gt;private&lt;/span&gt; &lt;span class="n"&gt;CompositeSubscription&lt;/span&gt; &lt;span class="n"&gt;allSubscription&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;CompositeSubscription&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+    &lt;span class="n"&gt;Button&lt;/span&gt; &lt;span class="n"&gt;send&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+
+    &lt;span class="nd"&gt;@Override&lt;/span&gt;
+    &lt;span class="kd"&gt;protected&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;onCreate&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nd"&gt;@Nullable&lt;/span&gt; &lt;span class="n"&gt;Bundle&lt;/span&gt; &lt;span class="n"&gt;savedInstanceState&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="kd"&gt;super&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;onCreate&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;savedInstanceState&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+        &lt;span class="n"&gt;setContentView&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;R&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;layout&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;activity_main&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+        &lt;span class="n"&gt;send&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Button&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="n"&gt;findViewById&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;R&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;id&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;send&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+        &lt;span class="n"&gt;send&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;setOnClickListener&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;
+                &lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;RxBus&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getDefault&lt;/span&gt;&lt;span class="o"&gt;().&lt;/span&gt;&lt;span class="na"&gt;post&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;OneEvent&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;hello bus&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;)));&lt;/span&gt;
+        &lt;span class="n"&gt;allSubscription&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;add&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;RxBus&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getDefault&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt;
+                &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;toObserverable&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;OneEvent&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;class&lt;/span&gt;&lt;span class="o"&gt;).&lt;/span&gt;&lt;span class="na"&gt;subscribe&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;response&lt;/span&gt;&lt;span class="o"&gt;));&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+
+    &lt;span class="kd"&gt;private&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;response&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;OneEvent&lt;/span&gt; &lt;span class="n"&gt;event&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;ToastUtil&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;show&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;event&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;msg&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+
+    &lt;span class="nd"&gt;@Override&lt;/span&gt;
+    &lt;span class="kd"&gt;protected&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;onDestroy&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="kd"&gt;super&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;onDestroy&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;allSubscription&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="n"&gt;allSubscription&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;isUnsubscribed&lt;/span&gt;&lt;span class="o"&gt;())&lt;/span&gt;
+            &lt;span class="n"&gt;allSubscription&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;unsubscribe&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+
+    &lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;OneEvent&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="c1"&gt;// some data you need ...&lt;/span&gt;
+        &lt;span class="n"&gt;String&lt;/span&gt; &lt;span class="n"&gt;msg&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+
+        &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="nf"&gt;OneEvent&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt; &lt;span class="n"&gt;msg&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+            &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;msg&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;msg&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+        &lt;span class="o"&gt;}&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;点击按钮，发送  &lt;code&gt;OneEvent&lt;/code&gt; 事件，然后响应此事件，发出 Toast ~&lt;/p&gt;
+&lt;p&gt;通过多次调用 &lt;code&gt;toObserverable()&lt;/code&gt; 方法可以订阅多种事件。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;小 tip&lt;/strong&gt; : &lt;code&gt;CompositeSubscription&lt;/code&gt; 可以把 Subscription 收集到一起，方便 Activity 销毁时取消订阅，防止内存泄漏。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Brucezz</dc:creator><pubDate>Thu, 02 Jun 2016 00:00:00 +0800</pubDate><guid>tag:brucezz.github.io,2016-06-02:articles/2016/06/02/a-simple-rxbus-implementation/</guid></item><item><title>在 CentOS 云服务器上使用 Nginx + uWSGI 部署 Flask 程序</title><link>http://brucezz.github.io/articles/2016/04/18/nginx-uwsgi-flask-deploy-on-centos/</link><description>&lt;h2&gt;0x00 要干啥？&lt;/h2&gt;
 &lt;p&gt;好久没写博客了，最近被两个毕设折腾成狗，这两天部署程序踩了很多坑长了点姿势，记录一下。&lt;/p&gt;
 &lt;p&gt;毕设需要自己做一个后端程序，为我的 APP 提供 API 数据支持。我就用 Flask 写了个简单的程序，在本地跑起来了，接下来就是部署到服务器上。我原以为把代码放上去，然后 &lt;code&gt;python manage.py&lt;/code&gt; 就 ok 了，原来是我太 naive 了。。。&lt;/p&gt;
 &lt;p&gt;Flask 自带的 server 性能太差，只够调试用的，那么我只好另找途径了。搜索一番，Nginx + uWSGI + Flask 的套路大家用的挺多的，那我也就选择这套方案啦。&lt;/p&gt;
@@ -44,7 +131,7 @@ virtualenv ENV
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;执行 &lt;code&gt;python hello.py&lt;/code&gt; 会看到 &lt;/p&gt;
+&lt;p&gt;执行 &lt;code&gt;python hello.py&lt;/code&gt; 会看到&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;* Running on http://127.0.0.1:5000/&lt;/p&gt;
 &lt;/blockquote&gt;
@@ -52,7 +139,7 @@ virtualenv ENV
 &lt;h3&gt;4.配置 uWSGI 服务器网关服务&lt;/h3&gt;
 &lt;p&gt;通过 pip 安装 &amp;gt; &lt;code&gt;pip install uwsgi&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;可以通过下面的命令启动应用&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;uwsgi -s /tmp/uwsgi.sock --module hello --callable app&lt;/code&gt; &lt;/p&gt;
+&lt;p&gt;&lt;code&gt;uwsgi -s /tmp/uwsgi.sock --module hello --callable app&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;uwsgi -s /tmp/uwsgi.sock -w hello&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;也可以从配置文件中加载参数启动：&lt;/p&gt;
 &lt;p&gt;创建 uwsgi 配置文件 &lt;code&gt;vim /etc/uwsgi/apps-enabled/hello.ini&lt;/code&gt;&lt;/p&gt;
@@ -301,7 +388,7 @@ sudo chkconfig uwsgi on
 
 &lt;p&gt;返回结果如下：&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;{&lt;/span&gt;
-  &lt;span class="nt"&gt;&amp;quot;code&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; 
+  &lt;span class="nt"&gt;&amp;quot;code&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
   &lt;span class="nt"&gt;&amp;quot;message&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Hello, brucezz~&amp;quot;&lt;/span&gt;
 &lt;span class="p"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
@@ -349,26 +436,26 @@ sudo chkconfig uwsgi on
 
 &lt;p&gt;访问 &lt;a href="http://brucezz.leanapp.cn/skill"&gt;'/skill'&lt;/a&gt; 返回结果如下：&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;{&lt;/span&gt;
-    &lt;span class="nt"&gt;&amp;quot;code&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; 
+    &lt;span class="nt"&gt;&amp;quot;code&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
     &lt;span class="nt"&gt;&amp;quot;skills&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
         &lt;span class="p"&gt;{&lt;/span&gt;
-            &lt;span class="nt"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Python&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; 
+            &lt;span class="nt"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Python&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
             &lt;span class="nt"&gt;&amp;quot;rank&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
-        &lt;span class="p"&gt;},&lt;/span&gt; 
+        &lt;span class="p"&gt;},&lt;/span&gt;
         &lt;span class="p"&gt;{&lt;/span&gt;
-            &lt;span class="nt"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Java&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; 
+            &lt;span class="nt"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Java&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
             &lt;span class="nt"&gt;&amp;quot;rank&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;
-        &lt;span class="p"&gt;},&lt;/span&gt; 
+        &lt;span class="p"&gt;},&lt;/span&gt;
         &lt;span class="p"&gt;{&lt;/span&gt;
-            &lt;span class="nt"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Swift&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; 
+            &lt;span class="nt"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Swift&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
             &lt;span class="nt"&gt;&amp;quot;rank&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;
-        &lt;span class="p"&gt;},&lt;/span&gt; 
+        &lt;span class="p"&gt;},&lt;/span&gt;
         &lt;span class="p"&gt;{&lt;/span&gt;
-            &lt;span class="nt"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;C#&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; 
+            &lt;span class="nt"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;C#&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
             &lt;span class="nt"&gt;&amp;quot;rank&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt;
-        &lt;span class="p"&gt;},&lt;/span&gt; 
+        &lt;span class="p"&gt;},&lt;/span&gt;
         &lt;span class="p"&gt;{&lt;/span&gt;
-            &lt;span class="nt"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Ruby&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; 
+            &lt;span class="nt"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Ruby&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
             &lt;span class="nt"&gt;&amp;quot;rank&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;
         &lt;span class="p"&gt;}&lt;/span&gt;
     &lt;span class="p"&gt;]&lt;/span&gt;
@@ -425,7 +512,7 @@ sudo chkconfig uwsgi on
 &lt;h2&gt;待续&lt;/h2&gt;
 &lt;p&gt;这次体验 LeanCloud 云引擎仅仅是一个开始，还有云函数以及定时函数可以使用，以后会更加深入地研究。&lt;/p&gt;
 &lt;p&gt;另外 LeanCloud 云引擎还能使用 Python Web 框架，部署自己的小站，免去自己架设服务器的麻烦。&lt;/p&gt;
-&lt;p&gt;更多的技巧姿势，需参考 &lt;a href="https://leancloud.cn/docs/index.html"&gt;LeanCloud 文档&lt;/a&gt;，以及 &lt;a href="http://docs.jinkan.org/docs/flask/"&gt;Flask 文档&lt;/a&gt;。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Brucezz</dc:creator><pubDate>Sat, 05 Mar 2016 00:00:00 +0800</pubDate><guid>tag:brucezz.github.io,2016-03-05:articles/2016/03/05/start-with-leanengine/</guid><category>LeanCloud</category><category>云引擎</category></item><item><title>如何更高效地使用 OkHttp</title><link>http://brucezz.github.io/articles/2016/02/21/effective-okhttp/</link><description>&lt;blockquote&gt;
+&lt;p&gt;更多的技巧姿势，需参考 &lt;a href="https://leancloud.cn/docs/index.html"&gt;LeanCloud 文档&lt;/a&gt;，以及 &lt;a href="http://docs.jinkan.org/docs/flask/"&gt;Flask 文档&lt;/a&gt;。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Brucezz</dc:creator><pubDate>Sat, 05 Mar 2016 00:00:00 +0800</pubDate><guid>tag:brucezz.github.io,2016-03-05:articles/2016/03/05/start-with-leanengine/</guid><category>LeanCloud</category></item><item><title>如何更高效地使用 OkHttp</title><link>http://brucezz.github.io/articles/2016/02/21/effective-okhttp/</link><description>&lt;blockquote&gt;
 &lt;ul&gt;
 &lt;li&gt;原文链接: &lt;a href="http://omgitsmgp.com/2015/12/02/effective-okhttp/"&gt;Effective OkHttp&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;原文作者 : &lt;a href="http://omgitsmgp.com/"&gt;Michael Parker&lt;/a&gt;&lt;/li&gt;
@@ -497,7 +584,7 @@ sudo chkconfig uwsgi on
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;在 Retrofit 2.0 中，直接把 &lt;code&gt;OkHttpClient&lt;/code&gt; 实例传递给 &lt;code&gt;Retrofit.Builder&lt;/code&gt; 实例的 &lt;code&gt;client&lt;/code&gt; 即可。 &lt;/p&gt;
+&lt;p&gt;在 Retrofit 2.0 中，直接把 &lt;code&gt;OkHttpClient&lt;/code&gt; 实例传递给 &lt;code&gt;Retrofit.Builder&lt;/code&gt; 实例的 &lt;code&gt;client&lt;/code&gt; 即可。&lt;/p&gt;
 &lt;p&gt;在可汗学院的应用中，我们使用 &lt;a href="http://google.github.io/dagger/"&gt;Dagger&lt;/a&gt; 来确保只有一个 &lt;code&gt;OkHttpClient&lt;/code&gt; 实例，而且 Picasso 和 Retrofit 都会使用到它。我们为带 &lt;code&gt;@Singleton&lt;/code&gt; 注解的 &lt;code&gt;OkHttpClient&lt;/code&gt; 实例创建了一个 provider：&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nd"&gt;@Provides&lt;/span&gt;
 &lt;span class="nd"&gt;@Singleton&lt;/span&gt;
@@ -567,7 +654,7 @@ sudo chkconfig uwsgi on
 &lt;/ul&gt;
 &lt;p&gt;用你自己的 &lt;code&gt;OkHttpClient&lt;/code&gt; 实例配置好 Picasso 和 Retrofit 之后，就能确保所有请求超时的一致性了。&lt;/p&gt;
 &lt;h3&gt;结论&lt;/h3&gt;
-&lt;p&gt;再次强调，OkHttp 的默认配置提供了显著的效果，但是采取以上的措施，可以提高 OkHttp 的可用性和自我检查能力，并且提升你的应用的质量。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Brucezz</dc:creator><pubDate>Sun, 21 Feb 2016 00:00:00 +0800</pubDate><guid>tag:brucezz.github.io,2016-02-21:articles/2016/02/21/effective-okhttp/</guid><category>翻译</category><category>OkHttp</category></item><item><title>Sublime Text 3 插件下载失败的解决方案</title><link>http://brucezz.github.io/articles/2016/01/29/sublime-text-package-download-fail/</link><description>&lt;p&gt;前两天瞎折腾，把日常使用的 Ubuntu 系统玩坏了，后果就是重装系统。。。&lt;/p&gt;
+&lt;p&gt;再次强调，OkHttp 的默认配置提供了显著的效果，但是采取以上的措施，可以提高 OkHttp 的可用性和自我检查能力，并且提升你的应用的质量。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Brucezz</dc:creator><pubDate>Sun, 21 Feb 2016 00:00:00 +0800</pubDate><guid>tag:brucezz.github.io,2016-02-21:articles/2016/02/21/effective-okhttp/</guid><category>Android</category><category>翻译</category><category>OkHttp</category></item><item><title>Sublime Text 3 插件下载失败的解决方案</title><link>http://brucezz.github.io/articles/2016/01/29/sublime-text-package-download-fail/</link><description>&lt;p&gt;前两天瞎折腾，把日常使用的 Ubuntu 系统玩坏了，后果就是重装系统。。。&lt;/p&gt;
 &lt;p&gt;Sublime Text 这款文本编辑器也得重装，安装插件的时候发现了一个头疼的问题：提供 Sublime Text 插件下载的网站 &lt;a href="https://packagecontrol.io/"&gt;packagecontrol.io&lt;/a&gt; 被墙了！墙了！了！&lt;/p&gt;
 &lt;p&gt;它的包管理器(Package Control) 也下载不下来，即使手动下载回来，然后丢到相应的文件夹，也不会从服务器成功地获取到有效的插件列表，一直会提示&lt;/p&gt;
 &lt;blockquote&gt;
@@ -862,7 +949,7 @@ ver@=20150929/. # 版本号
 &lt;li&gt;&lt;a href="https://www.zhihu.com/question/29027665/answer/75117632"&gt;如何获取斗鱼直播间的弹幕信息？ - 天白才痴 的回答&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="http://ndrlslz.github.io/2015/12/26/%E6%96%97%E9%B1%BC%E5%BC%B9%E5%B9%95%E6%8A%93%E5%8F%96/"&gt;斗鱼弹幕抓取 | 霹雳啪啦程序汪&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://github.com/reusu/DouyuAssistant"&gt;reusu/DouyuAssistant - Github&lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Brucezz</dc:creator><pubDate>Mon, 11 Jan 2016 00:00:00 +0800</pubDate><guid>tag:brucezz.github.io,2016-01-11:articles/2016/01/11/douyu-crawler/</guid><category>爬虫</category></item><item><title>实习项目第一期</title><link>http://brucezz.github.io/articles/2015/12/22/android-intern-project-1/</link><description>&lt;p&gt;前两周找了家创业公司，去当 Android Intern，入职第一周配配环境，然后给老大写了个 Demo 就过去了。
+&lt;/ol&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Brucezz</dc:creator><pubDate>Mon, 11 Jan 2016 00:00:00 +0800</pubDate><guid>tag:brucezz.github.io,2016-01-11:articles/2016/01/11/douyu-crawler/</guid><category>Java</category><category>爬虫</category></item><item><title>实习项目第一期</title><link>http://brucezz.github.io/articles/2015/12/22/android-intern-project-1/</link><description>&lt;p&gt;前两周找了家创业公司，去当 Android Intern，入职第一周配配环境，然后给老大写了个 Demo 就过去了。
 这个 demo 就是个简洁的 ViewPager 的指示器( indicator )， github 地址在这里（&lt;a href="https://github.com/brucezz/ViewPagerDotIndicator"&gt;点我点我&lt;/a&gt;），欢迎来吐槽提建议什么的 →.→&lt;/p&gt;
 &lt;p&gt;上周开始嘛，公司新一期的任务分配，App 改版，然后我就有活干咯，第一期项目就是重写公司 App 的首页 =。= ，老大说只要不涉及钱的，让我随便玩，对我真是放心呢。。&lt;/p&gt;
 &lt;p&gt;写了两周项目，记录一下遇到的几个点。&lt;/p&gt;
@@ -1035,7 +1122,7 @@ ver@=20150929/. # 版本号
                 &lt;span class="n"&gt;tabLayout&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;setLayoutParams&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;lp&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
         &lt;span class="o"&gt;}&lt;/span&gt;
     &lt;span class="o"&gt;}&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Brucezz</dc:creator><pubDate>Tue, 22 Dec 2015 00:00:00 +0800</pubDate><guid>tag:brucezz.github.io,2015-12-22:articles/2015/12/22/android-intern-project-1/</guid><category>实习</category></item><item><title>强引用、弱引用、软引用、虚引用</title><link>http://brucezz.github.io/articles/2015/11/23/four-kind-of-reference/</link><description>&lt;p&gt;&lt;strong&gt;目录&lt;/strong&gt;&lt;/p&gt;
+&lt;/pre&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Brucezz</dc:creator><pubDate>Tue, 22 Dec 2015 00:00:00 +0800</pubDate><guid>tag:brucezz.github.io,2015-12-22:articles/2015/12/22/android-intern-project-1/</guid><category>Android</category><category>实习</category></item><item><title>强引用、弱引用、软引用、虚引用</title><link>http://brucezz.github.io/articles/2015/11/23/four-kind-of-reference/</link><description>&lt;p&gt;&lt;strong&gt;目录&lt;/strong&gt;&lt;/p&gt;
 &lt;!-- MarkdownTOC --&gt;
 
 &lt;ul&gt;
@@ -1160,7 +1247,7 @@ null
 &lt;p&gt;&lt;a name="4虚引用（phantomreference）"&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;h2&gt;4.虚引用（PhantomReference）&lt;/h2&gt;
 &lt;p&gt;“虚引用”顾名思义，就是形同虚设，与其他几种引用都不同，虚引用并不会决定对象的生命周期。如果一个对象仅持有虚引用，那么它就和没有任何引用一样，在任何时候都可能被垃圾回收器回收。&lt;/p&gt;
-&lt;p&gt;虚引用主要用来跟踪对象被垃圾回收器回收的活动。虚引用与软引用和弱引用的一个区别在于：虚引用必须和引用队列 （&lt;code&gt;ReferenceQueue&lt;/code&gt;）联合使用。当垃圾回收器准备回收一个对象时，如果发现它还有虚引用，就会在回收对象的内存之前，把这个虚引用加入到与之 关联的引用队列中。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Brucezz</dc:creator><pubDate>Mon, 23 Nov 2015 00:00:00 +0800</pubDate><guid>tag:brucezz.github.io,2015-11-23:articles/2015/11/23/four-kind-of-reference/</guid><category>Reference</category></item><item><title>近期遇到的笔试面试题</title><link>http://brucezz.github.io/articles/2015/11/13/interview-problem-1/</link><description>&lt;p&gt;&lt;strong&gt;目录&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;虚引用主要用来跟踪对象被垃圾回收器回收的活动。虚引用与软引用和弱引用的一个区别在于：虚引用必须和引用队列 （&lt;code&gt;ReferenceQueue&lt;/code&gt;）联合使用。当垃圾回收器准备回收一个对象时，如果发现它还有虚引用，就会在回收对象的内存之前，把这个虚引用加入到与之 关联的引用队列中。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Brucezz</dc:creator><pubDate>Mon, 23 Nov 2015 00:00:00 +0800</pubDate><guid>tag:brucezz.github.io,2015-11-23:articles/2015/11/23/four-kind-of-reference/</guid><category>Java</category><category>Reference</category></item><item><title>近期遇到的笔试面试题</title><link>http://brucezz.github.io/articles/2015/11/13/interview-problem-1/</link><description>&lt;p&gt;&lt;strong&gt;目录&lt;/strong&gt;&lt;/p&gt;
 &lt;!-- MarkdownTOC --&gt;
 
 &lt;ul&gt;
