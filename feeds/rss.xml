@@ -86,7 +86,12 @@
 
 &lt;p&gt;点击按钮，发送  &lt;code&gt;OneEvent&lt;/code&gt; 事件，然后响应此事件，发出 Toast ~&lt;/p&gt;
 &lt;p&gt;通过多次调用 &lt;code&gt;toObserverable()&lt;/code&gt; 方法可以订阅多种事件。&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;小 tip&lt;/strong&gt; : &lt;code&gt;CompositeSubscription&lt;/code&gt; 可以把 Subscription 收集到一起，方便 Activity 销毁时取消订阅，防止内存泄漏。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Brucezz</dc:creator><pubDate>Thu, 02 Jun 2016 00:00:00 +0800</pubDate><guid>tag:brucezz.github.io,2016-06-02:articles/2016/06/02/a-simple-rxbus-implementation/</guid></item><item><title>在 CentOS 云服务器上使用 Nginx + uWSGI 部署 Flask 程序</title><link>http://brucezz.github.io/articles/2016/04/18/nginx-uwsgi-flask-deploy-on-centos/</link><description>&lt;h2&gt;0x00 要干啥？&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;小 tip&lt;/strong&gt; : &lt;code&gt;CompositeSubscription&lt;/code&gt; 可以把 Subscription 收集到一起，方便 Activity 销毁时取消订阅，防止内存泄漏。&lt;/p&gt;
+&lt;h3&gt;Reference&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://drakeet.me/rxbus"&gt;翻译：通过 RxJava 实现一个 Event Bus – RxBus | Drakeet的个人博客&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://www.jianshu.com/p/ca090f6e2fe2/"&gt;用RxJava实现事件总线(Event Bus) - 简书&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Brucezz</dc:creator><pubDate>Thu, 02 Jun 2016 00:00:00 +0800</pubDate><guid>tag:brucezz.github.io,2016-06-02:articles/2016/06/02/a-simple-rxbus-implementation/</guid></item><item><title>在 CentOS 云服务器上使用 Nginx + uWSGI 部署 Flask 程序</title><link>http://brucezz.github.io/articles/2016/04/18/nginx-uwsgi-flask-deploy-on-centos/</link><description>&lt;h2&gt;0x00 要干啥？&lt;/h2&gt;
 &lt;p&gt;好久没写博客了，最近被两个毕设折腾成狗，这两天部署程序踩了很多坑长了点姿势，记录一下。&lt;/p&gt;
 &lt;p&gt;毕设需要自己做一个后端程序，为我的 APP 提供 API 数据支持。我就用 Flask 写了个简单的程序，在本地跑起来了，接下来就是部署到服务器上。我原以为把代码放上去，然后 &lt;code&gt;python manage.py&lt;/code&gt; 就 ok 了，原来是我太 naive 了。。。&lt;/p&gt;
 &lt;p&gt;Flask 自带的 server 性能太差，只够调试用的，那么我只好另找途径了。搜索一番，Nginx + uWSGI + Flask 的套路大家用的挺多的，那我也就选择这套方案啦。&lt;/p&gt;
