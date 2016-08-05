@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Brucezz's Corner</title><link>http://brucezz.github.io/</link><description>/* Stay hungry, Stay foolish. */</description><atom:link href="http://brucezz.github.io//feeds/rss.xml" rel="self"></atom:link><lastBuildDate>Sat, 06 Aug 2016 00:00:00 +0800</lastBuildDate><item><title>Android 利用 APT 技术在编译期生成代码</title><link>http://brucezz.github.io/articles/2016/08/06/apt-in-android/</link><description>&lt;p&gt;APT(&lt;code&gt;Annotation Processing Tool&lt;/code&gt; 的简称)，可以在代码编译期解析注解，并且生成新的 Java 文件，减少手动的代码输入。现在有很多主流库都用上了 APT，比如 Dagger2, ButterKnife, EventBus3 等，我们要紧跟潮流，与时俱进呐！ (ง •̀_•́)ง&lt;/p&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Brucezz's Corner</title><link>http://brucezz.github.io/</link><description>/* Stay hungry, Stay foolish. */</description><atom:link href="http://brucezz.github.io//feeds/rss.xml" rel="self"></atom:link><lastBuildDate>Sat, 06 Aug 2016 00:00:00 +0800</lastBuildDate><item><title>Android 利用 APT 技术在编译期生成代码</title><link>http://brucezz.github.io/articles/2016/08/06/use-apt-in-android/</link><description>&lt;p&gt;APT(&lt;code&gt;Annotation Processing Tool&lt;/code&gt; 的简称)，可以在代码编译期解析注解，并且生成新的 Java 文件，减少手动的代码输入。现在有很多主流库都用上了 APT，比如 Dagger2, ButterKnife, EventBus3 等，我们要紧跟潮流，与时俱进呐！ (ง •̀_•́)ง&lt;/p&gt;
 &lt;p&gt;下面通过一个简单的 View 注入项目 &lt;code&gt;ViewFinder&lt;/code&gt; 来介绍 APT 相关内容，简单实现了类似于 &lt;code&gt;ButterKnife&lt;/code&gt; 中的两种注解 &lt;code&gt;@BindView&lt;/code&gt; 和 &lt;code&gt;@OnClick&lt;/code&gt; 。&lt;/p&gt;
 &lt;p&gt;大概项目结构如下：&lt;/p&gt;
 &lt;ul&gt;
@@ -450,7 +450,7 @@
 &lt;li&gt;&lt;a href="http://blog.csdn.net/lmj623565791/article/details/51931859"&gt;Android 如何编写基于编译时注解的项目&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://github.com/square/javapoet"&gt;JavaPoet&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://github.com/JakeWharton/butterknife"&gt;ButterKnife&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Brucezz</dc:creator><pubDate>Sat, 06 Aug 2016 00:00:00 +0800</pubDate><guid>tag:brucezz.github.io,2016-08-06:articles/2016/08/06/apt-in-android/</guid></item><item><title>RxBus 的简单实现</title><link>http://brucezz.github.io/articles/2016/06/02/a-simple-rxbus-implementation/</link><description>&lt;p&gt;今天写代码正好想到要用事件总线，先前都是使用 Square 的 Otto 或者 GreenRobot 的 EventBus ，听说 RxJava 能够轻易实现一个 Bus，所以就来研究研究这个车怎么开~&lt;/p&gt;
+&lt;/ul&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Brucezz</dc:creator><pubDate>Sat, 06 Aug 2016 00:00:00 +0800</pubDate><guid>tag:brucezz.github.io,2016-08-06:articles/2016/08/06/use-apt-in-android/</guid></item><item><title>RxBus 的简单实现</title><link>http://brucezz.github.io/articles/2016/06/02/a-simple-rxbus-implementation/</link><description>&lt;p&gt;今天写代码正好想到要用事件总线，先前都是使用 Square 的 Otto 或者 GreenRobot 的 EventBus ，听说 RxJava 能够轻易实现一个 Bus，所以就来研究研究这个车怎么开~&lt;/p&gt;
 &lt;p&gt;&lt;img alt="没时间解释了，快上车！" src="/images/no-time-to-explain.jpg" /&gt;&lt;/p&gt;
 &lt;p&gt;这辆车需要有一下功能：&lt;/p&gt;
 &lt;ul&gt;
