@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+            <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+
+        <title>Android 利用 APT 技术在编译期生成代码</title>
+
+            <link href="http://brucezz.github.io//feeds/rss.xml" type="application/rss+xml" rel="alternate" title="Brucezz's Corner Full RSS Feed" />
+
+            <link rel="shortcut icon" href="/images/favicon.ico">
+
+        <!-- Bootstrap Core CSS -->
+        <link href="http://brucezz.github.io/theme/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link href="http://brucezz.github.io/theme/css/clean-blog.min.css" rel="stylesheet">
+
+        <!-- Code highlight color scheme -->
+            <link href="http://brucezz.github.io/theme/css/code_blocks/colorful.css" rel="stylesheet">
+
+
+        <!-- Custom Fonts -->
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+
+
+
+
+
+	                <meta property="og:locale" content="">
+		<meta property="og:site_name" content="Brucezz's Corner">
+
+	<meta property="og:type" content="article">
+	<meta property="article:author" content="">
+	<meta property="og:url" content="http://brucezz.github.io/articles/2016/08/06/apt-in-android/">
+	<meta property="og:title" content="Android 利用 APT 技术在编译期生成代码">
+	<meta property="og:description" content="">
+	<meta property="og:image" content="http://brucezz.github.io/">
+	<meta property="article:published_time" content="2016-08-06 00:00:00+08:00">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="http://brucezz.github.io/">Brucezz's Corner</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                        <li><a href="/archives.html">归档</a></li>
+                        <li><a href="/categories.html">分类</a></li>
+                        <li><a href="/pages/about.html">关于我</a></li>
+
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Header -->
+        <header class="intro-header" style="background-image: url('/images/cover/home-bg.jpg')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <div class="post-heading">
+                        <h1>Android 利用 APT 技术在编译期生成代码</h1>
+                        <span class="meta">Posted by
+                                <a href="http://brucezz.github.io/author/brucezz.html">Brucezz</a>
+                             on 2016-08-06
+                        </span>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+    <!-- Post Content -->
+    <article>
+        <p>APT(<code>Annotation Processing Tool</code> 的简称)，可以在代码编译期解析注解，并且生成新的 Java 文件，减少手动的代码输入。现在有很多主流库都用上了 APT，比如 Dagger2, ButterKnife, EventBus3 等，我们要紧跟潮流，与时俱进呐！ (ง •̀_•́)ง</p>
+<p>下面通过一个简单的 View 注入项目 <code>ViewFinder</code> 来介绍 APT 相关内容，简单实现了类似于 <code>ButterKnife</code> 中的两种注解 <code>@BindView</code> 和 <code>@OnClick</code> 。</p>
+<p>大概项目结构如下：</p>
+<ul>
+<li><code>viewFinder-annotation</code>  - 注解相关模块</li>
+<li><code>viewFinder-compiler</code>  - 注解处理器模块</li>
+<li><code>viewfinder</code>  - API 相关模块</li>
+<li><code>sample</code>  - 示例 Demo 模块</li>
+</ul>
+<h3>实现目标</h3>
+<p>在通常的 Android 项目中，会写大量的界面，那么就会经常重复地写一些代码，比如：</p>
+<div class="highlight"><pre><span class="n">TextView</span> <span class="n">text</span> <span class="o">=</span> <span class="o">(</span><span class="n">TextView</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">tv</span><span class="o">);</span>
+<span class="n">text</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="n">View</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">view</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// on click</span>
+    <span class="o">}</span>
+<span class="o">});</span>
+</pre></div>
+
+
+<p>天天写这么冗长又无脑的代码，还能不能愉快地玩耍啦。所以，我打算通过 <code>ViewFinder</code> 这个项目替代这重复的工作，只需要简单地标注上注解即可。通过控件 id 进行注解，并且 <code>@OnClick</code> 可以对多个控件注解同一个方法。就像下面这样子咯：</p>
+<div class="highlight"><pre><span class="nd">@BindView</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">tv</span><span class="o">)</span> <span class="n">TextView</span> <span class="n">mTextView</span><span class="o">;</span>
+<span class="nd">@OnClick</span><span class="o">({</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">tv</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">btn</span><span class="o">})</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">onSomethingClick</span><span class="o">()</span> <span class="o">{</span>
+    <span class="c1">// on click</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<h3>定义注解</h3>
+<blockquote>
+<p>创建 module  <code>viewFinder-annotation</code> ，类型为 Java Library，定义项目所需要的注解。</p>
+</blockquote>
+<p>在 <code>ViewFinder</code> 中需要两个注解 <code>@BindView</code> 和 <code>@OnClick</code> 。实现如下：</p>
+<div class="highlight"><pre><span class="nd">@Retention</span><span class="o">(</span><span class="n">RetentionPolicy</span><span class="o">.</span><span class="na">CLASS</span><span class="o">)</span>
+<span class="nd">@Target</span><span class="o">(</span><span class="n">ElementType</span><span class="o">.</span><span class="na">FIELD</span><span class="o">)</span>
+<span class="kd">public</span> <span class="nd">@interface</span> <span class="n">BindView</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="nf">value</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span class="nd">@Retention</span><span class="o">(</span><span class="n">RetentionPolicy</span><span class="o">.</span><span class="na">CLASS</span><span class="o">)</span>
+<span class="nd">@Target</span><span class="o">(</span><span class="n">ElementType</span><span class="o">.</span><span class="na">METHOD</span><span class="o">)</span>
+<span class="kd">public</span> <span class="nd">@interface</span> <span class="n">OnClick</span> <span class="o">{</span>
+    <span class="kt">int</span><span class="o">[]</span> <span class="nf">value</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p><code>@BindView</code> 需要对成员变量进行注解，并且接收一个 int 类型的参数；
+<code>@OnClick</code> 需要对方法进行注解，接收一组 int 类型参数，相当于给一组 View 指定点击响应事件。</p>
+<h3>编写 API</h3>
+<blockquote>
+<p>创建 module <code>viewfinder</code>，类型为 Android Library。在这个 module 中去定义 API，也就是去确定让别人如何来使用我们这个项目。</p>
+</blockquote>
+<p>首先需要一个 API 主入口，提供静态方法直接调用，就比如这样：</p>
+<div class="highlight"><pre><span class="n">ViewFinder</span><span class="o">.</span><span class="na">inject</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</pre></div>
+
+
+<p>同时，需要为不同的目标（比如 Activity、Fragment 和 View 等）提供重载的注入方法，最终都调用 <code>inject()</code> 方法。其中有三个参数：</p>
+<ul>
+<li><code>host</code> 表示注解 View 变量所在的类，也就是注解类</li>
+<li><code>source</code> 表示查找 View 的地方，Activity &amp; View 自身就可以查找，Fragment 需要在自己的 itemView 中查找</li>
+<li><code>provider</code> 是一个接口，定义了不同对象（比如 Activity、View 等）如何去查找目标 View，项目中分别为 Activity、View 实现了 <code>Provider</code> 接口（具体实现参考<a href="https://github.com/brucezz/ViewFinder">项目代码</a>吧 😄）。</li>
+</ul>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ViewFinder</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">ActivityProvider</span> <span class="n">PROVIDER_ACTIVITY</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ActivityProvider</span><span class="o">();</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">ViewProvider</span> <span class="n">PROVIDER_VIEW</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ViewProvider</span><span class="o">();</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">inject</span><span class="o">(</span><span class="n">Activity</span> <span class="n">activity</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">inject</span><span class="o">(</span><span class="n">activity</span><span class="o">,</span> <span class="n">activity</span><span class="o">,</span> <span class="n">PROVIDER_ACTIVITY</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">inject</span><span class="o">(</span><span class="n">View</span> <span class="n">view</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// for view</span>
+        <span class="n">inject</span><span class="o">(</span><span class="n">view</span><span class="o">,</span> <span class="n">view</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">inject</span><span class="o">(</span><span class="n">Object</span> <span class="n">host</span><span class="o">,</span> <span class="n">View</span> <span class="n">view</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// for fragment</span>
+        <span class="n">inject</span><span class="o">(</span><span class="n">host</span><span class="o">,</span> <span class="n">view</span><span class="o">,</span> <span class="n">PROVIDER_VIEW</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">inject</span><span class="o">(</span><span class="n">Object</span> <span class="n">host</span><span class="o">,</span> <span class="n">Object</span> <span class="n">source</span><span class="o">,</span> <span class="n">Provider</span> <span class="n">provider</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// how to implement ?</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>那么 <code>inject()</code> 方法中都写一些什么呢？</p>
+<p>首先我们需要一个接口 <code>Finder</code>，然后为每一个注解类都生成一个对应的内部类并且实现这个接口，然后实现具体的注入逻辑。在 <code>inject()</code> 方法中首先找到调用者对应的 <code>Finder</code>实现类，然后调用其内部的具体逻辑来达到注入的目的。</p>
+<p>接口 <code>Finder</code> 设计如下 ：</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Finder</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="kt">void</span> <span class="nf">inject</span><span class="o">(</span><span class="n">T</span> <span class="n">host</span><span class="o">,</span> <span class="n">Object</span> <span class="n">source</span><span class="o">,</span> <span class="n">Provider</span> <span class="n">provider</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>举个🌰，为 <code>MainActivity</code> 生成 <code>MainActivity$$Finder</code>，为 MainActivity 所注解的 View 进行初始化和设置点击事件，这就跟我们平常所写的重复代码基本相同。</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MainActivity$$Finder</span> <span class="kd">implements</span> <span class="n">Finder</span><span class="o">&lt;</span><span class="n">MainActivity</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">inject</span><span class="o">(</span><span class="kd">final</span> <span class="n">MainActivity</span> <span class="n">host</span><span class="o">,</span> <span class="n">Object</span> <span class="n">source</span><span class="o">,</span> <span class="n">Provider</span> <span class="n">provider</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">host</span><span class="o">.</span><span class="na">mTextView</span> <span class="o">=</span> <span class="o">(</span><span class="n">TextView</span><span class="o">)</span> <span class="o">(</span><span class="n">provider</span><span class="o">.</span><span class="na">findView</span><span class="o">(</span><span class="n">source</span><span class="o">,</span> <span class="mi">2131427414</span><span class="o">));</span>
+        <span class="n">host</span><span class="o">.</span><span class="na">mButton</span> <span class="o">=</span> <span class="o">(</span><span class="n">Button</span><span class="o">)</span> <span class="o">(</span><span class="n">provider</span><span class="o">.</span><span class="na">findView</span><span class="o">(</span><span class="n">source</span><span class="o">,</span> <span class="mi">2131427413</span><span class="o">));</span>
+        <span class="n">host</span><span class="o">.</span><span class="na">mEditText</span> <span class="o">=</span> <span class="o">(</span><span class="n">EditText</span><span class="o">)</span> <span class="o">(</span><span class="n">provider</span><span class="o">.</span><span class="na">findView</span><span class="o">(</span><span class="n">source</span><span class="o">,</span> <span class="mi">2131427412</span><span class="o">));</span>
+        <span class="n">View</span><span class="o">.</span><span class="na">OnClickListener</span> <span class="n">listener</span><span class="o">;</span>
+        <span class="n">listener</span> <span class="o">=</span> <span class="k">new</span> <span class="n">View</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+            <span class="nd">@Override</span>
+            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">view</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">host</span><span class="o">.</span><span class="na">onButtonClick</span><span class="o">();</span>
+            <span class="o">}</span>
+        <span class="o">};</span>
+        <span class="n">provider</span><span class="o">.</span><span class="na">findView</span><span class="o">(</span><span class="n">source</span><span class="o">,</span> <span class="mi">2131427413</span><span class="o">).</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="n">listener</span><span class="o">);</span>
+        <span class="n">listener</span> <span class="o">=</span> <span class="k">new</span> <span class="n">View</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+            <span class="nd">@Override</span>
+            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">view</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">host</span><span class="o">.</span><span class="na">onTextClick</span><span class="o">();</span>
+            <span class="o">}</span>
+        <span class="o">};</span>
+        <span class="n">provider</span><span class="o">.</span><span class="na">findView</span><span class="o">(</span><span class="n">source</span><span class="o">,</span> <span class="mi">2131427414</span><span class="o">).</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="n">listener</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>好了，所有注解类都有了一个名为 <code>xx$$Finder</code> 的内部类。我们首先通过注解类的类名，得到其对应内部类的 Class 对象，然后实例化拿到具体对象，调用注入方法。</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ViewFinder</span> <span class="o">{</span>
+
+    <span class="c1">// same as above</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Finder</span><span class="o">&gt;</span> <span class="n">FINDER_MAP</span> <span class="o">=</span> <span class="k">new</span> <span class="n">LinkedHashMap</span><span class="o">&lt;&gt;();</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">inject</span><span class="o">(</span><span class="n">Object</span> <span class="n">host</span><span class="o">,</span> <span class="n">Object</span> <span class="n">source</span><span class="o">,</span> <span class="n">Provider</span> <span class="n">provider</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">String</span> <span class="n">className</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="na">getClass</span><span class="o">().</span><span class="na">getName</span><span class="o">();</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">Finder</span> <span class="n">finder</span> <span class="o">=</span> <span class="n">FINDER_MAP</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">className</span><span class="o">);</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">finder</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">Class</span><span class="o">&lt;?&gt;</span> <span class="n">finderClass</span> <span class="o">=</span> <span class="n">Class</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="n">className</span> <span class="o">+</span> <span class="s">&quot;$$Finder&quot;</span><span class="o">);</span>
+                <span class="n">finder</span> <span class="o">=</span> <span class="o">(</span><span class="n">Finder</span><span class="o">)</span> <span class="n">finderClass</span><span class="o">.</span><span class="na">newInstance</span><span class="o">();</span>
+                <span class="n">FINDER_MAP</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">className</span><span class="o">,</span> <span class="n">finder</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="n">finder</span><span class="o">.</span><span class="na">inject</span><span class="o">(</span><span class="n">host</span><span class="o">,</span> <span class="n">source</span><span class="o">,</span> <span class="n">provider</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="n">RuntimeException</span><span class="o">(</span><span class="s">&quot;Unable to inject for &quot;</span> <span class="o">+</span> <span class="n">className</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>另外代码中使用到了一点反射，为了提高效率，避免每次注入的时候都去找 <code>Finder</code> 对象，用一个 Map 将第一次找到的对象缓存起来，后面用的时候直接从 Map 里面取。</p>
+<p>到此，API 模块的设计基本搞定了，接下来就是去通过注解处理器来每一个注解类生成 <code>Finder</code> 内部类。</p>
+<h3>创建注解处理器</h3>
+<blockquote>
+<p>创建 module <code>viewFinder-compiler</code>，类型为 Java Library，实现一个注解处理器。</p>
+</blockquote>
+<p>这个模块需要添加一些依赖：</p>
+<div class="highlight"><pre><span class="n">compile</span> <span class="nf">project</span><span class="o">(</span><span class="s1">&#39;:viewfinder-annotation&#39;</span><span class="o">)</span>
+<span class="n">compile</span> <span class="s1">&#39;com.squareup:javapoet:1.7.0&#39;</span>
+<span class="n">compile</span> <span class="s1">&#39;com.google.auto.service:auto-service:1.0-rc2&#39;</span>
+</pre></div>
+
+
+<ul>
+<li>因为要用到前面定义的注解，当然要依赖 <code>viewFinder-annotation</code>。</li>
+<li><code>javapoet</code> 是<strong>方块公司</strong>出的又一个好用到爆炸的裤子，提供了各种 API 让你用各种姿势去生成 Java 代码文件，避免了字符串+++到底的尴尬。</li>
+<li><code>auto-service</code> 是 Google 家的裤子，主要用于注解 <code>Processor</code>，对其生成 <code>META-INF</code> 配置信息。</li>
+</ul>
+<p>下面就来创建我们的处理器 <code>ViewFinderProcessor</code>。</p>
+<div class="highlight"><pre><span class="nd">@AutoService</span><span class="o">(</span><span class="n">Processor</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ViewFinderProcesser</span> <span class="kd">extends</span> <span class="n">AbstractProcessor</span> <span class="o">{</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * 使用 Google 的 auto-service 库可以自动生成 META-INF/services/javax.annotation.processing.Processor 文件</span>
+<span class="cm">     */</span>
+
+    <span class="kd">private</span> <span class="n">Filer</span> <span class="n">mFiler</span><span class="o">;</span> <span class="c1">//文件相关的辅助类</span>
+    <span class="kd">private</span> <span class="n">Elements</span> <span class="n">mElementUtils</span><span class="o">;</span> <span class="c1">//元素相关的辅助类</span>
+    <span class="kd">private</span> <span class="n">Messager</span> <span class="n">mMessager</span><span class="o">;</span> <span class="c1">//日志相关的辅助类</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kd">synchronized</span> <span class="kt">void</span> <span class="nf">init</span><span class="o">(</span><span class="n">ProcessingEnvironment</span> <span class="n">processingEnv</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="n">processingEnv</span><span class="o">);</span>
+        <span class="n">mFiler</span> <span class="o">=</span> <span class="n">processingEnv</span><span class="o">.</span><span class="na">getFiler</span><span class="o">();</span>
+        <span class="n">mElementUtils</span> <span class="o">=</span> <span class="n">processingEnv</span><span class="o">.</span><span class="na">getElementUtils</span><span class="o">();</span>
+        <span class="n">mMessager</span> <span class="o">=</span> <span class="n">processingEnv</span><span class="o">.</span><span class="na">getMessager</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * @return 指定哪些注解应该被注解处理器注册</span>
+<span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="nf">getSupportedAnnotationTypes</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">Set</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">types</span> <span class="o">=</span> <span class="k">new</span> <span class="n">LinkedHashSet</span><span class="o">&lt;&gt;();</span>
+        <span class="n">types</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">BindView</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getCanonicalName</span><span class="o">());</span>
+        <span class="n">types</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">OnClick</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getCanonicalName</span><span class="o">());</span>
+        <span class="k">return</span> <span class="n">types</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * @return 指定使用的 Java 版本。通常返回 SourceVersion.latestSupported()。</span>
+<span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">SourceVersion</span> <span class="nf">getSupportedSourceVersion</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">SourceVersion</span><span class="o">.</span><span class="na">latestSupported</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">process</span><span class="o">(</span><span class="n">Set</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">TypeElement</span><span class="o">&gt;</span> <span class="n">annotations</span><span class="o">,</span> <span class="n">RoundEnvironment</span> <span class="n">roundEnv</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// to process annotations </span>
+        <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>用 <code>@AutoService</code> 来注解这个处理器，可以自动生成配置信息。</p>
+<p>在 <code>init()</code> 可以初始化拿到一些实用的工具类。</p>
+<p>在 <code>getSupportedAnnotationTypes()</code> 方法中返回所要处理的注解的集合。</p>
+<p>在 <code>getSupportedSourceVersion()</code> 方法中返回 Java 版本。</p>
+<p>这几个方法写法基本上都是固定的，重头戏在 <code>process()</code> 方法。</p>
+<blockquote>
+<p>这里插播一下 <code>Element</code> 元素相关概念，后面会用到不少。</p>
+</blockquote>
+<p><code>Element</code> 元素，源代码中的每一部分都是一个特定的元素类型，分别代表了包、类、方法等等，具体看 Demo。</p>
+<div class="highlight"><pre><span class="kn">package</span> <span class="nn">com.example</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Foo</span> <span class="o">{</span> <span class="c1">// TypeElement</span>
+
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">a</span><span class="o">;</span> <span class="c1">// VariableElement</span>
+    <span class="kd">private</span> <span class="n">Foo</span> <span class="n">other</span><span class="o">;</span> <span class="c1">// VariableElement</span>
+
+    <span class="kd">public</span> <span class="nf">Foo</span><span class="o">()</span> <span class="o">{}</span> <span class="c1">// ExecuteableElement</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setA</span><span class="o">(</span> <span class="c1">// ExecuteableElement</span>
+            <span class="kt">int</span> <span class="n">newA</span> <span class="c1">// TypeElement</span>
+    <span class="o">)</span> <span class="o">{</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>这些 <code>Element</code> 元素，相当于 XML 中的 DOM 树，可以通过一个元素去访问它的父元素或者子元素。</p>
+<div class="highlight"><pre><span class="n">element</span><span class="o">.</span><span class="na">getEnclosingElement</span><span class="o">();</span><span class="c1">// 获取父元素</span>
+<span class="n">element</span><span class="o">.</span><span class="na">getEnclosedElements</span><span class="o">();</span><span class="c1">// 获取子元素</span>
+</pre></div>
+
+
+<p>注解处理器的整个处理过程跟普通的 Java 程序没什么区别，我们可以使用面向对象的思想和设计模式，将相关逻辑封装到 model 中，使得流程更清晰简洁。分别将注解的成员变量、点击方法和整个注解类封装成不同的 model。</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">BindViewField</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">VariableElement</span> <span class="n">mFieldElement</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">mResId</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="nf">BindViewField</span><span class="o">(</span><span class="n">Element</span> <span class="n">element</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IllegalArgumentException</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">element</span><span class="o">.</span><span class="na">getKind</span><span class="o">()</span> <span class="o">!=</span> <span class="n">ElementKind</span><span class="o">.</span><span class="na">FIELD</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span>
+                <span class="n">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">&quot;Only fields can be annotated with @%s&quot;</span><span class="o">,</span> <span class="n">BindView</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getSimpleName</span><span class="o">()));</span>
+        <span class="o">}</span>
+
+        <span class="n">mFieldElement</span> <span class="o">=</span> <span class="o">(</span><span class="n">VariableElement</span><span class="o">)</span> <span class="n">element</span><span class="o">;</span>
+        <span class="n">BindView</span> <span class="n">bindView</span> <span class="o">=</span> <span class="n">mFieldElement</span><span class="o">.</span><span class="na">getAnnotation</span><span class="o">(</span><span class="n">BindView</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="n">mResId</span> <span class="o">=</span> <span class="n">bindView</span><span class="o">.</span><span class="na">value</span><span class="o">();</span>
+    <span class="o">}</span>
+    <span class="c1">// some getter methods</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>主要就是在初始化时校验了一下元素类型，然后获取注解的值，在提供几个 get 方法。<code>OnClickMethod</code>封装类似。</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">AnnotatedClass</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="n">TypeElement</span> <span class="n">mClassElement</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">BindViewField</span><span class="o">&gt;</span> <span class="n">mFields</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">OnClickMethod</span><span class="o">&gt;</span> <span class="n">mMethods</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="n">Elements</span> <span class="n">mElementUtils</span><span class="o">;</span>
+
+    <span class="c1">// omit some easy methods </span>
+
+    <span class="kd">public</span> <span class="n">JavaFile</span> <span class="nf">generateFinder</span><span class="o">()</span> <span class="o">{</span>
+
+        <span class="c1">// method inject(final T host, Object source, Provider provider)</span>
+        <span class="n">MethodSpec</span><span class="o">.</span><span class="na">Builder</span> <span class="n">injectMethodBuilder</span> <span class="o">=</span> <span class="n">MethodSpec</span><span class="o">.</span><span class="na">methodBuilder</span><span class="o">(</span><span class="s">&quot;inject&quot;</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">addModifiers</span><span class="o">(</span><span class="n">Modifier</span><span class="o">.</span><span class="na">PUBLIC</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">addAnnotation</span><span class="o">(</span><span class="n">Override</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">addParameter</span><span class="o">(</span><span class="n">TypeName</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">mClassElement</span><span class="o">.</span><span class="na">asType</span><span class="o">()),</span> <span class="s">&quot;host&quot;</span><span class="o">,</span> <span class="n">Modifier</span><span class="o">.</span><span class="na">FINAL</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">addParameter</span><span class="o">(</span><span class="n">TypeName</span><span class="o">.</span><span class="na">OBJECT</span><span class="o">,</span> <span class="s">&quot;source&quot;</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">addParameter</span><span class="o">(</span><span class="n">TypeUtil</span><span class="o">.</span><span class="na">PROVIDER</span><span class="o">,</span> <span class="s">&quot;provider&quot;</span><span class="o">);</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="n">BindViewField</span> <span class="n">field</span> <span class="o">:</span> <span class="n">mFields</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// find views</span>
+            <span class="n">injectMethodBuilder</span><span class="o">.</span><span class="na">addStatement</span><span class="o">(</span><span class="s">&quot;host.$N = ($T)(provider.findView(source, $L))&quot;</span><span class="o">,</span> <span class="n">field</span><span class="o">.</span><span class="na">getFieldName</span><span class="o">(),</span>
+                <span class="n">ClassName</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">field</span><span class="o">.</span><span class="na">getFieldType</span><span class="o">()),</span> <span class="n">field</span><span class="o">.</span><span class="na">getResId</span><span class="o">());</span>
+        <span class="o">}</span>
+
+        <span class="k">if</span> <span class="o">(</span><span class="n">mMethods</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">injectMethodBuilder</span><span class="o">.</span><span class="na">addStatement</span><span class="o">(</span><span class="s">&quot;$T listener&quot;</span><span class="o">,</span> <span class="n">TypeUtil</span><span class="o">.</span><span class="na">ANDROID_ON_CLICK_LISTENER</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">OnClickMethod</span> <span class="n">method</span> <span class="o">:</span> <span class="n">mMethods</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// declare OnClickListener anonymous class</span>
+            <span class="n">TypeSpec</span> <span class="n">listener</span> <span class="o">=</span> <span class="n">TypeSpec</span><span class="o">.</span><span class="na">anonymousClassBuilder</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">addSuperinterface</span><span class="o">(</span><span class="n">TypeUtil</span><span class="o">.</span><span class="na">ANDROID_ON_CLICK_LISTENER</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">addMethod</span><span class="o">(</span><span class="n">MethodSpec</span><span class="o">.</span><span class="na">methodBuilder</span><span class="o">(</span><span class="s">&quot;onClick&quot;</span><span class="o">)</span>
+                    <span class="o">.</span><span class="na">addAnnotation</span><span class="o">(</span><span class="n">Override</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+                    <span class="o">.</span><span class="na">addModifiers</span><span class="o">(</span><span class="n">Modifier</span><span class="o">.</span><span class="na">PUBLIC</span><span class="o">)</span>
+                    <span class="o">.</span><span class="na">returns</span><span class="o">(</span><span class="n">TypeName</span><span class="o">.</span><span class="na">VOID</span><span class="o">)</span>
+                    <span class="o">.</span><span class="na">addParameter</span><span class="o">(</span><span class="n">TypeUtil</span><span class="o">.</span><span class="na">ANDROID_VIEW</span><span class="o">,</span> <span class="s">&quot;view&quot;</span><span class="o">)</span>
+                    <span class="o">.</span><span class="na">addStatement</span><span class="o">(</span><span class="s">&quot;host.$N()&quot;</span><span class="o">,</span> <span class="n">method</span><span class="o">.</span><span class="na">getMethodName</span><span class="o">())</span>
+                    <span class="o">.</span><span class="na">build</span><span class="o">())</span>
+                <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+            <span class="n">injectMethodBuilder</span><span class="o">.</span><span class="na">addStatement</span><span class="o">(</span><span class="s">&quot;listener = $L &quot;</span><span class="o">,</span> <span class="n">listener</span><span class="o">);</span>
+            <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">id</span> <span class="o">:</span> <span class="n">method</span><span class="o">.</span><span class="na">ids</span><span class="o">)</span> <span class="o">{</span>
+                <span class="c1">// set listeners</span>
+                <span class="n">injectMethodBuilder</span><span class="o">.</span><span class="na">addStatement</span><span class="o">(</span><span class="s">&quot;provider.findView(source, $L).setOnClickListener(listener)&quot;</span><span class="o">,</span> <span class="n">id</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="c1">// generate whole class </span>
+        <span class="n">TypeSpec</span> <span class="n">finderClass</span> <span class="o">=</span> <span class="n">TypeSpec</span><span class="o">.</span><span class="na">classBuilder</span><span class="o">(</span><span class="n">mClassElement</span><span class="o">.</span><span class="na">getSimpleName</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;$$Finder&quot;</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">addModifiers</span><span class="o">(</span><span class="n">Modifier</span><span class="o">.</span><span class="na">PUBLIC</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">addSuperinterface</span><span class="o">(</span><span class="n">ParameterizedTypeName</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">TypeUtil</span><span class="o">.</span><span class="na">FINDER</span><span class="o">,</span> <span class="n">TypeName</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">mClassElement</span><span class="o">.</span><span class="na">asType</span><span class="o">())))</span>
+            <span class="o">.</span><span class="na">addMethod</span><span class="o">(</span><span class="n">injectMethodBuilder</span><span class="o">.</span><span class="na">build</span><span class="o">())</span>
+            <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
+        <span class="n">String</span> <span class="n">packageName</span> <span class="o">=</span> <span class="n">mElementUtils</span><span class="o">.</span><span class="na">getPackageOf</span><span class="o">(</span><span class="n">mClassElement</span><span class="o">).</span><span class="na">getQualifiedName</span><span class="o">().</span><span class="na">toString</span><span class="o">();</span>
+        <span class="c1">// generate file</span>
+        <span class="k">return</span> <span class="n">JavaFile</span><span class="o">.</span><span class="na">builder</span><span class="o">(</span><span class="n">packageName</span><span class="o">,</span> <span class="n">finderClass</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p><code>AnnotatedClass</code> 表示一个注解类，里面放了两个列表，分别装着注解的成员变量和方法。在 <code>generateFinder()</code> 方法中，按照前面设计的模板，利用 <code>JavaPoet</code> 的 API 生成代码。这部分没啥特别的，照着 <a href="https://github.com/square/javapoet">JavaPoet 文档</a>来就好了，文档写得很细致。</p>
+<blockquote>
+<p>有很多地方需要用到对象的类型，普通类型可以用</p>
+<p><code>ClassName get(String packageName, String simpleName, String... simpleNames)</code></p>
+<p>传入包名、类名、内部类名，就可以拿到想要的类型了（可以参考 项目中<code>TypeUtil</code> 类）。</p>
+<p>用到泛型的话，可以用</p>
+<p><code>ParameterizedTypeName get(ClassName rawType, TypeName... typeArguments)</code></p>
+<p>传入具体类和泛型类型就好了。</p>
+</blockquote>
+<p>这些 model 都确定好了之后，<code>process()</code>方法就很清爽啦。使用 <code>RoundEnvironment</code> 参数来查询被特定注解标注的元素，然后解析成具体的 model，最后生成代码输出到文件中。</p>
+<div class="highlight"><pre><span class="nd">@AutoService</span><span class="o">(</span><span class="n">Processor</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ViewFinderProcesser</span> <span class="kd">extends</span> <span class="n">AbstractProcessor</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">AnnotatedClass</span><span class="o">&gt;</span> <span class="n">mAnnotatedClassMap</span> <span class="o">=</span> <span class="k">new</span> <span class="n">LinkedHashMap</span><span class="o">&lt;&gt;();</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">process</span><span class="o">(</span><span class="n">Set</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">TypeElement</span><span class="o">&gt;</span> <span class="n">annotations</span><span class="o">,</span> <span class="n">RoundEnvironment</span> <span class="n">roundEnv</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// process() will be called several times</span>
+        <span class="n">mAnnotatedClassMap</span><span class="o">.</span><span class="na">clear</span><span class="o">();</span>
+
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">processBindView</span><span class="o">(</span><span class="n">roundEnv</span><span class="o">);</span>
+            <span class="n">processOnClick</span><span class="o">(</span><span class="n">roundEnv</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IllegalArgumentException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">error</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span>
+            <span class="k">return</span> <span class="kc">true</span><span class="o">;</span> <span class="c1">// stop process</span>
+        <span class="o">}</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="n">AnnotatedClass</span> <span class="n">annotatedClass</span> <span class="o">:</span> <span class="n">mAnnotatedClassMap</span><span class="o">.</span><span class="na">values</span><span class="o">())</span> <span class="o">{</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="n">info</span><span class="o">(</span><span class="s">&quot;Generating file for %s&quot;</span><span class="o">,</span> <span class="n">annotatedClass</span><span class="o">.</span><span class="na">getFullClassName</span><span class="o">());</span>
+                <span class="n">annotatedClass</span><span class="o">.</span><span class="na">generateFinder</span><span class="o">().</span><span class="na">writeTo</span><span class="o">(</span><span class="n">mFiler</span><span class="o">);</span>
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">error</span><span class="o">(</span><span class="s">&quot;Generate file failed, reason: %s&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span>
+                <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">processBindView</span><span class="o">(</span><span class="n">RoundEnvironment</span> <span class="n">roundEnv</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IllegalArgumentException</span> <span class="o">{</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">Element</span> <span class="n">element</span> <span class="o">:</span> <span class="n">roundEnv</span><span class="o">.</span><span class="na">getElementsAnnotatedWith</span><span class="o">(</span><span class="n">BindView</span><span class="o">.</span><span class="na">class</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">AnnotatedClass</span> <span class="n">annotatedClass</span> <span class="o">=</span> <span class="n">getAnnotatedClass</span><span class="o">(</span><span class="n">element</span><span class="o">);</span>
+            <span class="n">BindViewField</span> <span class="n">field</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BindViewField</span><span class="o">(</span><span class="n">element</span><span class="o">);</span>
+            <span class="n">annotatedClass</span><span class="o">.</span><span class="na">addField</span><span class="o">(</span><span class="n">field</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">processOnClick</span><span class="o">(</span><span class="n">RoundEnvironment</span> <span class="n">roundEnv</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// same as processBindView()</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="n">AnnotatedClass</span> <span class="nf">getAnnotatedClass</span><span class="o">(</span><span class="n">Element</span> <span class="n">element</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">TypeElement</span> <span class="n">classElement</span> <span class="o">=</span> <span class="o">(</span><span class="n">TypeElement</span><span class="o">)</span> <span class="n">element</span><span class="o">.</span><span class="na">getEnclosingElement</span><span class="o">();</span>
+        <span class="n">String</span> <span class="n">fullClassName</span> <span class="o">=</span> <span class="n">classElement</span><span class="o">.</span><span class="na">getQualifiedName</span><span class="o">().</span><span class="na">toString</span><span class="o">();</span>
+        <span class="n">AnnotatedClass</span> <span class="n">annotatedClass</span> <span class="o">=</span> <span class="n">mAnnotatedClassMap</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">fullClassName</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">annotatedClass</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">annotatedClass</span> <span class="o">=</span> <span class="k">new</span> <span class="n">AnnotatedClass</span><span class="o">(</span><span class="n">classElement</span><span class="o">,</span> <span class="n">mElementUtils</span><span class="o">);</span>
+            <span class="n">mAnnotatedClassMap</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">fullClassName</span><span class="o">,</span> <span class="n">annotatedClass</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">annotatedClass</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>首先解析注解元素，并放到对应的注解类对象中，最后调用方法生成文件。model 的代码中还会加入一些校验代码，来判断注解元素是否合理，数据是否正常，然后抛出异常，处理器接收到之后可以打印出错误提示，然后直接返回 <code>true</code> 来结束处理。</p>
+<p>至此，注解处理器也基本完成了，具体细节参考项目代码。</p>
+<h3>实际项目使用</h3>
+<blockquote>
+<p>创建 module <code>sample</code>，普通的 Android module，来演示 <code>ViewFinder</code> 的使用。</p>
+</blockquote>
+<p>在整个项目下的 <code>build.gradle</code> 中添加</p>
+<p><code>classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'</code></p>
+<p>然后在 <code>sample</code> module 下的 <code>build.gradle</code> 中添加</p>
+<p><code>apply plugin: 'com.neenbedankt.android-apt'</code></p>
+<p>同时添加依赖：</p>
+<div class="highlight"><pre><span class="n">compile</span> <span class="nf">project</span><span class="o">(</span><span class="s1">&#39;:viewfinder-annotation&#39;</span><span class="o">)</span>
+<span class="n">compile</span> <span class="nf">project</span><span class="o">(</span><span class="s1">&#39;:viewfinder&#39;</span><span class="o">)</span>
+<span class="n">apt</span> <span class="nf">project</span><span class="o">(</span><span class="s1">&#39;:viewfinder-compiler&#39;</span><span class="o">)</span>
+</pre></div>
+
+
+<p>然后随便创建个布局，随便添加几个控件，就能体验注解啦。</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MainActivity</span> <span class="kd">extends</span> <span class="n">AppCompatActivity</span> <span class="o">{</span>
+    <span class="nd">@BindView</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">tv</span><span class="o">)</span> <span class="n">TextView</span> <span class="n">mTextView</span><span class="o">;</span>
+    <span class="nd">@BindView</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">btn</span><span class="o">)</span> <span class="n">Button</span> <span class="n">mButton</span><span class="o">;</span>
+    <span class="nd">@BindView</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">et</span><span class="o">)</span> <span class="n">EditText</span> <span class="n">mEditText</span><span class="o">;</span>
+
+    <span class="nd">@OnClick</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">btn</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onButtonClick</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="s">&quot;onButtonClick&quot;</span><span class="o">,</span> <span class="n">Toast</span><span class="o">.</span><span class="na">LENGTH_SHORT</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="nd">@OnClick</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">tv</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onTextClick</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="s">&quot;onTextClick&quot;</span><span class="o">,</span> <span class="n">Toast</span><span class="o">.</span><span class="na">LENGTH_SHORT</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
+        <span class="n">setContentView</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">activity_main</span><span class="o">);</span>
+        <span class="n">ViewFinder</span><span class="o">.</span><span class="na">inject</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>这个时候 build 一下项目，就能看到生成的 <code>MainActivity$$Finder</code> 类了，再运行项目就跑起来了。每次改变注解之后，build 一下项目就好啦。</p>
+<p>all done ~</p>
+<p>这个项目也就是个玩具级的 APT 项目，借此来学习如何编写 APT 项目。感觉 APT 项目更多地是考虑如何去设计架构，类之间如何调用，需要生成什么样的代码，提供怎样的 API 去调用。最后才是利用注解处理器去解析注解，然后用 JavaPoet 去生成具体的代码。</p>
+<p>思路比实现更重要，设计比代码更巧妙。</p>
+<h3>参考</h3>
+<ul>
+<li><a href="http://qiushao.net/2015/07/07/Annotation-Processing-Tool%E8%AF%A6%E8%A7%A3/">Annotation-Processing-Tool详解</a> （大力推荐）</li>
+<li><a href="http://blog.csdn.net/lmj623565791/article/details/51931859">Android 如何编写基于编译时注解的项目</a></li>
+<li><a href="https://github.com/square/javapoet">JavaPoet</a></li>
+<li><a href="https://github.com/JakeWharton/butterknife">ButterKnife</a></li>
+</ul>
+    </article>
+
+
+<hr>
+<div class="sharing">
+</div>
+    <hr>
+
+    <!-- 多说评论框 start -->
+    <div class="ds-thread" data-thread-key="apt-in-android" data-title="Android 利用 APT 技术在编译期生成代码" data-url="http://brucezz.github.io/articles/2016/08/06/apt-in-android/"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"brucezz"};
+    (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0]
+         || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+    </script>
+<!-- 多说公共JS代码 end -->
+
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                            <li>
+                                <a href="http://github.com/brucezz" target="_blank">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="http://weibo.com/u/1947300213" target="_blank">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://www.zhihu.com/people/zeroZh" target="_blank">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-stack-1x fa-inverse">知</i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="http://brucezz.github.io/feeds/rss.xml" target="_blank">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                    </ul>
+<p class="copyright text-muted">
+    Blog powered by <a href="http://getpelican.com">Pelican</a>,
+    which takes great advantage of <a href="http://python.org">Python</a>.
+</p><div align="center"><script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1256702937'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1256702937%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+</div>                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="http://brucezz.github.io/theme/js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="http://brucezz.github.io/theme/js/bootstrap.min.js"></script>
+
+        <!-- Custom Theme JavaScript -->
+        <script src="http://brucezz.github.io/theme/js/clean-blog.min.js"></script>
+
+
+</body>
+
+</html>
