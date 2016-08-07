@@ -110,6 +110,7 @@
     <article>
         <p>APT(<code>Annotation Processing Tool</code> 的简称)，可以在代码编译期解析注解，并且生成新的 Java 文件，减少手动的代码输入。现在有很多主流库都用上了 APT，比如 Dagger2, ButterKnife, EventBus3 等，我们要紧跟潮流，与时俱进呐！ (ง •̀_•́)ง</p>
 <p>下面通过一个简单的 View 注入项目 <code>ViewFinder</code> 来介绍 APT 相关内容，简单实现了类似于 <code>ButterKnife</code> 中的两种注解 <code>@BindView</code> 和 <code>@OnClick</code> 。</p>
+<p>项目地址：<a href="https://github.com/brucezz/ViewFinder">https://github.com/brucezz/ViewFinder</a></p>
 <p>大概项目结构如下：</p>
 <ul>
 <li><code>viewFinder-annotation</code>  - 注解相关模块</li>
@@ -200,7 +201,7 @@
 
 
 <p>那么 <code>inject()</code> 方法中都写一些什么呢？</p>
-<p>首先我们需要一个接口 <code>Finder</code>，然后为每一个注解类都生成一个对应的内部类并且实现这个接口，然后实现具体的注入逻辑。在 <code>inject()</code> 方法中首先找到调用者对应的 <code>Finder</code>实现类，然后调用其内部的具体逻辑来达到注入的目的。</p>
+<p>首先我们需要一个接口 <code>Finder</code>，然后为每一个注解类都生成一个对应的内部类并且实现这个接口，然后实现具体的注入逻辑。在 <code>inject()</code> 方法中首先找到调用者对应的 <code>Finder</code> 实现类，然后调用其内部的具体逻辑来达到注入的目的。</p>
 <p>接口 <code>Finder</code> 设计如下 ：</p>
 <div class="highlight"><pre><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Finder</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="o">{</span>
     <span class="kt">void</span> <span class="nf">inject</span><span class="o">(</span><span class="n">T</span> <span class="n">host</span><span class="o">,</span> <span class="n">Object</span> <span class="n">source</span><span class="o">,</span> <span class="n">Provider</span> <span class="n">provider</span><span class="o">);</span>
@@ -208,7 +209,7 @@
 </pre></div>
 
 
-<p>举个🌰，为 <code>MainActivity</code> 生成 <code>MainActivity$$Finder</code>，为 MainActivity 所注解的 View 进行初始化和设置点击事件，这就跟我们平常所写的重复代码基本相同。</p>
+<p>举个🌰，为 <code>MainActivity</code> 生成 <code>MainActivity$$Finder</code>，对其注解的 View 进行初始化和设置点击事件，这就跟我们平常所写的重复代码基本相同。</p>
 <div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MainActivity$$Finder</span> <span class="kd">implements</span> <span class="n">Finder</span><span class="o">&lt;</span><span class="n">MainActivity</span><span class="o">&gt;</span> <span class="o">{</span>
     <span class="nd">@Override</span>
     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">inject</span><span class="o">(</span><span class="kd">final</span> <span class="n">MainActivity</span> <span class="n">host</span><span class="o">,</span> <span class="n">Object</span> <span class="n">source</span><span class="o">,</span> <span class="n">Provider</span> <span class="n">provider</span><span class="o">)</span> <span class="o">{</span>
@@ -240,7 +241,7 @@
 
     <span class="c1">// same as above</span>
 
-    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Finder</span><span class="o">&gt;</span> <span class="n">FINDER_MAP</span> <span class="o">=</span> <span class="k">new</span> <span class="n">LinkedHashMap</span><span class="o">&lt;&gt;();</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Finder</span><span class="o">&gt;</span> <span class="n">FINDER_MAP</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;();</span>
 
     <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">inject</span><span class="o">(</span><span class="n">Object</span> <span class="n">host</span><span class="o">,</span> <span class="n">Object</span> <span class="n">source</span><span class="o">,</span> <span class="n">Provider</span> <span class="n">provider</span><span class="o">)</span> <span class="o">{</span>
         <span class="n">String</span> <span class="n">className</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="na">getClass</span><span class="o">().</span><span class="na">getName</span><span class="o">();</span>
@@ -261,7 +262,7 @@
 
 
 <p>另外代码中使用到了一点反射，为了提高效率，避免每次注入的时候都去找 <code>Finder</code> 对象，用一个 Map 将第一次找到的对象缓存起来，后面用的时候直接从 Map 里面取。</p>
-<p>到此，API 模块的设计基本搞定了，接下来就是去通过注解处理器来每一个注解类生成 <code>Finder</code> 内部类。</p>
+<p>到此，API 模块的设计基本搞定了，接下来就是去通过注解处理器为每一个注解类生成 <code>Finder</code> 内部类。</p>
 <h3>创建注解处理器</h3>
 <blockquote>
 <p>创建 module <code>viewFinder-compiler</code>，类型为 Java Library，实现一个注解处理器。</p>
@@ -275,7 +276,7 @@
 
 <ul>
 <li>因为要用到前面定义的注解，当然要依赖 <code>viewFinder-annotation</code>。</li>
-<li><code>javapoet</code> 是<strong>方块公司</strong>出的又一个好用到爆炸的裤子，提供了各种 API 让你用各种姿势去生成 Java 代码文件，避免了字符串+++到底的尴尬。</li>
+<li><code>javapoet</code> 是<strong>方块公司</strong>出的又一个好用到爆炸的裤子，提供了各种 API 让你用各种姿势去生成 Java 代码文件，避免了徒手拼接字符串的尴尬。</li>
 <li><code>auto-service</code> 是 Google 家的裤子，主要用于注解 <code>Processor</code>，对其生成 <code>META-INF</code> 配置信息。</li>
 </ul>
 <p>下面就来创建我们的处理器 <code>ViewFinderProcessor</code>。</p>
@@ -378,7 +379,7 @@
 </pre></div>
 
 
-<p>主要就是在初始化时校验了一下元素类型，然后获取注解的值，在提供几个 get 方法。<code>OnClickMethod</code>封装类似。</p>
+<p>主要就是在初始化时校验了一下元素类型，然后获取注解的值，在提供几个 get 方法。<code>OnClickMethod</code> 封装类似。</p>
 <div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">AnnotatedClass</span> <span class="o">{</span>
 
     <span class="kd">public</span> <span class="n">TypeElement</span> <span class="n">mClassElement</span><span class="o">;</span>
@@ -440,7 +441,7 @@
 </pre></div>
 
 
-<p><code>AnnotatedClass</code> 表示一个注解类，里面放了两个列表，分别装着注解的成员变量和方法。在 <code>generateFinder()</code> 方法中，按照前面设计的模板，利用 <code>JavaPoet</code> 的 API 生成代码。这部分没啥特别的，照着 <a href="https://github.com/square/javapoet">JavaPoet 文档</a>来就好了，文档写得很细致。</p>
+<p><code>AnnotatedClass</code> 表示一个注解类，里面放了两个列表，分别装着注解的成员变量和方法。在 <code>generateFinder()</code> 方法中，按照上一节设计的模板，利用 <code>JavaPoet</code> 的 API 生成代码。这部分没啥特别的姿势，照着 <a href="https://github.com/square/javapoet">JavaPoet 文档</a> 来就好了，文档写得很细致。</p>
 <blockquote>
 <p>有很多地方需要用到对象的类型，普通类型可以用</p>
 <p><code>ClassName get(String packageName, String simpleName, String... simpleNames)</code></p>
@@ -449,11 +450,11 @@
 <p><code>ParameterizedTypeName get(ClassName rawType, TypeName... typeArguments)</code></p>
 <p>传入具体类和泛型类型就好了。</p>
 </blockquote>
-<p>这些 model 都确定好了之后，<code>process()</code>方法就很清爽啦。使用 <code>RoundEnvironment</code> 参数来查询被特定注解标注的元素，然后解析成具体的 model，最后生成代码输出到文件中。</p>
+<p>这些 model 都确定好了之后，<code>process()</code> 方法就很清爽啦。使用 <code>RoundEnvironment</code> 参数来查询被特定注解标注的元素，然后解析成具体的 model，最后生成代码输出到文件中。</p>
 <div class="highlight"><pre><span class="nd">@AutoService</span><span class="o">(</span><span class="n">Processor</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">ViewFinderProcesser</span> <span class="kd">extends</span> <span class="n">AbstractProcessor</span> <span class="o">{</span>
 
-    <span class="kd">private</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">AnnotatedClass</span><span class="o">&gt;</span> <span class="n">mAnnotatedClassMap</span> <span class="o">=</span> <span class="k">new</span> <span class="n">LinkedHashMap</span><span class="o">&lt;&gt;();</span>
+    <span class="kd">private</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">AnnotatedClass</span><span class="o">&gt;</span> <span class="n">mAnnotatedClassMap</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;();</span>
 
     <span class="nd">@Override</span>
     <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">process</span><span class="o">(</span><span class="n">Set</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">TypeElement</span><span class="o">&gt;</span> <span class="n">annotations</span><span class="o">,</span> <span class="n">RoundEnvironment</span> <span class="n">roundEnv</span><span class="o">)</span> <span class="o">{</span>
@@ -557,8 +558,8 @@
 <ul>
 <li><a href="http://qiushao.net/2015/07/07/Annotation-Processing-Tool%E8%AF%A6%E8%A7%A3/">Annotation-Processing-Tool详解</a> （大力推荐）</li>
 <li><a href="http://blog.csdn.net/lmj623565791/article/details/51931859">Android 如何编写基于编译时注解的项目</a></li>
-<li><a href="https://github.com/square/javapoet">JavaPoet</a></li>
-<li><a href="https://github.com/JakeWharton/butterknife">ButterKnife</a></li>
+<li><a href="https://github.com/square/javapoet">JavaPoet 文档</a> </li>
+<li><a href="https://github.com/JakeWharton/butterknife">ButterKnife</a> （代码结构设计很棒）</li>
 </ul>
     </article>
 

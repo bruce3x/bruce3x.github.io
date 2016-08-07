@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Brucezz's Corner</title><link>http://brucezz.github.io/</link><description>/* Stay hungry, Stay foolish. */</description><atom:link href="http://brucezz.github.io//feeds/rss.xml" rel="self"></atom:link><lastBuildDate>Sat, 06 Aug 2016 00:00:00 +0800</lastBuildDate><item><title>Android 利用 APT 技术在编译期生成代码</title><link>http://brucezz.github.io/articles/2016/08/06/use-apt-in-android/</link><description>&lt;p&gt;APT(&lt;code&gt;Annotation Processing Tool&lt;/code&gt; 的简称)，可以在代码编译期解析注解，并且生成新的 Java 文件，减少手动的代码输入。现在有很多主流库都用上了 APT，比如 Dagger2, ButterKnife, EventBus3 等，我们要紧跟潮流，与时俱进呐！ (ง •̀_•́)ง&lt;/p&gt;
 &lt;p&gt;下面通过一个简单的 View 注入项目 &lt;code&gt;ViewFinder&lt;/code&gt; 来介绍 APT 相关内容，简单实现了类似于 &lt;code&gt;ButterKnife&lt;/code&gt; 中的两种注解 &lt;code&gt;@BindView&lt;/code&gt; 和 &lt;code&gt;@OnClick&lt;/code&gt; 。&lt;/p&gt;
+&lt;p&gt;项目地址：&lt;a href="https://github.com/brucezz/ViewFinder"&gt;https://github.com/brucezz/ViewFinder&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;大概项目结构如下：&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;code&gt;viewFinder-annotation&lt;/code&gt;  - 注解相关模块&lt;/li&gt;
@@ -91,7 +92,7 @@
 
 
 &lt;p&gt;那么 &lt;code&gt;inject()&lt;/code&gt; 方法中都写一些什么呢？&lt;/p&gt;
-&lt;p&gt;首先我们需要一个接口 &lt;code&gt;Finder&lt;/code&gt;，然后为每一个注解类都生成一个对应的内部类并且实现这个接口，然后实现具体的注入逻辑。在 &lt;code&gt;inject()&lt;/code&gt; 方法中首先找到调用者对应的 &lt;code&gt;Finder&lt;/code&gt;实现类，然后调用其内部的具体逻辑来达到注入的目的。&lt;/p&gt;
+&lt;p&gt;首先我们需要一个接口 &lt;code&gt;Finder&lt;/code&gt;，然后为每一个注解类都生成一个对应的内部类并且实现这个接口，然后实现具体的注入逻辑。在 &lt;code&gt;inject()&lt;/code&gt; 方法中首先找到调用者对应的 &lt;code&gt;Finder&lt;/code&gt; 实现类，然后调用其内部的具体逻辑来达到注入的目的。&lt;/p&gt;
 &lt;p&gt;接口 &lt;code&gt;Finder&lt;/code&gt; 设计如下 ：&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;interface&lt;/span&gt; &lt;span class="nc"&gt;Finder&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
     &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;inject&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt; &lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Object&lt;/span&gt; &lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Provider&lt;/span&gt; &lt;span class="n"&gt;provider&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
@@ -99,7 +100,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;举个🌰，为 &lt;code&gt;MainActivity&lt;/code&gt; 生成 &lt;code&gt;MainActivity$$Finder&lt;/code&gt;，为 MainActivity 所注解的 View 进行初始化和设置点击事件，这就跟我们平常所写的重复代码基本相同。&lt;/p&gt;
+&lt;p&gt;举个🌰，为 &lt;code&gt;MainActivity&lt;/code&gt; 生成 &lt;code&gt;MainActivity$$Finder&lt;/code&gt;，对其注解的 View 进行初始化和设置点击事件，这就跟我们平常所写的重复代码基本相同。&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;MainActivity$$Finder&lt;/span&gt; &lt;span class="kd"&gt;implements&lt;/span&gt; &lt;span class="n"&gt;Finder&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;MainActivity&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
     &lt;span class="nd"&gt;@Override&lt;/span&gt;
     &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;inject&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="kd"&gt;final&lt;/span&gt; &lt;span class="n"&gt;MainActivity&lt;/span&gt; &lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Object&lt;/span&gt; &lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Provider&lt;/span&gt; &lt;span class="n"&gt;provider&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
@@ -131,7 +132,7 @@
 
     &lt;span class="c1"&gt;// same as above&lt;/span&gt;
 
-    &lt;span class="kd"&gt;private&lt;/span&gt; &lt;span class="kd"&gt;static&lt;/span&gt; &lt;span class="kd"&gt;final&lt;/span&gt; &lt;span class="n"&gt;Map&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Finder&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;FINDER_MAP&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;LinkedHashMap&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;gt;();&lt;/span&gt;
+    &lt;span class="kd"&gt;private&lt;/span&gt; &lt;span class="kd"&gt;static&lt;/span&gt; &lt;span class="kd"&gt;final&lt;/span&gt; &lt;span class="n"&gt;Map&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Finder&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;FINDER_MAP&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;HashMap&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;gt;();&lt;/span&gt;
 
     &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;static&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;inject&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Object&lt;/span&gt; &lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Object&lt;/span&gt; &lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Provider&lt;/span&gt; &lt;span class="n"&gt;provider&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
         &lt;span class="n"&gt;String&lt;/span&gt; &lt;span class="n"&gt;className&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getClass&lt;/span&gt;&lt;span class="o"&gt;().&lt;/span&gt;&lt;span class="na"&gt;getName&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
@@ -152,7 +153,7 @@
 
 
 &lt;p&gt;另外代码中使用到了一点反射，为了提高效率，避免每次注入的时候都去找 &lt;code&gt;Finder&lt;/code&gt; 对象，用一个 Map 将第一次找到的对象缓存起来，后面用的时候直接从 Map 里面取。&lt;/p&gt;
-&lt;p&gt;到此，API 模块的设计基本搞定了，接下来就是去通过注解处理器来每一个注解类生成 &lt;code&gt;Finder&lt;/code&gt; 内部类。&lt;/p&gt;
+&lt;p&gt;到此，API 模块的设计基本搞定了，接下来就是去通过注解处理器为每一个注解类生成 &lt;code&gt;Finder&lt;/code&gt; 内部类。&lt;/p&gt;
 &lt;h3&gt;创建注解处理器&lt;/h3&gt;
 &lt;blockquote&gt;
 &lt;p&gt;创建 module &lt;code&gt;viewFinder-compiler&lt;/code&gt;，类型为 Java Library，实现一个注解处理器。&lt;/p&gt;
@@ -166,7 +167,7 @@
 
 &lt;ul&gt;
 &lt;li&gt;因为要用到前面定义的注解，当然要依赖 &lt;code&gt;viewFinder-annotation&lt;/code&gt;。&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;javapoet&lt;/code&gt; 是&lt;strong&gt;方块公司&lt;/strong&gt;出的又一个好用到爆炸的裤子，提供了各种 API 让你用各种姿势去生成 Java 代码文件，避免了字符串+++到底的尴尬。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;javapoet&lt;/code&gt; 是&lt;strong&gt;方块公司&lt;/strong&gt;出的又一个好用到爆炸的裤子，提供了各种 API 让你用各种姿势去生成 Java 代码文件，避免了徒手拼接字符串的尴尬。&lt;/li&gt;
 &lt;li&gt;&lt;code&gt;auto-service&lt;/code&gt; 是 Google 家的裤子，主要用于注解 &lt;code&gt;Processor&lt;/code&gt;，对其生成 &lt;code&gt;META-INF&lt;/code&gt; 配置信息。&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;下面就来创建我们的处理器 &lt;code&gt;ViewFinderProcessor&lt;/code&gt;。&lt;/p&gt;
@@ -269,7 +270,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;主要就是在初始化时校验了一下元素类型，然后获取注解的值，在提供几个 get 方法。&lt;code&gt;OnClickMethod&lt;/code&gt;封装类似。&lt;/p&gt;
+&lt;p&gt;主要就是在初始化时校验了一下元素类型，然后获取注解的值，在提供几个 get 方法。&lt;code&gt;OnClickMethod&lt;/code&gt; 封装类似。&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;AnnotatedClass&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
 
     &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="n"&gt;TypeElement&lt;/span&gt; &lt;span class="n"&gt;mClassElement&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
@@ -331,7 +332,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;&lt;code&gt;AnnotatedClass&lt;/code&gt; 表示一个注解类，里面放了两个列表，分别装着注解的成员变量和方法。在 &lt;code&gt;generateFinder()&lt;/code&gt; 方法中，按照前面设计的模板，利用 &lt;code&gt;JavaPoet&lt;/code&gt; 的 API 生成代码。这部分没啥特别的，照着 &lt;a href="https://github.com/square/javapoet"&gt;JavaPoet 文档&lt;/a&gt;来就好了，文档写得很细致。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;AnnotatedClass&lt;/code&gt; 表示一个注解类，里面放了两个列表，分别装着注解的成员变量和方法。在 &lt;code&gt;generateFinder()&lt;/code&gt; 方法中，按照上一节设计的模板，利用 &lt;code&gt;JavaPoet&lt;/code&gt; 的 API 生成代码。这部分没啥特别的姿势，照着 &lt;a href="https://github.com/square/javapoet"&gt;JavaPoet 文档&lt;/a&gt; 来就好了，文档写得很细致。&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;有很多地方需要用到对象的类型，普通类型可以用&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;ClassName get(String packageName, String simpleName, String... simpleNames)&lt;/code&gt;&lt;/p&gt;
@@ -340,11 +341,11 @@
 &lt;p&gt;&lt;code&gt;ParameterizedTypeName get(ClassName rawType, TypeName... typeArguments)&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;传入具体类和泛型类型就好了。&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;p&gt;这些 model 都确定好了之后，&lt;code&gt;process()&lt;/code&gt;方法就很清爽啦。使用 &lt;code&gt;RoundEnvironment&lt;/code&gt; 参数来查询被特定注解标注的元素，然后解析成具体的 model，最后生成代码输出到文件中。&lt;/p&gt;
+&lt;p&gt;这些 model 都确定好了之后，&lt;code&gt;process()&lt;/code&gt; 方法就很清爽啦。使用 &lt;code&gt;RoundEnvironment&lt;/code&gt; 参数来查询被特定注解标注的元素，然后解析成具体的 model，最后生成代码输出到文件中。&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nd"&gt;@AutoService&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Processor&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;class&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
 &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;ViewFinderProcesser&lt;/span&gt; &lt;span class="kd"&gt;extends&lt;/span&gt; &lt;span class="n"&gt;AbstractProcessor&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
 
-    &lt;span class="kd"&gt;private&lt;/span&gt; &lt;span class="n"&gt;Map&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;AnnotatedClass&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;mAnnotatedClassMap&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;LinkedHashMap&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;gt;();&lt;/span&gt;
+    &lt;span class="kd"&gt;private&lt;/span&gt; &lt;span class="n"&gt;Map&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;AnnotatedClass&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;mAnnotatedClassMap&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;HashMap&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;gt;();&lt;/span&gt;
 
     &lt;span class="nd"&gt;@Override&lt;/span&gt;
     &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kt"&gt;boolean&lt;/span&gt; &lt;span class="nf"&gt;process&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Set&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;?&lt;/span&gt; &lt;span class="kd"&gt;extends&lt;/span&gt; &lt;span class="n"&gt;TypeElement&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;annotations&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;RoundEnvironment&lt;/span&gt; &lt;span class="n"&gt;roundEnv&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
@@ -448,8 +449,8 @@
 &lt;ul&gt;
 &lt;li&gt;&lt;a href="http://qiushao.net/2015/07/07/Annotation-Processing-Tool%E8%AF%A6%E8%A7%A3/"&gt;Annotation-Processing-Tool详解&lt;/a&gt; （大力推荐）&lt;/li&gt;
 &lt;li&gt;&lt;a href="http://blog.csdn.net/lmj623565791/article/details/51931859"&gt;Android 如何编写基于编译时注解的项目&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://github.com/square/javapoet"&gt;JavaPoet&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://github.com/JakeWharton/butterknife"&gt;ButterKnife&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/square/javapoet"&gt;JavaPoet 文档&lt;/a&gt; &lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/JakeWharton/butterknife"&gt;ButterKnife&lt;/a&gt; （代码结构设计很棒）&lt;/li&gt;
 &lt;/ul&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Brucezz</dc:creator><pubDate>Sat, 06 Aug 2016 00:00:00 +0800</pubDate><guid>tag:brucezz.github.io,2016-08-06:articles/2016/08/06/use-apt-in-android/</guid></item><item><title>RxBus 的简单实现</title><link>http://brucezz.github.io/articles/2016/06/02/a-simple-rxbus-implementation/</link><description>&lt;p&gt;今天写代码正好想到要用事件总线，先前都是使用 Square 的 Otto 或者 GreenRobot 的 EventBus ，听说 RxJava 能够轻易实现一个 Bus，所以就来研究研究这个车怎么开~&lt;/p&gt;
 &lt;p&gt;&lt;img alt="没时间解释了，快上车！" src="/images/no-time-to-explain.jpg" /&gt;&lt;/p&gt;
 &lt;p&gt;这辆车需要有一下功能：&lt;/p&gt;
@@ -1110,7 +1111,7 @@ sudo chkconfig uwsgi on
 &lt;/ul&gt;
 &lt;p&gt;用你自己的 &lt;code&gt;OkHttpClient&lt;/code&gt; 实例配置好 Picasso 和 Retrofit 之后，就能确保所有请求超时的一致性了。&lt;/p&gt;
 &lt;h3&gt;结论&lt;/h3&gt;
-&lt;p&gt;再次强调，OkHttp 的默认配置提供了显著的效果，但是采取以上的措施，可以提高 OkHttp 的可用性和自我检查能力，并且提升你的应用的质量。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Brucezz</dc:creator><pubDate>Sun, 21 Feb 2016 00:00:00 +0800</pubDate><guid>tag:brucezz.github.io,2016-02-21:articles/2016/02/21/effective-okhttp/</guid><category>Android</category><category>翻译</category><category>OkHttp</category></item><item><title>Sublime Text 3 插件下载失败的解决方案</title><link>http://brucezz.github.io/articles/2016/01/29/sublime-text-package-download-fail/</link><description>&lt;p&gt;前两天瞎折腾，把日常使用的 Ubuntu 系统玩坏了，后果就是重装系统。。。&lt;/p&gt;
+&lt;p&gt;再次强调，OkHttp 的默认配置提供了显著的效果，但是采取以上的措施，可以提高 OkHttp 的可用性和自我检查能力，并且提升你的应用的质量。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Brucezz</dc:creator><pubDate>Sun, 21 Feb 2016 00:00:00 +0800</pubDate><guid>tag:brucezz.github.io,2016-02-21:articles/2016/02/21/effective-okhttp/</guid><category>Android</category><category>翻译</category><category>OkHttp</category></item><item><title>Sublime Text 3 插件下载失败的解决方案</title><link>http://brucezz.github.io/articles/2016/01/29/solution-of-sublime-text-package-download-fail/</link><description>&lt;p&gt;前两天瞎折腾，把日常使用的 Ubuntu 系统玩坏了，后果就是重装系统。。。&lt;/p&gt;
 &lt;p&gt;Sublime Text 这款文本编辑器也得重装，安装插件的时候发现了一个头疼的问题：提供 Sublime Text 插件下载的网站 &lt;a href="https://packagecontrol.io/"&gt;packagecontrol.io&lt;/a&gt; 被墙了！墙了！了！&lt;/p&gt;
 &lt;p&gt;它的包管理器(Package Control) 也下载不下来，即使手动下载回来，然后丢到相应的文件夹，也不会从服务器成功地获取到有效的插件列表，一直会提示&lt;/p&gt;
 &lt;blockquote&gt;
@@ -1157,7 +1158,7 @@ sudo chkconfig uwsgi on
 &lt;/ol&gt;
 &lt;p&gt;╮(╯▽╰)╭，我用的插件不多，就 &lt;code&gt;wakatime&lt;/code&gt;, &lt;code&gt;git&lt;/code&gt;, &lt;code&gt;convertToUTF8&lt;/code&gt;, etc.&lt;/p&gt;
 &lt;p&gt;另另外，Ubuntu 系统 Sublime Text 不能输入中文问题，解决方案在这里 -&amp;gt; &lt;a href="https://github.com/lyfeyaj/sublime-text-imfix"&gt;lyfeyaj/sublime-text-imfix&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;输入框不跟随问题，目前好像还无能为力。。。 ╮(╯▽╰)╭&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Brucezz</dc:creator><pubDate>Fri, 29 Jan 2016 00:00:00 +0800</pubDate><guid>tag:brucezz.github.io,2016-01-29:articles/2016/01/29/sublime-text-package-download-fail/</guid></item><item><title>抓取斗鱼直播弹幕</title><link>http://brucezz.github.io/articles/2016/01/11/douyu-crawler/</link><description>&lt;p&gt;前几天看了知乎的一个问题（&lt;a href="https://www.zhihu.com/question/29027665"&gt;如何获取斗鱼直播间的弹幕信息？&lt;/a&gt;）之后，才有了这个想法。一直对抓取信息比较感兴趣，这次也不会错过咯，尝试一下 →.→&lt;/p&gt;
+&lt;p&gt;输入框不跟随问题，目前好像还无能为力。。。 ╮(╯▽╰)╭&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Brucezz</dc:creator><pubDate>Fri, 29 Jan 2016 00:00:00 +0800</pubDate><guid>tag:brucezz.github.io,2016-01-29:articles/2016/01/29/solution-of-sublime-text-package-download-fail/</guid></item><item><title>抓取斗鱼直播弹幕</title><link>http://brucezz.github.io/articles/2016/01/11/douyu-crawler/</link><description>&lt;p&gt;前几天看了知乎的一个问题（&lt;a href="https://www.zhihu.com/question/29027665"&gt;如何获取斗鱼直播间的弹幕信息？&lt;/a&gt;）之后，才有了这个想法。一直对抓取信息比较感兴趣，这次也不会错过咯，尝试一下 →.→&lt;/p&gt;
 &lt;p&gt;抓取数据的基本思路就是： 抓包 → 分析请求信息 → 模拟发送请求 → 获得数据&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;知乎回答地址：&lt;a href="https://www.zhihu.com/question/29027665/answer/80169234"&gt;如何获取斗鱼直播间的弹幕信息？ - Brucezz 的回答 - 知乎&lt;/a&gt;&lt;/p&gt;
@@ -1405,7 +1406,7 @@ ver@=20150929/. # 版本号
 &lt;li&gt;&lt;a href="https://www.zhihu.com/question/29027665/answer/75117632"&gt;如何获取斗鱼直播间的弹幕信息？ - 天白才痴 的回答&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="http://ndrlslz.github.io/2015/12/26/%E6%96%97%E9%B1%BC%E5%BC%B9%E5%B9%95%E6%8A%93%E5%8F%96/"&gt;斗鱼弹幕抓取 | 霹雳啪啦程序汪&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://github.com/reusu/DouyuAssistant"&gt;reusu/DouyuAssistant - Github&lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Brucezz</dc:creator><pubDate>Mon, 11 Jan 2016 00:00:00 +0800</pubDate><guid>tag:brucezz.github.io,2016-01-11:articles/2016/01/11/douyu-crawler/</guid><category>Java</category><category>爬虫</category></item><item><title>强引用、弱引用、软引用、虚引用</title><link>http://brucezz.github.io/articles/2015/11/23/four-kind-of-reference/</link><description>&lt;p&gt;&lt;strong&gt;目录&lt;/strong&gt;&lt;/p&gt;
+&lt;/ol&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Brucezz</dc:creator><pubDate>Mon, 11 Jan 2016 00:00:00 +0800</pubDate><guid>tag:brucezz.github.io,2016-01-11:articles/2016/01/11/douyu-crawler/</guid><category>Java</category><category>爬虫</category></item><item><title>强引用、弱引用、软引用、虚引用</title><link>http://brucezz.github.io/articles/2015/11/23/four-kind-of-reference-in-java/</link><description>&lt;p&gt;&lt;strong&gt;目录&lt;/strong&gt;&lt;/p&gt;
 &lt;!-- MarkdownTOC --&gt;
 
 &lt;ul&gt;
@@ -1530,7 +1531,7 @@ null
 &lt;p&gt;&lt;a name="4虚引用（phantomreference）"&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;h2&gt;4.虚引用（PhantomReference）&lt;/h2&gt;
 &lt;p&gt;“虚引用”顾名思义，就是形同虚设，与其他几种引用都不同，虚引用并不会决定对象的生命周期。如果一个对象仅持有虚引用，那么它就和没有任何引用一样，在任何时候都可能被垃圾回收器回收。&lt;/p&gt;
-&lt;p&gt;虚引用主要用来跟踪对象被垃圾回收器回收的活动。虚引用与软引用和弱引用的一个区别在于：虚引用必须和引用队列 （&lt;code&gt;ReferenceQueue&lt;/code&gt;）联合使用。当垃圾回收器准备回收一个对象时，如果发现它还有虚引用，就会在回收对象的内存之前，把这个虚引用加入到与之 关联的引用队列中。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Brucezz</dc:creator><pubDate>Mon, 23 Nov 2015 00:00:00 +0800</pubDate><guid>tag:brucezz.github.io,2015-11-23:articles/2015/11/23/four-kind-of-reference/</guid><category>Java</category><category>Reference</category></item><item><title>常用排序算法整理</title><link>http://brucezz.github.io/articles/2015/11/03/algorithms-of-sort/</link><description>&lt;p&gt;&lt;strong&gt;目录&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;虚引用主要用来跟踪对象被垃圾回收器回收的活动。虚引用与软引用和弱引用的一个区别在于：虚引用必须和引用队列 （&lt;code&gt;ReferenceQueue&lt;/code&gt;）联合使用。当垃圾回收器准备回收一个对象时，如果发现它还有虚引用，就会在回收对象的内存之前，把这个虚引用加入到与之 关联的引用队列中。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Brucezz</dc:creator><pubDate>Mon, 23 Nov 2015 00:00:00 +0800</pubDate><guid>tag:brucezz.github.io,2015-11-23:articles/2015/11/23/four-kind-of-reference-in-java/</guid><category>Java</category><category>Reference</category></item><item><title>常用排序算法整理</title><link>http://brucezz.github.io/articles/2015/11/03/algorithms-of-sort/</link><description>&lt;p&gt;&lt;strong&gt;目录&lt;/strong&gt;&lt;/p&gt;
 &lt;!-- MarkdownTOC --&gt;
 
 &lt;ul&gt;
