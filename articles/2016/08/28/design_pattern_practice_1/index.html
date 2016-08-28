@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+            <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+
+        <title>设计模式实践系列（一）</title>
+
+            <link href="http://brucezz.itscoder.com//feeds/rss.xml" type="application/rss+xml" rel="alternate" title="Brucezz's Corner Full RSS Feed" />
+
+            <link rel="shortcut icon" href="/favicon.ico">
+
+        <!-- Bootstrap Core CSS -->
+        <link href="http://brucezz.github.io/theme/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link href="http://brucezz.github.io/theme/css/clean-blog.min.css" rel="stylesheet">
+
+        <!-- Code highlight color scheme -->
+            <link href="http://brucezz.github.io/theme/css/code_blocks/colorful.css" rel="stylesheet">
+
+
+            <!-- CSS specified by the user -->
+            <link href="http://brucezz.github.io/theme/css/harlem-shake-style.css" rel="stylesheet">
+
+        <!-- Custom Fonts -->
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+
+
+
+
+
+	                <meta property="og:locale" content="">
+		<meta property="og:site_name" content="Brucezz's Corner">
+
+	<meta property="og:type" content="article">
+	<meta property="article:author" content="">
+	<meta property="og:url" content="http://brucezz.github.io/articles/2016/08/28/design_pattern_practice_1/">
+	<meta property="og:title" content="设计模式实践系列（一）">
+	<meta property="og:description" content="">
+	<meta property="og:image" content="http://brucezz.github.io//images/cover/android-rain-umbrella-technology-green.jpg">
+	<meta property="article:published_time" content="2016-08-28 00:00:00+08:00">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="http://brucezz.github.io/">Brucezz's Corner</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                        <li><a href="javascript:go()">High 一下</a></li>
+                        <li><a href="/archives.html">归档</a></li>
+                        <li><a href="/categories.html">分类</a></li>
+                        <li><a href="/pages/about.html">关于我</a></li>
+
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Header -->
+        <header class="intro-header" style="background-image: url('/images/cover/android-rain-umbrella-technology-green.jpg')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <div class="post-heading">
+                        <h1>设计模式实践系列（一）</h1>
+                        <span class="meta">Posted by
+                                <a href="http://brucezz.github.io/author/brucezz.html">Brucezz</a>
+                             on 2016-08-28
+                        </span>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+    <!-- Post Content -->
+    <article>
+        <p>最近在看 <a href="https://book.douban.com/subject/1400656/">《Head First Design Pattern》</a>（顺便推荐一下😄），深感结合实例例子才能理解好各种模式，下面通过一个小场景，来实践一下最近学习的四种设计模式（装饰器模式、工厂方法模式、观察者模式和策略模式）。</p>
+<p>项目地址： <a href="https://github.com/brucezz/DesignPatternStudy/tree/master/src/practice/practice01">DesignPatternStudy/src/practice/practice01 at master · brucezz/DesignPatternStudy</a></p>
+<p>我们平常最离不开的就是手机了，那么我们的故事就从<strong>买手机</strong>开始。</p>
+<p>我们需要个实体类 <code>Phone</code>，以及继承自 <code>Phone</code> 的一系列不同品牌的手机。</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">Phone</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">String</span> <span class="nf">getBrand</span><span class="o">();</span><span class="c1">// 品牌</span>
+
+    <span class="c1">//...</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>不同品牌的手机单独实现一下 <code>getBrand()</code> 方法就好了。</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">NexusPhone</span> <span class="kd">extends</span> <span class="n">Phone</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getBrand</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">&quot;Nexus&quot;</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">OneplusPhone</span> <span class="kd">extends</span> <span class="n">Phone</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getBrand</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">&quot;Oneplus&quot;</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c1">// ...</span>
+</pre></div>
+
+
+<p>不同的手机，自然有自己的 feature， 比如有的手机屏幕大，有的手机续航时间长，还有的音质不错~</p>
+<p>这里就要用到第一个模式啦 —— <strong>装饰器模式</strong>。先继承 <code>Phone</code> 得到一个装饰器类 <code>PhoneDecorator</code>。</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">PhoneDecorator</span> <span class="kd">extends</span> <span class="n">Phone</span> <span class="o">{</span>
+    <span class="kd">protected</span> <span class="n">Phone</span> <span class="n">phone</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="nf">PhoneDecorator</span><span class="o">(</span><span class="n">Phone</span> <span class="n">phone</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">phone</span> <span class="o">=</span> <span class="n">phone</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>这个装饰器类内部维护了一个 <code>Phone</code> 对象，方便对其进行装饰，同时继承了 <code>Phone</code>，保证装饰后的对象类型与原来的类型保持一致，不会影响到使用。</p>
+<div class="highlight"><pre><span class="cm">/**</span>
+<span class="cm"> * 大屏幕</span>
+<span class="cm"> */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">LargeScreen</span> <span class="kd">extends</span> <span class="n">PhoneDecorator</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="nf">LargeScreen</span><span class="o">(</span><span class="n">Phone</span> <span class="n">phone</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">(</span><span class="n">phone</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getBrand</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">phone</span><span class="o">.</span><span class="na">getBrand</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;, Large Screen&quot;</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>如果想要得到一台大屏幕的 Nexus，可以这样<code>Phone nexus = new LargeScreen(new NexusPhone());</code></p>
+<p>其他装饰器可以去参考项目代码，不贴啦。</p>
+<p>有了手机，就该有手机店了。我们这里的手机店是专卖店啦，都只卖各自类型的手机。首先我们还是得一个接口（在设计模式里面，接口泛指父类或者接口这种超类型）来定义统一的卖手机的方法。实现如下：</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">PhoneStore</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="n">Phone</span> <span class="nf">sale</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">Phone</span> <span class="n">phone</span> <span class="o">=</span> <span class="n">producePhone</span><span class="o">();</span><span class="c1">// 生产</span>
+        <span class="n">phone</span><span class="o">.</span><span class="na">pack</span><span class="o">();</span><span class="c1">// 打包</span>
+        <span class="n">phone</span><span class="o">.</span><span class="na">transport</span><span class="o">();</span><span class="c1">// 运输</span>
+        <span class="k">return</span> <span class="n">phone</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">protected</span> <span class="kd">abstract</span> <span class="n">Phone</span> <span class="nf">producePhone</span><span class="o">();</span>
+
+    <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">String</span> <span class="nf">getName</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>这里用到了另一个模式 —— <strong>工厂方法模式</strong>。将实例化 <code>Phone</code> 对象的过程延迟到子类中进行，由子类即具体的手机专卖店来决定手机的类型。这样一来，不同品牌的专卖店就能卖各自家的手机了。</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">NexusStore</span> <span class="kd">extends</span> <span class="n">PhoneStore</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Phone</span> <span class="nf">producePhone</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="n">LongBatteryLife</span><span class="o">(</span><span class="k">new</span> <span class="n">LargeScreen</span><span class="o">(</span><span class="k">new</span> <span class="n">HiFi</span><span class="o">(</span><span class="k">new</span> <span class="n">NexusPhone</span><span class="o">())));</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">&quot;NexusStore&quot;</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>到这里，<code>PhoneStore</code> 也实现好了，消费者可以直接通过 <code>Phone nexus = new NexusStore().sale();</code> 来买一台 nexus。 </p>
+<p>整个故事的剧情就是这样：</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Customer</span> <span class="n">jaeger</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Customer</span><span class="o">(</span><span class="s">&quot;Jaeger&quot;</span><span class="o">,</span> <span class="s">&quot;Nexus&quot;</span><span class="o">);</span>
+        <span class="n">jaeger</span><span class="o">.</span><span class="na">hello</span><span class="o">();</span>
+
+        <span class="n">NexusStore</span> <span class="n">store</span> <span class="o">=</span> <span class="k">new</span> <span class="n">NexusStore</span><span class="o">();</span>
+        <span class="n">Phone</span> <span class="n">phone</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="na">sale</span><span class="o">();</span>
+
+        <span class="n">jaeger</span><span class="o">.</span><span class="na">setPhone</span><span class="o">(</span><span class="n">phone</span><span class="o">);</span>
+        <span class="n">jaeger</span><span class="o">.</span><span class="na">hello</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>输出：</p>
+<div class="highlight"><pre>[Jaeger] 嘿, 我是 Jaeger, 我喜欢 Nexus 这个牌子, 不过我还没有手机诶 :(
+[Nexus, HiFi, Large Screen, Long Battery Life Phone] 打包中 ...
+[Nexus, HiFi, Large Screen, Long Battery Life Phone] 运输中 ...
+[Jaeger] 我有手机啦! Nexus, HiFi, Large Screen, Long Battery Life
+[Jaeger] 嘿, 我是 Jaeger, 我喜欢 Nexus 这个牌子, 我现在有一个手机: Nexus, HiFi, Large Screen, Long Battery Life 
+</pre></div>
+
+
+<p>骚年，你以为这样故事就完结了？图样图森破啊！
+其实 <a href="https://github.com/laobie">Jaeger</a> 去买手机的时候，手机没货啦 😅
+然后店员告诉他：你在这里登记一下，然后三天之后手机到货了，我们会主动联系你的，到时候你再来买手机，肯定有货！</p>
+<p>这个登记和通知的过程嘛，就要用到第三个模式 —— <strong>观察者模式</strong>。手机店为被观察对象， <a href="https://github.com/laobie">Jaeger</a> 是观察者。首先观察者要向被观察者进行注册，也就是登记的过程。然后被观察者在状态改变时，会通知所有注册的观察者。</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">PhoneStore</span> <span class="o">{</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * 等待购买的顾客的列表</span>
+<span class="cm">     */</span>
+    <span class="kd">protected</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Waiting</span><span class="o">&gt;</span> <span class="n">waitList</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
+
+    <span class="kd">public</span> <span class="n">Phone</span> <span class="nf">sale</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">isPhoneValid</span><span class="o">())</span> <span class="o">{</span>
+            <span class="n">Phone</span> <span class="n">phone</span> <span class="o">=</span> <span class="n">producePhone</span><span class="o">();</span>
+            <span class="n">phone</span><span class="o">.</span><span class="na">pack</span><span class="o">();</span>
+            <span class="n">phone</span><span class="o">.</span><span class="na">transport</span><span class="o">();</span>
+            <span class="k">return</span> <span class="n">phone</span><span class="o">;</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;[&quot;</span> <span class="o">+</span> <span class="n">getName</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;] 现在手机卖完啦, 你先登记一下, 等三天之后手机到货了我们再通知你~&quot;</span><span class="o">);</span>
+            <span class="n">days</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+            <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">register</span><span class="o">(</span><span class="n">Waiting</span> <span class="n">waiting</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(!</span><span class="n">waitList</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">waiting</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">waitList</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">waiting</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">unRegister</span><span class="o">(</span><span class="n">Customer</span> <span class="n">customer</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">waitList</span><span class="o">.</span><span class="na">remove</span><span class="o">(</span><span class="n">customer</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">notifyAllCustomers</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">Waiting</span> <span class="n">waiting</span> <span class="o">:</span> <span class="n">waitList</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">waiting</span><span class="o">.</span><span class="na">onPhoneValid</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">days</span> <span class="o">=</span> <span class="mi">3</span><span class="o">;</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * 等待三天</span>
+<span class="cm">     */</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">oneDayPassed</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">days</span><span class="o">++;</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">days</span> <span class="o">+</span> <span class="s">&quot; 天过去了 ...&quot;</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">days</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">notifyAllCustomers</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kt">boolean</span> <span class="nf">isPhoneValid</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">days</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">protected</span> <span class="kd">abstract</span> <span class="n">Phone</span> <span class="nf">producePhone</span><span class="o">();</span>
+
+    <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">String</span> <span class="nf">getName</span><span class="o">();</span>
+
+    <span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Waiting</span> <span class="o">{</span>
+        <span class="kt">void</span> <span class="nf">onPhoneValid</span><span class="o">(</span><span class="n">PhoneStore</span> <span class="n">store</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Customer</span> <span class="kd">implements</span> <span class="n">PhoneStore</span><span class="o">.</span><span class="na">Waiting</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="n">favorite</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="n">Phone</span> <span class="n">phone</span><span class="o">;</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * @param name     名字</span>
+<span class="cm">     * @param favorite 喜欢的牌子</span>
+<span class="cm">     */</span>
+    <span class="kd">public</span> <span class="nf">Customer</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="n">String</span> <span class="n">favorite</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">favorite</span> <span class="o">=</span> <span class="n">favorite</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setPhone</span><span class="o">(</span><span class="n">Phone</span> <span class="n">phone</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;[&quot;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s">&quot;] &quot;</span> <span class="o">+</span>
+                <span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">phone</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">?</span> <span class="s">&quot;我有&quot;</span> <span class="o">:</span> <span class="s">&quot;我换&quot;</span><span class="o">)</span> <span class="o">+</span>
+                <span class="s">&quot;手机啦! &quot;</span> <span class="o">+</span> <span class="n">phone</span><span class="o">.</span><span class="na">getBrand</span><span class="o">());</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">phone</span> <span class="o">=</span> <span class="n">phone</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * 商店通知说,有货啦!</span>
+<span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onPhoneValid</span><span class="o">(</span><span class="n">PhoneStore</span> <span class="n">store</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">setPhone</span><span class="o">(</span><span class="n">store</span><span class="o">.</span><span class="na">sale</span><span class="o">());</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">equals</span><span class="o">(</span><span class="n">Object</span> <span class="n">obj</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">obj</span> <span class="k">instanceof</span> <span class="n">Customer</span> <span class="o">&amp;&amp;</span> <span class="n">name</span><span class="o">.</span><span class="na">equals</span><span class="o">(((</span><span class="n">Customer</span><span class="o">)</span> <span class="n">obj</span><span class="o">).</span><span class="na">name</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">&quot;[%s] 嘿, 我是 %s, 我喜欢 %s 这个牌子, &quot;</span> <span class="o">+</span> <span class="o">(</span><span class="n">phone</span> <span class="o">==</span> <span class="kc">null</span>
+                <span class="o">?</span> <span class="s">&quot;不过我还没有手机诶 :(&quot;</span>
+                <span class="o">:</span> <span class="s">&quot;我现在有一个手机: &quot;</span> <span class="o">+</span> <span class="n">phone</span><span class="o">.</span><span class="na">getBrand</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot; ^_^&quot;</span><span class="o">),</span> <span class="n">name</span><span class="o">,</span> <span class="n">name</span><span class="o">,</span> <span class="n">favorite</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">hello</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">toString</span><span class="o">());</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>这里用 <code>oneDayPassed()</code> 方法来模拟时间的流逝，计数累计到 3 时，为手机有货的状态。
+让消费者实现 <code>PhoneStore.Waiting</code> 这个接口来定义收到通知时的操作。商店内部维护了一个列表，把所有等待的消费者都加进去了，等到手机有货了，挨个通知消费者，让其回来买手机。</p>
+<p>通过实现观察者模式，解决了手机卖完的尴尬了。。</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Customer</span> <span class="n">jaeger</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Customer</span><span class="o">(</span><span class="s">&quot;Jaeger&quot;</span><span class="o">,</span> <span class="s">&quot;Nexus&quot;</span><span class="o">);</span>
+        <span class="n">jaeger</span><span class="o">.</span><span class="na">hello</span><span class="o">();</span>
+
+        <span class="n">PhoneStore</span> <span class="n">store</span> <span class="o">=</span> <span class="k">new</span> <span class="n">NexusStore</span><span class="o">();</span>
+        <span class="n">Phone</span> <span class="n">phone</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="na">sale</span><span class="o">();</span>
+
+        <span class="k">if</span> <span class="o">(</span><span class="n">phone</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// 等三天</span>
+            <span class="n">store</span><span class="o">.</span><span class="na">register</span><span class="o">(</span><span class="n">jaeger</span><span class="o">);</span>
+            <span class="n">store</span><span class="o">.</span><span class="na">oneDayPassed</span><span class="o">();</span>
+            <span class="n">store</span><span class="o">.</span><span class="na">oneDayPassed</span><span class="o">();</span>
+            <span class="n">store</span><span class="o">.</span><span class="na">oneDayPassed</span><span class="o">();</span>
+        <span class="o">}</span>
+
+        <span class="n">jaeger</span><span class="o">.</span><span class="na">hello</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<div class="highlight"><pre>[Jaeger] 嘿, 我是 Jaeger, 我喜欢 Nexus 这个牌子, 不过我还没有手机诶 :(
+[NexusStore] 现在手机卖完啦, 你先登记一下, 等三天之后手机到货了我们再通知你~
+1 天过去了 ...
+2 天过去了 ...
+3 天过去了 ...
+[Nexus, HiFi, Large Screen, Long Battery Life Phone] 打包中 ...
+[Nexus, HiFi, Large Screen, Long Battery Life Phone] 运输中 ...
+[Jaeger] 我有手机啦! Nexus, HiFi, Large Screen, Long Battery Life
+[Jaeger] 嘿, 我是 Jaeger, 我喜欢 Nexus 这个牌子, 我现在有一个手机: Nexus, HiFi, Large Screen, Long Battery Life ^_^
+</pre></div>
+
+
+<p>最后， <a href="https://github.com/laobie">Jaeger</a> 觉得这个 Nexus 手机用着不爽，要买最新的 1+3 😒。这个不难，直接去专卖店买一个就好啦。</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// ... 省略</span>
+
+        <span class="c1">// 换个手机</span>
+        <span class="n">store</span> <span class="o">=</span> <span class="k">new</span> <span class="n">OneplusStore</span><span class="o">();</span>
+        <span class="n">phone</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="na">sale</span><span class="o">();</span>
+        <span class="n">jaeger</span><span class="o">.</span><span class="na">setPhone</span><span class="o">(</span><span class="n">phone</span><span class="o">);</span>
+        <span class="n">jaeger</span><span class="o">.</span><span class="na">hello</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>其实这里包含了最后一种模式 —— <strong>策略模式</strong>。<code>Custom</code> 对象中持有一个 <code>Phone</code> 手机对象，这是一个抽象类型，并不是一个具体的类。这样的好处就是可以方便地用 <code>Phone</code> 的任意子类去替换 <code>Custom</code> 中的手机，而不会影响到内部其他地方的使用。</p>
+<p>吼了，故事就扯到这里了，通过  <a href="https://github.com/laobie">Jaeger</a> 买手机的经历，实践了一下这四个设计模式，总结一下：</p>
+<ul>
+<li>装饰器模式：动态地给一个对象增加一些额外的职责，比生成子类更为灵活。</li>
+<li>工厂方法模式：定义一个用于创建对象的接口，让子类决定将哪一个类实例化</li>
+<li>观察者模式：定义对象之间的一种一对多依赖关系，使得每当一个对象状态发生改变时，其相关依赖对象皆得到通知并被自动更新。</li>
+<li>策略模式：定义一系列策略，将每一个策略封装起来，并让它们可以相互替换，让他们的变化独立语调用者。</li>
+</ul>
+<p>其他设计模式待续……</p>
+<p>我的设计模式练习代码：<a href="https://github.com/brucezz/DesignPatternStudy">brucezz/DesignPatternStudy: Design Pattern in Java</a></p>
+<p>对于设计模式我也只是初学，有一些自己的理解，欢迎来讨论指点 😄</p>
+<blockquote>
+<p>最后的最后，感谢好机油  <a href="https://github.com/laobie">Jaeger</a> 倾情出演😆！</p>
+</blockquote>
+    </article>
+
+
+<div class="sharing">
+</div>
+    <hr>
+
+
+<div class="ds-thread" data-thread-key="design_pattern_practice_1" data-title="设计模式实践系列（一）" data-url="http://brucezz.github.io/articles/2016/08/28/design_pattern_practice_1/"></div>
+<script>
+    var duoshuoQuery = {short_name:"brucezz"};
+    (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+
+        ds.src = 'http://brucezz.github.io/theme/js/embed.js';
+
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0]
+         || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+
+</script>
+
+
+
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                            <li>
+                                <a href="http://github.com/brucezz" target="_blank">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="http://weibo.com/u/1947300213" target="_blank">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://www.zhihu.com/people/zeroZh" target="_blank">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-stack-1x fa-inverse">知</i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="http://brucezz.itscoder.com/feeds/rss.xml" target="_blank">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                    </ul>
+<p class="copyright text-muted">
+    Blog powered by <a href="http://getpelican.com">Pelican</a>,
+    which takes great advantage of <a href="http://python.org">Python</a>.
+</p><div align="center"><script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1256702937'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1256702937%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+</div>                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="http://brucezz.github.io/theme/js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="http://brucezz.github.io/theme/js/bootstrap.min.js"></script>
+
+        <!-- Custom Theme JavaScript -->
+        <script src="http://brucezz.github.io/theme/js/clean-blog.min.js"></script>
+
+        <!-- Custom Theme JavaScript -->
+        <script src="http://brucezz.github.io/theme/js/high.js"></script>
+
+
+</body>
+
+</html>
