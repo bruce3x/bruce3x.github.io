@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+            <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+
+        <title>RxLifecycle 使用与原理</title>
+
+            <link href="http://brucezz.itscoder.com//feeds/rss.xml" type="application/rss+xml" rel="alternate" title="Brucezz's Corner Full RSS Feed" />
+
+            <link rel="shortcut icon" href="/favicon.ico">
+
+        <!-- Bootstrap Core CSS -->
+        <link href="http://brucezz.github.io/theme/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link href="http://brucezz.github.io/theme/css/clean-blog.min.css" rel="stylesheet">
+
+        <!-- Code highlight color scheme -->
+            <link href="http://brucezz.github.io/theme/css/code_blocks/colorful.css" rel="stylesheet">
+
+
+            <!-- CSS specified by the user -->
+            <link href="http://brucezz.github.io/theme/css/harlem-shake-style.css" rel="stylesheet">
+
+        <!-- Custom Fonts -->
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+
+
+
+
+
+	                <meta property="og:locale" content="">
+		<meta property="og:site_name" content="Brucezz's Corner">
+
+	<meta property="og:type" content="article">
+	<meta property="article:author" content="">
+	<meta property="og:url" content="http://brucezz.github.io/articles/2016/09/19/usage_and_principle_of_rxlifecycle/">
+	<meta property="og:title" content="RxLifecycle 使用与原理">
+	<meta property="og:description" content="">
+	<meta property="og:image" content="http://brucezz.github.io/">
+	<meta property="article:published_time" content="2016-09-19 00:00:00+08:00">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="http://brucezz.github.io/">Brucezz's Corner</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                        <li><a href="javascript:go()">High 一下</a></li>
+                        <li><a href="http://itscoder.com/">itsCoder</a></li>
+                        <li><a href="/archives.html">归档</a></li>
+                        <li><a href="/categories.html">分类</a></li>
+                        <li><a href="/pages/about.html">关于我</a></li>
+
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Header -->
+        <header class="intro-header" style="background-image: url('/images/cover/home-bg.jpg')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <div class="post-heading">
+                        <h1>RxLifecycle 使用与原理</h1>
+                        <span class="meta">Posted by
+                                <a href="http://brucezz.github.io/author/brucezz.html">Brucezz</a>
+                             on 2016-09-19
+                        </span>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+    <!-- Post Content -->
+    <article>
+        <p>RxJava 已经成为当前 Android 圈中很火的一门技术了，基于 Observable 的事件流配合上各种操作符黑魔法，让人爽到不能呼吸 😆。RxLifecycle 作为 RxJava 的扩展库，用起来也是很爽的。</p>
+<blockquote>
+<p>本文基于 RxLifecycle v0.5 进行的分析，最新版本已经是 v0.7 了，项目结构略有变化，但是原理部分基本相同。</p>
+</blockquote>
+<h3>使用姿势</h3>
+<p><a href="https://github.com/trello/RxLifecycle">RxLifecycle</a> 的使用姿势比较简单，而且项目文档也很清晰，直接让自己的 Activity 基类继承自 RxActivity 就 ok了。</p>
+<p>使用时就调用一下  <code>compose()</code> 轻松绑定！</p>
+<div class="highlight"><pre><span class="n">myObservable</span>
+    <span class="o">.</span><span class="na">compose</span><span class="o">(</span><span class="n">bindUntilEvent</span><span class="o">(</span><span class="n">ActivityEvent</span><span class="o">.</span><span class="na">DESTROY</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">subscribe</span><span class="o">();</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span class="n">myObservable</span>
+    <span class="o">.</span><span class="na">compose</span><span class="o">(</span><span class="n">bindToLifecycle</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">subscribe</span><span class="o">();</span>
+</pre></div>
+
+
+<h3>实现原理</h3>
+<p>RxLifecycle 使用简单，原理也不复杂，只是设计得十分巧妙。</p>
+<p>既然我们都要继承自 RxActivity，那就从这个类开始看吧。</p>
+<p><img alt="BehaviorSubject" src="http://ww1.sinaimg.cn/large/65e4f1e6jw1f7wpu70y6rj218a02yq3n.jpg" /></p>
+<p>RxActivity 在其内部维护了一个 BehaviorSubject 对象。Subject 对象相当于一个管道，一边可以接收数据，从另外一边发射出去。而 BehaviorSubject  继承自 Subject，并且还多了一项特性，在新的观察者订阅时，会首先发射<strong>一个最近发射过的元素</strong>(<a href="http://reactivex.io/RxJava/javadoc/rx/subjects/BehaviorSubject.html">参考文档看这里</a>)。</p>
+<p><img alt="BehaviorSubject" src="http://ww2.sinaimg.cn/large/801b780ajw1f7wpv58ugmj21di0zg0yo.jpg" /></p>
+<p>其次，在 Activity 到达各个生命周期的时候，<code>lifecycleSubject</code> 会接收到对应的生命周期事件。</p>
+<p>接下来看我们最常用的 <code>bindToLifecycle()</code> 方法。</p>
+<p><img alt="bindToLifecycle" src="http://ww2.sinaimg.cn/large/801b780ajw1f7wpvos4lkj21je0623zz.jpg" /></p>
+<p>跳转到 RxLifecycle 类中：</p>
+<p><img alt="RxLifecycle" src="http://ww1.sinaimg.cn/large/801b780ajw1f7wpw1baa0j21gw06cq4l.jpg" /></p>
+<p><img alt="ACTIVITY_LIFECYCLE" src="http://ww2.sinaimg.cn/large/801b780ajw1f7wpwc3qocj21hk0kk79m.jpg" /></p>
+<p>所谓的 <code>ACTIVITY_LIFECYCLE</code> 其实就是一个函数 Func1 而已，把 Activity 的生命周期事件进行一下变换，<code>CREATE</code> 对应 <code>DESTROY</code>，<code>RESUME</code> 对应 <code>PAUSE</code> 等等。看到这里是不是已经看出了一点端倪了，其含义就是 <strong>把当前的 Activity 生命周期转换成对应的需要被销毁的时候的生命周期。</strong></p>
+<p>最后都走到了这个方法 <code>RxLifecycle#bind(rx.Observable&lt;R&gt;, rx.functions.Func1&lt;R,R&gt;)</code>。</p>
+<p><img alt="bind" src="http://ww2.sinaimg.cn/large/801b780ajw1f7wpwkohmzj21c40pmgse.jpg" /></p>
+<p>这里是整个代码中最核心、最巧妙的部分。</p>
+<p>首先第一个参数是 <code>lifecycle</code>，也就是 RxActivity 里的那个 BehaviorSubject 对象，这里作为 Observable 来使用。它会不断发射 <strong>ActivityEvent</strong>，也就是 Activity 的生命周期事件。</p>
+<p>先介绍下里面用到的几个操作符：</p>
+<ul>
+<li><a href="http://reactivex.io/RxJava/javadoc/rx/Observable.html#share()">share</a>：简单来说就是让 Observable 支持多订阅。</li>
+<li><a href="https://mcxiaoke.gitbooks.io/rxdocs/content/operators/Take.html">take</a>：只发射前面的 N 项数据。</li>
+<li><a href="https://mcxiaoke.gitbooks.io/rxdocs/content/operators/Skip.html">skip</a>：跳过 Observable 发射的前N项数据。</li>
+<li><a href="https://mcxiaoke.gitbooks.io/rxdocs/content/operators/CombineLatest.html">combineLatest</a>：当两个 Observables 中的任何一个发射了数据时，使用一个函数结合每个 Observable 发射的最近数据项，并且基于这个函数的结果发射数据。</li>
+<li><a href="https://mcxiaoke.gitbooks.io/rxdocs/content/operators/Conditional.html#takeuntil">takeUntil</a>：当第二个 Observable 发射了一项数据或者终止时，丢弃原始 Observable 发射的任何数据。</li>
+<li><a href="https://mcxiaoke.gitbooks.io/rxdocs/content/operators/Catch.html#onerrorreturn">onErrorReturn</a>：让 Observable 遇到错误时发射一个特殊的值并且正常终止。</li>
+<li><a href="https://mcxiaoke.gitbooks.io/rxdocs/content/operators/First.html#takefirst">takeFirst</a>：传入一个 Func1 给 takeFirst, 发射出能够使得这个 Func1 为 true 的元素。</li>
+</ul>
+<blockquote>
+<p>这里再推荐一个网站 <a href="http://rxmarbles.com/">http://rxmarbles.com/</a>，可视化交互式体验 RxJava 的操作符，能更好地理解各个操作符的含义。</p>
+</blockquote>
+<p>先分析代码块的内层：</p>
+<p>首先是 <code>combineLatest</code> 操作符需要接收两个 Observable 和一个函数 Func2。</p>
+<ul>
+<li>第一个数据源由 <code>lifecycle</code> 只发射第一个元素，即当前所在的生命周期事件，然后进行一下 map 变换，得到应该被销毁的生命周期 (ActivityEvent)，并且这个 Observable 只有这一个元素；</li>
+<li>第二个数据源由 <code>lifecycle</code> 跳过第一个元素构成，即后续生命周期事件所组成的数据流；</li>
+<li>处理函数：当两个数据源的数据相等时，即 Activity 到达需要被销毁的生命周期时，返回 <strong>true</strong>，发射出一个元素。</li>
+</ul>
+<p>然后执行 <code>onErrorReturn()</code>，这是对异常进行处理，使 Observable 不会因为错误而中断。</p>
+<p>最后是 <code>takeFirst(Func1)</code>，返回第一个满足 <code>Func1</code> 的元素值。</p>
+<p>这样一来，等到 Activity 到达需要被销毁的生命周期时，<code>combineLatest()</code> 所产生的 Observable 会发射出一个值。</p>
+<p>然后分析外层代码：</p>
+<p><code>source.takeUntil(observable);</code></p>
+<p>source 就是我们在正常代码中使用到的 Observable，我们希望自动结束的 Observable。当内部 observable 发射出一个值时，source 丢弃掉后续数据，即终止掉这个 Observable。</p>
+<p>通过以上的代码，就完成了 Observable 自动绑定到 Activity 的生命周期，并且自动结束。</p>
+<p>另外 <code>RxLifecycle#bindUntilEvent()</code> 方法，用于将 Observable 绑定到特定的生命周期上，原理跟前面所介绍的基本一样，或者说更为简单。</p>
+<p><img alt="bindUntilEvent" src="http://ww2.sinaimg.cn/large/801b780ajw1f7wpwrm6oyj21c00iqgpn.jpg" /></p>
+<p>判断后续的生命周期等于传入的生命周期时，就停止接收数据。</p>
+<p>对于 Fragmeng、View 等，原理和分析方法基本一致，不再详述了。</p>
+<h3>坑与提示</h3>
+<h4>1. BaseActivity 不方便继承 RxActivity</h4>
+<p>直接让 BaseActivity 实现 <code>ActivityLifecycleProvider</code> 接口，然后把 RxActivity 里的代码拷贝到 BaseActivity 就 ok 了。</p>
+<h4>2. 在<strong>界面切换</strong>时使用 RxLifecycle 有个小坑</h4>
+<p>比如从 ActivityA 启动 ActivityB， 生命周期如下：</p>
+<blockquote>
+<p>A.onPause -&gt; B.onCreate -&gt; B.onResume -&gt; A.onStop</p>
+</blockquote>
+<p>如果 A 中启动 B 的同时，订阅了一个 Observable，同时调用了 <code>compose(bindToLifecycle())</code>，可能出现如下的 bug：
+订阅时，A 还处于 <code>RESUME</code> 周期，<code>bindToLifecycle()</code> 会对应到 <code>PAUSE</code> 周期给销毁掉。这个时候启动了 B，A 会进入 'PAUSE' 生命周期，这是前面的 Observable 会被停掉。如果任务还没有执行完成的话，结果会达不到我们的预期。</p>
+<p>所以这里应该使用 <code>bindUntilEvent(ActivityEvent.DESTROY)</code>。</p>
+<h3>参考</h3>
+<ul>
+<li><a href="https://github.com/trello/RxLifecycle">trello/RxLifecycle</a></li>
+<li><a href="http://mcxiaoke.gitbooks.io/rxdocs/content/">ReactiveX/RxJava 文档中文版</a></li>
+<li><a href="http://rxmarbles.com/">RxMarbles</a></li>
+</ul>
+    </article>
+
+
+<div class="sharing">
+</div>
+    <hr>
+
+
+<div class="ds-thread" data-thread-key="usage_and_principle_of_rxlifecycle" data-title="RxLifecycle 使用与原理" data-url="http://brucezz.github.io/articles/2016/09/19/usage_and_principle_of_rxlifecycle/"></div>
+<script>
+    var duoshuoQuery = {short_name:"brucezz"};
+    (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+
+        ds.src = 'http://brucezz.github.io/theme/js/embed.js';
+
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0]
+         || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+
+</script>
+
+
+
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                            <li>
+                                <a href="http://github.com/brucezz" target="_blank">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="http://weibo.com/u/1947300213" target="_blank">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://www.zhihu.com/people/zeroZh" target="_blank">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-stack-1x fa-inverse">知</i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="http://brucezz.itscoder.com/feeds/rss.xml" target="_blank">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                    </ul>
+<p class="copyright text-muted">
+    Blog powered by <a href="http://getpelican.com">Pelican</a>,
+    which takes great advantage of <a href="http://python.org">Python</a>.
+</p><div align="center"><script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1256702937'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1256702937%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+</div>                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="http://brucezz.github.io/theme/js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="http://brucezz.github.io/theme/js/bootstrap.min.js"></script>
+
+        <!-- Custom Theme JavaScript -->
+        <script src="http://brucezz.github.io/theme/js/clean-blog.min.js"></script>
+
+        <!-- Custom Theme JavaScript -->
+        <script src="http://brucezz.github.io/theme/js/high.js"></script>
+
+
+</body>
+
+</html>
