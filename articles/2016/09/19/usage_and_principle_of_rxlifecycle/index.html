@@ -136,7 +136,7 @@
 <h3>实现原理</h3>
 <p>RxLifecycle 使用简单，原理也不复杂，只是设计得十分巧妙。</p>
 <p>既然我们都要继承自 RxActivity，那就从这个类开始看吧。</p>
-<p><img alt="BehaviorSubject" src="http://ww1.sinaimg.cn/large/65e4f1e6jw1f7wpu70y6rj218a02yq3n.jpg" /></p>
+<p><img alt="BehaviorSubject" src="http://ww4.sinaimg.cn/large/801b780agw1f7yowyv3cij20m801h3yo.jpg" /></p>
 <p>RxActivity 在其内部维护了一个 BehaviorSubject 对象。Subject 对象相当于一个管道，一边可以接收数据，从另外一边发射出去。而 BehaviorSubject  继承自 Subject，并且还多了一项特性，在新的观察者订阅时，会首先发射<strong>一个最近发射过的元素</strong>(<a href="http://reactivex.io/RxJava/javadoc/rx/subjects/BehaviorSubject.html">参考文档看这里</a>)。</p>
 <p><img alt="BehaviorSubject" src="http://ww2.sinaimg.cn/large/801b780ajw1f7wpv58ugmj21di0zg0yo.jpg" /></p>
 <p>其次，在 Activity 到达各个生命周期的时候，<code>lifecycleSubject</code> 会接收到对应的生命周期事件。</p>
