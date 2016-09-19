@@ -138,16 +138,16 @@
 <p>既然我们都要继承自 RxActivity，那就从这个类开始看吧。</p>
 <p><img alt="BehaviorSubject" src="http://ww4.sinaimg.cn/large/801b780agw1f7yowyv3cij20m801h3yo.jpg" /></p>
 <p>RxActivity 在其内部维护了一个 BehaviorSubject 对象。Subject 对象相当于一个管道，一边可以接收数据，从另外一边发射出去。而 BehaviorSubject  继承自 Subject，并且还多了一项特性，在新的观察者订阅时，会首先发射<strong>一个最近发射过的元素</strong>(<a href="http://reactivex.io/RxJava/javadoc/rx/subjects/BehaviorSubject.html">参考文档看这里</a>)。</p>
-<p><img alt="BehaviorSubject" src="http://ww2.sinaimg.cn/large/801b780ajw1f7wpv58ugmj21di0zg0yo.jpg" /></p>
+<p><img alt="lifecycleSubject" src="http://ww2.sinaimg.cn/large/801b780agw1f7yp10juhuj20m80fxtat.jpg" /></p>
 <p>其次，在 Activity 到达各个生命周期的时候，<code>lifecycleSubject</code> 会接收到对应的生命周期事件。</p>
 <p>接下来看我们最常用的 <code>bindToLifecycle()</code> 方法。</p>
-<p><img alt="bindToLifecycle" src="http://ww2.sinaimg.cn/large/801b780ajw1f7wpvos4lkj21je0623zz.jpg" /></p>
+<p><img alt="bindToLifecycle" src="http://ww4.sinaimg.cn/large/801b780agw1f7yp1i7ughj20m802fdg4.jpg" /></p>
 <p>跳转到 RxLifecycle 类中：</p>
-<p><img alt="RxLifecycle" src="http://ww1.sinaimg.cn/large/801b780ajw1f7wpw1baa0j21gw06cq4l.jpg" /></p>
-<p><img alt="ACTIVITY_LIFECYCLE" src="http://ww2.sinaimg.cn/large/801b780ajw1f7wpwc3qocj21hk0kk79m.jpg" /></p>
+<p><img alt="RxLifecycle" src="http://ww2.sinaimg.cn/large/801b780agw1f7yp1rzte0j20m802omxn.jpg" /></p>
+<p><img alt="ACTIVITY_LIFECYCLE" src="http://ww4.sinaimg.cn/large/801b780agw1f7yp21rtavj20m808jgnb.jpg" /></p>
 <p>所谓的 <code>ACTIVITY_LIFECYCLE</code> 其实就是一个函数 Func1 而已，把 Activity 的生命周期事件进行一下变换，<code>CREATE</code> 对应 <code>DESTROY</code>，<code>RESUME</code> 对应 <code>PAUSE</code> 等等。看到这里是不是已经看出了一点端倪了，其含义就是 <strong>把当前的 Activity 生命周期转换成对应的需要被销毁的时候的生命周期。</strong></p>
 <p>最后都走到了这个方法 <code>RxLifecycle#bind(rx.Observable&lt;R&gt;, rx.functions.Func1&lt;R,R&gt;)</code>。</p>
-<p><img alt="bind" src="http://ww2.sinaimg.cn/large/801b780ajw1f7wpwkohmzj21c40pmgse.jpg" /></p>
+<p><img alt="bind" src="http://ww3.sinaimg.cn/large/801b780agw1f7yp2bskhqj20m80bugo7.jpg" /></p>
 <p>这里是整个代码中最核心、最巧妙的部分。</p>
 <p>首先第一个参数是 <code>lifecycle</code>，也就是 RxActivity 里的那个 BehaviorSubject 对象，这里作为 Observable 来使用。它会不断发射 <strong>ActivityEvent</strong>，也就是 Activity 的生命周期事件。</p>
 <p>先介绍下里面用到的几个操作符：</p>
@@ -178,7 +178,7 @@
 <p>source 就是我们在正常代码中使用到的 Observable，我们希望自动结束的 Observable。当内部 observable 发射出一个值时，source 丢弃掉后续数据，即终止掉这个 Observable。</p>
 <p>通过以上的代码，就完成了 Observable 自动绑定到 Activity 的生命周期，并且自动结束。</p>
 <p>另外 <code>RxLifecycle#bindUntilEvent()</code> 方法，用于将 Observable 绑定到特定的生命周期上，原理跟前面所介绍的基本一样，或者说更为简单。</p>
-<p><img alt="bindUntilEvent" src="http://ww2.sinaimg.cn/large/801b780ajw1f7wpwrm6oyj21c00iqgpn.jpg" /></p>
+<p><img alt="bindUntilEvent" src="http://ww3.sinaimg.cn/large/801b780agw1f7yp2mk5kxj20m808o75q.jpg" /></p>
 <p>判断后续的生命周期等于传入的生命周期时，就停止接收数据。</p>
 <p>对于 Fragmeng、View 等，原理和分析方法基本一致，不再详述了。</p>
 <h3>坑与提示</h3>
