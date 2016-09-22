@@ -76,7 +76,7 @@
 &lt;/blockquote&gt;
 &lt;p&gt;如果 A 中启动 B 的同时，订阅了一个 Observable，同时调用了 &lt;code&gt;compose(bindToLifecycle())&lt;/code&gt;，可能出现如下的 bug：
 订阅时，A 还处于 &lt;code&gt;RESUME&lt;/code&gt; 周期，&lt;code&gt;bindToLifecycle()&lt;/code&gt; 会对应到 &lt;code&gt;PAUSE&lt;/code&gt; 周期给销毁掉。这个时候启动了 B，A 会进入 'PAUSE' 生命周期，这是前面的 Observable 会被停掉。如果任务还没有执行完成的话，结果会达不到我们的预期。&lt;/p&gt;
-&lt;p&gt;所以这里应该使用 &lt;code&gt;bindUntilEvent(ActivityEvent.DESTROY)&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;所以这里应该使用 &lt;code&gt;bindUntilEvent(ActivityEvent.DESTROY)&lt;/code&gt;。其实，如果没有特殊的业务需求，我们所有的 Observable 都绑定到 &lt;code&gt;DESTROY&lt;/code&gt; 即可，可以在基类中封装一个 &lt;code&gt;bindToDestroyEvent()&lt;/code&gt; 的方法方便使用。&lt;/p&gt;
 &lt;h3&gt;参考&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href="https://github.com/trello/RxLifecycle"&gt;trello/RxLifecycle&lt;/a&gt;&lt;/li&gt;
