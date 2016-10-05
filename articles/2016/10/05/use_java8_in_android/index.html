@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+            <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+
+        <title>在 Android 中使用 Java8 的特性</title>
+
+            <link href="http://brucezz.itscoder.com//feeds/rss.xml" type="application/rss+xml" rel="alternate" title="Brucezz's Corner Full RSS Feed" />
+
+            <link rel="shortcut icon" href="/favicon.ico">
+
+        <!-- Bootstrap Core CSS -->
+        <link href="http://brucezz.github.io/theme/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link href="http://brucezz.github.io/theme/css/clean-blog.min.css" rel="stylesheet">
+
+        <!-- Code highlight color scheme -->
+            <link href="http://brucezz.github.io/theme/css/code_blocks/colorful.css" rel="stylesheet">
+
+
+            <!-- CSS specified by the user -->
+            <link href="http://brucezz.github.io/theme/css/harlem-shake-style.css" rel="stylesheet">
+
+        <!-- Custom Fonts -->
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+
+
+
+
+
+	                <meta property="og:locale" content="">
+		<meta property="og:site_name" content="Brucezz's Corner">
+
+	<meta property="og:type" content="article">
+	<meta property="article:author" content="">
+	<meta property="og:url" content="http://brucezz.github.io/articles/2016/10/05/use_java8_in_android/">
+	<meta property="og:title" content="在 Android 中使用 Java8 的特性">
+	<meta property="og:description" content="">
+	<meta property="og:image" content="http://brucezz.github.io/">
+	<meta property="article:published_time" content="2016-10-05 00:00:00+08:00">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="http://brucezz.github.io/">Brucezz's Corner</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                        <li><a href="javascript:go()">High 一下</a></li>
+                        <li><a href="http://itscoder.com/">itsCoder</a></li>
+                        <li><a href="/archives.html">归档</a></li>
+                        <li><a href="/categories.html">分类</a></li>
+                        <li><a href="/pages/about.html">关于我</a></li>
+
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Header -->
+        <header class="intro-header" style="background-image: url('/images/cover/home-bg.jpg')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <div class="post-heading">
+                        <h1>在 Android 中使用 Java8 的特性</h1>
+                        <span class="meta">Posted by
+                                <a href="http://brucezz.github.io/author/brucezz.html">Brucezz</a>
+                             on 2016-10-05
+                        </span>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+    <!-- Post Content -->
+    <article>
+        <p>根据 <a href="https://developer.android.com/guide/platform/j8-jack.html?hl=zh-cn">Android 官网</a>的说明，在开发面向 Android N 的应用时，可以使用 Java8 语言功能。目前 Android 只支持一部分 Java8 的特性：</p>
+<ul>
+<li><a href="https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html">Lambda 表达式</a></li>
+<li><a href="https://docs.oracle.com/javase/tutorial/java/javaOO/methodreferences.html">方法引用</a></li>
+<li><a href="https://docs.oracle.com/javase/tutorial/java/IandI/defaultmethods.html">默认和静态接口方法</a></li>
+<li><a href="https://docs.oracle.com/javase/tutorial/java/annotations/repeating.html">重复注解</a></li>
+</ul>
+<p>其中，只有前两者可以兼容 API 23 以下的版本。</p>
+<h2>Lambda 表达式</h2>
+<p>从一个实际例子来引入 lamdba 的使用。</p>
+<p>有一组 Person 对象（具体实现不复杂，参考<a href="https://docs.oracle.com/javase/tutorial/java/javaOO/examples/Person.java">这里</a>），需要通过年龄大小来过滤出满足要求的对象，然后对其进行输出操作，实现很简单，如下：</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">printPersonsOlderThan</span><span class="o">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">roster</span><span class="o">,</span> <span class="kt">int</span> <span class="n">age</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">Person</span> <span class="n">p</span> <span class="o">:</span> <span class="n">roster</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&gt;=</span> <span class="n">age</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">p</span><span class="o">.</span><span class="na">printPerson</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>如果我的过滤条件变更了，就必须修改这个方法的代码，比如我现在根据年龄上下限进行过滤：</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">printPersonsWithinAgeRange</span><span class="o">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">roster</span><span class="o">,</span> <span class="kt">int</span> <span class="n">low</span><span class="o">,</span> <span class="kt">int</span> <span class="n">high</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">Person</span> <span class="n">p</span> <span class="o">:</span> <span class="n">roster</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">low</span> <span class="o">&lt;=</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&lt;=</span> <span class="n">high</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">p</span><span class="o">.</span><span class="na">printPerson</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>这样一来，过滤条件经常变更的话，需要频繁修改这个方法。根据面向对象的思想，封装变化，把经常改变的逻辑封装起来，有外部来决定。这里我把过滤条件封装到 <code>CheckPerson</code> 接口里，根据不同的过滤条件去实现这个接口即可。</p>
+<div class="highlight"><pre><span class="nd">@FunctionalInterface</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">CheckPerson</span> <span class="o">{</span>
+    <span class="kt">boolean</span> <span class="nf">test</span><span class="o">(</span><span class="n">Person</span> <span class="n">p</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">printPersons</span><span class="o">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">roster</span><span class="o">,</span> <span class="n">CheckPerson</span> <span class="n">tester</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">Person</span> <span class="n">p</span> <span class="o">:</span> <span class="n">roster</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">tester</span><span class="o">.</span><span class="na">test</span><span class="o">(</span><span class="n">p</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">p</span><span class="o">.</span><span class="na">printPerson</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c1">// 实际使用</span>
+
+<span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">roster</span> <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="na">createRoster</span><span class="o">();</span> <span class="c1">// 制造一些数据</span>
+
+<span class="n">printPersons</span><span class="o">(</span><span class="n">roster</span><span class="o">,</span> <span class="k">new</span> <span class="n">CheckPerson</span><span class="o">()</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">test</span><span class="o">(</span><span class="n">Person</span> <span class="n">p</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="na">getGender</span><span class="o">()</span> <span class="o">==</span> <span class="n">Person</span><span class="o">.</span><span class="na">Sex</span><span class="o">.</span><span class="na">MALE</span>
+                <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&gt;=</span> <span class="mi">18</span>
+                <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&lt;=</span> <span class="mi">25</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">});</span>
+</pre></div>
+
+
+<p><code>CheckPerson</code> 接口是一个<strong>函数式接口</strong>(functional interface)，即<strong>仅有一个抽象方法</strong>的接口。 因此实现这个接口的时候可以忽略掉方法名称，使用 Lambda 表达式来替代匿名类。</p>
+<div class="highlight"><pre><span class="n">printPersons</span><span class="o">(</span><span class="n">roster</span><span class="o">,</span>
+        <span class="n">p</span> <span class="o">-&gt;</span> <span class="n">p</span><span class="o">.</span><span class="na">getGender</span><span class="o">()</span> <span class="o">==</span> <span class="n">Person</span><span class="o">.</span><span class="na">Sex</span><span class="o">.</span><span class="na">MALE</span>
+                <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&gt;=</span> <span class="mi">18</span>
+                <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&lt;=</span> <span class="mi">25</span>
+<span class="o">);</span>
+</pre></div>
+
+
+<p>其实在 Java8 的包中，已经内置了一些标准的函数式接口。比如 <code>CheckPerson</code> 接收一个对象，然后输出一个 boolean 值。可以使用 <code>java.util.function.Predicate&lt;T&gt;</code> 来替代，它相当于 RxJava 中的 <code>Func1&lt;T, Boolean&gt;</code>，接收一个对象，返回布尔值。</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">printPersonsWithPredicate</span><span class="o">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">roster</span><span class="o">,</span> <span class="n">Predicate</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">tester</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">Person</span> <span class="n">p</span> <span class="o">:</span> <span class="n">roster</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">tester</span><span class="o">.</span><span class="na">test</span><span class="o">(</span><span class="n">p</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">p</span><span class="o">.</span><span class="na">printPerson</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c1">// 使用起来并没有什么差别</span>
+<span class="n">printPersonsWithPredicate</span><span class="o">(</span><span class="n">roster</span><span class="o">,</span>
+        <span class="n">p</span> <span class="o">-&gt;</span> <span class="n">p</span><span class="o">.</span><span class="na">getGender</span><span class="o">()</span> <span class="o">==</span> <span class="n">Person</span><span class="o">.</span><span class="na">Sex</span><span class="o">.</span><span class="na">MALE</span>
+                <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&gt;=</span> <span class="mi">18</span>
+                <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&lt;=</span> <span class="mi">25</span>
+<span class="o">);</span>
+</pre></div>
+
+
+<p>这是，我并不满足于仅仅把过滤条件封装起来，还想把过滤之后对 Person 对象的操作也封装起来，便于修改。可以用另外一个标准的函数式接口 <code>java.util.function.Consumer&lt;T&gt;</code>，它相当于 RxJava 中的 <code>Action1&lt;T&gt;</code>，接收一个对象，返回 void。</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">processPersons</span><span class="o">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">roster</span><span class="o">,</span> <span class="n">Predicate</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">tester</span><span class="o">,</span> <span class="n">Consumer</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">block</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">Person</span> <span class="n">person</span> <span class="o">:</span> <span class="n">roster</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">tester</span><span class="o">.</span><span class="na">test</span><span class="o">(</span><span class="n">person</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">block</span><span class="o">.</span><span class="na">accept</span><span class="o">(</span><span class="n">person</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c1">// 具体使用</span>
+<span class="n">processPersons</span><span class="o">(</span><span class="n">roster</span><span class="o">,</span>
+        <span class="n">p</span> <span class="o">-&gt;</span> <span class="n">p</span><span class="o">.</span><span class="na">getGender</span><span class="o">()</span> <span class="o">==</span> <span class="n">Person</span><span class="o">.</span><span class="na">Sex</span><span class="o">.</span><span class="na">MALE</span>
+                <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&gt;=</span> <span class="mi">18</span>
+                <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&lt;=</span> <span class="mi">25</span><span class="o">,</span>
+        <span class="n">p</span> <span class="o">-&gt;</span> <span class="n">p</span><span class="o">.</span><span class="na">printPerson</span><span class="o">()</span>
+<span class="o">);</span>
+</pre></div>
+
+
+<p>如果我的处理过程中有数据转换的过程，可以用 <code>java.util.function.Function&lt;T, F&gt;</code> 将其封装起来，这个接口相当于 RxJava 中的 <code>Func1&lt;T, F&gt;</code>，接收一个类型的对象，返回另外个类型的对象，达到数据转换的目的。比如例子中，把 Person 转换成 String 对象。</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">processPersonsWithFunction</span><span class="o">(</span>
+        <span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">roster</span><span class="o">,</span>
+        <span class="n">Predicate</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">tester</span><span class="o">,</span>
+        <span class="n">Function</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">mapper</span><span class="o">,</span>
+        <span class="n">Consumer</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">block</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">Person</span> <span class="n">person</span> <span class="o">:</span> <span class="n">roster</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">tester</span><span class="o">.</span><span class="na">test</span><span class="o">(</span><span class="n">person</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">String</span> <span class="n">data</span> <span class="o">=</span> <span class="n">mapper</span><span class="o">.</span><span class="na">apply</span><span class="o">(</span><span class="n">person</span><span class="o">);</span>
+            <span class="n">block</span><span class="o">.</span><span class="na">accept</span><span class="o">(</span><span class="n">data</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c1">// 实际使用</span>
+<span class="n">processPersonsWithFunction</span><span class="o">(</span><span class="n">roster</span><span class="o">,</span>
+        <span class="n">p</span> <span class="o">-&gt;</span> <span class="n">p</span><span class="o">.</span><span class="na">getGender</span><span class="o">()</span> <span class="o">==</span> <span class="n">Person</span><span class="o">.</span><span class="na">Sex</span><span class="o">.</span><span class="na">MALE</span>
+                <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&gt;=</span> <span class="mi">18</span>
+                <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&lt;=</span> <span class="mi">25</span><span class="o">,</span>
+        <span class="n">p</span> <span class="o">-&gt;</span> <span class="n">p</span><span class="o">.</span><span class="na">getEmailAddress</span><span class="o">(),</span> <span class="c1">// 获取 Person 对象的 email 字符串</span>
+        <span class="n">email</span> <span class="o">-&gt;</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">email</span><span class="o">)</span>
+<span class="o">);</span>
+</pre></div>
+
+
+<p>最后可以把数据源也封装成一个 <code>java.lang.Iterable&lt;T&gt;</code> 对象。</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="n">X</span><span class="o">,</span> <span class="n">Y</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="nf">processElements</span><span class="o">(</span>
+        <span class="n">Iterable</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;</span> <span class="n">source</span><span class="o">,</span>
+        <span class="n">Predicate</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;</span> <span class="n">tester</span><span class="o">,</span>
+        <span class="n">Function</span><span class="o">&lt;</span><span class="n">X</span><span class="o">,</span> <span class="n">Y</span><span class="o">&gt;</span> <span class="n">mapper</span><span class="o">,</span>
+        <span class="n">Consumer</span><span class="o">&lt;</span><span class="n">Y</span><span class="o">&gt;</span> <span class="n">block</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">X</span> <span class="n">x</span> <span class="o">:</span> <span class="n">source</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">tester</span><span class="o">.</span><span class="na">test</span><span class="o">(</span><span class="n">x</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">Y</span> <span class="n">data</span> <span class="o">=</span> <span class="n">mapper</span><span class="o">.</span><span class="na">apply</span><span class="o">(</span><span class="n">x</span><span class="o">);</span>
+            <span class="n">block</span><span class="o">.</span><span class="na">accept</span><span class="o">(</span><span class="n">data</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c1">// 实际使用</span>
+<span class="n">Iterable</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">source</span> <span class="o">=</span> <span class="n">roster</span><span class="o">;</span>
+<span class="n">Predicate</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">tester</span> <span class="o">=</span> <span class="n">p</span> <span class="o">-&gt;</span> <span class="n">p</span><span class="o">.</span><span class="na">getGender</span><span class="o">()</span> <span class="o">==</span> <span class="n">Person</span><span class="o">.</span><span class="na">Sex</span><span class="o">.</span><span class="na">MALE</span>
+        <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&gt;=</span> <span class="mi">18</span>
+        <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&lt;=</span> <span class="mi">25</span><span class="o">;</span>
+<span class="n">Function</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">mapper</span> <span class="o">=</span> <span class="n">p</span> <span class="o">-&gt;</span> <span class="n">p</span><span class="o">.</span><span class="na">getEmailAddress</span><span class="o">();</span>
+<span class="n">Consumer</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">block</span> <span class="o">=</span> <span class="n">email</span> <span class="o">-&gt;</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">email</span><span class="o">);</span>
+<span class="n">processElements</span><span class="o">(</span><span class="n">roster</span><span class="o">,</span> <span class="n">tester</span><span class="o">,</span> <span class="n">mapper</span><span class="o">,</span> <span class="n">block</span><span class="o">);</span>
+</pre></div>
+
+
+<p>在 Java8 中也可以把 Collections 对象快速转换成 Stream 来使用方便的操作符。</p>
+<div class="highlight"><pre><span class="n">roster</span><span class="o">.</span><span class="na">stream</span><span class="o">()</span>                                     <span class="c1">// 获取数据流</span>
+    <span class="o">.</span><span class="na">filter</span><span class="o">(</span>                                        <span class="c1">// 根据 Predicate 过滤数据</span>
+            <span class="n">p</span> <span class="o">-&gt;</span> <span class="n">p</span><span class="o">.</span><span class="na">getGender</span><span class="o">()</span> <span class="o">==</span> <span class="n">Person</span><span class="o">.</span><span class="na">Sex</span><span class="o">.</span><span class="na">MALE</span>
+                    <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&gt;=</span> <span class="mi">18</span>
+                    <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&lt;=</span> <span class="mi">25</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">p</span> <span class="o">-&gt;</span> <span class="n">p</span><span class="o">.</span><span class="na">getEmailAddress</span><span class="o">())</span>                  <span class="c1">// 根据 Function 转换数据</span>
+    <span class="o">.</span><span class="na">forEach</span><span class="o">(</span><span class="n">email</span> <span class="o">-&gt;</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">email</span><span class="o">));</span>   <span class="c1">// 对数据执行操作(消费数据)</span>
+</pre></div>
+
+
+<h4>Lambda 写法</h4>
+<p>基本写法：</p>
+<div class="highlight"><pre><span class="n">p</span> <span class="o">-&gt;</span> <span class="n">p</span><span class="o">.</span><span class="na">getGender</span><span class="o">()</span> <span class="o">==</span> <span class="n">Person</span><span class="o">.</span><span class="na">Sex</span><span class="o">.</span><span class="na">MALE</span> 
+    <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&gt;=</span> <span class="mi">18</span>
+    <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&lt;=</span> <span class="mi">25</span>
+
+<span class="c1">// 没有参数</span>
+<span class="o">()</span> <span class="o">-&gt;</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Hello lambda&quot;</span><span class="o">)</span>
+
+<span class="c1">// 参数多于 1 个</span>
+<span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+</pre></div>
+
+
+<p>参数列表，如果只有一个参数，可以省略掉括号，其他情况需要写上一对括号。</p>
+<p>需要注意的是， 箭头 <code>-&gt;</code> 后面必须是一个单独的表达式（expression）或者是一个语句块（statement block）。</p>
+<div class="highlight"><pre><span class="c1">// 表达式</span>
+<span class="n">p</span> <span class="o">-&gt;</span> <span class="n">p</span><span class="o">.</span><span class="na">getGender</span><span class="o">()</span> <span class="o">==</span> <span class="n">Person</span><span class="o">.</span><span class="na">Sex</span><span class="o">.</span><span class="na">MALE</span> 
+    <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&gt;=</span> <span class="mi">18</span>
+    <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&lt;=</span> <span class="mi">25</span>
+
+<span class="c1">// 代码块</span>
+<span class="n">p</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="na">getGender</span><span class="o">()</span> <span class="o">==</span> <span class="n">Person</span><span class="o">.</span><span class="na">Sex</span><span class="o">.</span><span class="na">MALE</span>
+        <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&gt;=</span> <span class="mi">18</span>
+        <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&lt;=</span> <span class="mi">25</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<h2>方法引用</h2>
+<p>当你使用一个 lambda 表达式的时候，如果它仅仅是调用了一下已有的方法，并没有做其他任何操作，就可以把它转换成<strong>方法引用</strong>。方法引用有四种写法，下面一一介绍。</p>
+<div class="highlight"><pre><span class="c1">// 先制造一些数据， 供后面的例子使用</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">roster</span> <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="na">createRoster</span><span class="o">();</span>
+<span class="n">Person</span><span class="o">[]</span> <span class="n">rosterAsArray</span> <span class="o">=</span> <span class="n">roster</span><span class="o">.</span><span class="na">toArray</span><span class="o">(</span><span class="k">new</span> <span class="n">Person</span><span class="o">[</span><span class="n">roster</span><span class="o">.</span><span class="na">size</span><span class="o">()]);</span>
+</pre></div>
+
+
+<h4>引用静态方法</h4>
+<p>首先在 Person 类中有一个静态方法，通过年龄比较大小：</p>
+<div class="highlight"><pre><span class="c1">// Person.java</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="kt">int</span> <span class="nf">compareByAge</span><span class="o">(</span><span class="n">Person</span> <span class="n">a</span><span class="o">,</span> <span class="n">Person</span> <span class="n">b</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">a</span><span class="o">.</span><span class="na">birthday</span><span class="o">.</span><span class="na">compareTo</span><span class="o">(</span><span class="n">b</span><span class="o">.</span><span class="na">birthday</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span class="c1">//MethodReferencesTest.java</span>
+<span class="c1">// 原来的写法，传入匿名类</span>
+<span class="n">Arrays</span><span class="o">.</span><span class="na">sort</span><span class="o">(</span><span class="n">rosterAsArray</span><span class="o">,</span> <span class="k">new</span> <span class="n">Comparator</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;()</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">compare</span><span class="o">(</span><span class="n">Person</span> <span class="n">o1</span><span class="o">,</span> <span class="n">Person</span> <span class="n">o2</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">Person</span><span class="o">.</span><span class="na">compareByAge</span><span class="o">(</span><span class="n">o1</span><span class="o">,</span> <span class="n">o2</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">});</span>
+
+<span class="c1">// 写成 lambda 形式</span>
+<span class="n">Arrays</span><span class="o">.</span><span class="na">sort</span><span class="o">(</span><span class="n">rosterAsArray</span><span class="o">,</span> <span class="o">(</span><span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">Person</span><span class="o">.</span><span class="na">compareByAge</span><span class="o">(</span><span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="o">));</span>
+<span class="c1">// 转换成方法引用 =&gt;</span>
+<span class="n">Arrays</span><span class="o">.</span><span class="na">sort</span><span class="o">(</span><span class="n">rosterAsArray</span><span class="o">,</span> <span class="n">Person</span><span class="o">::</span><span class="n">compareByAge</span><span class="o">);</span>
+</pre></div>
+
+
+<h4>引用具体实例的方法</h4>
+<div class="highlight"><pre><span class="kd">class</span> <span class="nc">ComparisonProvider</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">compareByName</span><span class="o">(</span><span class="n">Person</span> <span class="n">a</span><span class="o">,</span> <span class="n">Person</span> <span class="n">b</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">a</span><span class="o">.</span><span class="na">getName</span><span class="o">().</span><span class="na">compareTo</span><span class="o">(</span><span class="n">b</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">compareByAge</span><span class="o">(</span><span class="n">Person</span> <span class="n">a</span><span class="o">,</span> <span class="n">Person</span> <span class="n">b</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">a</span><span class="o">.</span><span class="na">getBirthday</span><span class="o">().</span><span class="na">compareTo</span><span class="o">(</span><span class="n">b</span><span class="o">.</span><span class="na">getBirthday</span><span class="o">());</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="n">ComparisonProvider</span> <span class="n">comparisonProvider</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ComparisonProvider</span><span class="o">();</span>
+
+<span class="c1">// lambda 形式</span>
+<span class="n">Arrays</span><span class="o">.</span><span class="na">sort</span><span class="o">(</span><span class="n">rosterAsArray</span><span class="o">,</span> <span class="o">(</span><span class="n">p1</span><span class="o">,</span> <span class="n">p2</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">comparisonProvider</span><span class="o">.</span><span class="na">compareByAge</span><span class="o">(</span><span class="n">p1</span><span class="o">,</span> <span class="n">p2</span><span class="o">));</span>
+<span class="c1">// 转换成方法引用 =&gt;</span>
+<span class="n">Arrays</span><span class="o">.</span><span class="na">sort</span><span class="o">(</span><span class="n">rosterAsArray</span><span class="o">,</span> <span class="n">comparisonProvider</span><span class="o">::</span><span class="n">compareByName</span><span class="o">);</span>
+</pre></div>
+
+
+<h4>引用特定类型的对象的实例方法</h4>
+<p>Person 实现一下 <code>Comparable&lt;T&gt;</code> 接口，会有一个 <code>compareTo(Person)</code> 方法。</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Person</span> <span class="kd">implements</span> <span class="n">Comparable</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="o">{</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">compareTo</span><span class="o">(</span><span class="n">Person</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">Person</span><span class="o">.</span><span class="na">compareByAge</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">o</span><span class="o">);</span> <span class="c1">// 复用之前静态方法的逻辑</span>
+    <span class="o">}</span>
+
+    <span class="c1">// 其他忽略</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span class="c1">// lambda 形式</span>
+<span class="n">Arrays</span><span class="o">.</span><span class="na">sort</span><span class="o">(</span><span class="n">rosterAsArray</span><span class="o">,</span> <span class="o">(</span><span class="n">p1</span><span class="o">,</span> <span class="n">p2</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">p1</span><span class="o">.</span><span class="na">compareTo</span><span class="o">(</span><span class="n">p2</span><span class="o">));</span>
+<span class="c1">// 转换成方法引用 =&gt;</span>
+<span class="n">Arrays</span><span class="o">.</span><span class="na">sort</span><span class="o">(</span><span class="n">rosterAsArray</span><span class="o">,</span> <span class="n">Person</span><span class="o">::</span><span class="n">compareTo</span><span class="o">);</span>
+</pre></div>
+
+
+<h4>引用构造方法</h4>
+<p>有一个 <code>transferElements</code> 方法，将 <code>SOURCE</code> 类型的集合转换成 <code>DEST</code> 类型的集合。</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">,</span> <span class="n">SOURCE</span> <span class="kd">extends</span> <span class="n">Collection</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;,</span> <span class="n">DEST</span> <span class="kd">extends</span> <span class="n">Collection</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span>
+<span class="n">DEST</span> <span class="nf">transferElements</span><span class="o">(</span>
+        <span class="n">SOURCE</span> <span class="n">sourceCollection</span><span class="o">,</span>
+        <span class="n">Supplier</span><span class="o">&lt;</span><span class="n">DEST</span><span class="o">&gt;</span> <span class="n">collectionFactory</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="n">DEST</span> <span class="n">result</span> <span class="o">=</span> <span class="n">collectionFactory</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
+
+    <span class="k">for</span> <span class="o">(</span><span class="n">T</span> <span class="n">t</span> <span class="o">:</span> <span class="n">sourceCollection</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">result</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">t</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>其中 <code>java.util.function.Supplier&lt;T&gt;</code> 也是标准的函数式接口，它有一个 <code>get()</code> 方法来获取所提供的对象。</p>
+<div class="highlight"><pre><span class="c1">// 匿名类形式</span>
+<span class="n">Set</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">rosterSet</span> <span class="o">=</span> <span class="n">transferElements</span><span class="o">(</span><span class="n">roster</span><span class="o">,</span> <span class="k">new</span> <span class="n">Supplier</span><span class="o">&lt;</span><span class="n">Set</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;&gt;()</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="nf">get</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;();</span>
+    <span class="o">}</span>
+<span class="o">});</span>
+<span class="c1">// lambda 形式</span>
+<span class="n">Set</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">rosterSet</span> <span class="o">=</span> <span class="n">transferElements</span><span class="o">(</span><span class="n">roster</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;&gt;());</span>
+<span class="c1">// 转换成方法引用 =&gt;</span>
+<span class="n">Set</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">rosterSet</span> <span class="o">=</span> <span class="n">transferElements</span><span class="o">(</span><span class="n">roster</span><span class="o">,</span> <span class="n">HashSet</span><span class="o">::</span><span class="k">new</span><span class="o">);</span>
+</pre></div>
+
+
+<p>lambda 表达式中直接 new 了一个 HashSet，相当于调用了 HashSet 的构造方法，故可以写成 <code>HashSet::new</code> 方法引用的形式。</p>
+<h2>静态和默认接口方法</h2>
+<p>在 Java8 之前，接口不允许有默认实现，如果接口的两个实现类有同样的实现逻辑，就得写重复代码了。现在接口可以通过关键字 <code>default</code> 实现默认方法，另外接口还可以实现静态方法。</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">SampleInterface</span> <span class="o">{</span>
+    <span class="k">default</span> <span class="kt">int</span> <span class="nf">test</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;SampleInterface default impl&quot;</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">staticTest</span><span class="o">()</span> <span class="o">+</span> <span class="mi">666</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">static</span> <span class="kt">int</span> <span class="nf">staticTest</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="mi">100</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SampleTest</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">test</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SampleInterfaceImpl1</span><span class="o">().</span><span class="na">test</span><span class="o">();</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">test</span><span class="o">);</span>
+
+        <span class="kt">int</span> <span class="n">test2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SampleInterfaceImpl2</span><span class="o">().</span><span class="na">test</span><span class="o">();</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">test2</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">static</span> <span class="kd">class</span> <span class="nc">SampleInterfaceImpl1</span> <span class="kd">implements</span> <span class="n">SampleInterface</span> <span class="o">{</span>
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">int</span> <span class="nf">test</span><span class="o">()</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;SampleInterfaceImpl1 override&quot;</span><span class="o">);</span>
+            <span class="k">return</span> <span class="n">SampleInterface</span><span class="o">.</span><span class="na">staticTest</span><span class="o">()</span> <span class="o">+</span> <span class="mi">233</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">static</span> <span class="kd">class</span> <span class="nc">SampleInterfaceImpl2</span> <span class="kd">implements</span> <span class="n">SampleInterface</span> <span class="o">{</span>
+        <span class="c1">// 不需要实现 test 方法</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>最后输出结果：</p>
+<div class="highlight"><pre>SampleInterfaceImpl1 override
+333
+SampleInterface default impl
+766
+</pre></div>
+
+
+<p>使用接口的默认方法可以减少代码重复，静态方法也可以方便地封装一些通用逻辑。</p>
+<h2>重复注解</h2>
+<p>重复注解就是允许在同一申明类型（类，属性，或方法）多次使用同一个注解。</p>
+<div class="highlight"><pre><span class="nd">@Repeatable</span><span class="o">(</span><span class="n">Schedules</span><span class="o">.</span><span class="na">class</span><span class="o">)</span> <span class="c1">// 指定存储 Schedule 的注解</span>
+<span class="nd">@Target</span><span class="o">(</span><span class="n">ElementType</span><span class="o">.</span><span class="na">METHOD</span><span class="o">)</span>
+<span class="nd">@Retention</span><span class="o">(</span><span class="n">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
+<span class="kd">public</span> <span class="nd">@interface</span> <span class="n">Schedule</span> <span class="o">{</span>
+    <span class="n">String</span> <span class="nf">dayOfWeek</span><span class="o">()</span> <span class="k">default</span> <span class="s">&quot;Mon&quot;</span><span class="o">;</span>
+
+    <span class="n">String</span> <span class="nf">dayOfMonth</span><span class="o">()</span> <span class="k">default</span> <span class="s">&quot;first&quot;</span><span class="o">;</span>
+
+    <span class="kt">int</span> <span class="nf">hour</span><span class="o">()</span> <span class="k">default</span> <span class="mi">12</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="nd">@Target</span><span class="o">(</span><span class="n">ElementType</span><span class="o">.</span><span class="na">METHOD</span><span class="o">)</span>
+<span class="nd">@Retention</span><span class="o">(</span><span class="n">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
+<span class="kd">public</span> <span class="nd">@interface</span> <span class="n">Schedules</span> <span class="o">{</span>
+    <span class="n">Schedule</span><span class="o">[]</span> <span class="nf">value</span><span class="o">();</span> <span class="c1">// 存储 Schedule</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>使用时可以通过 <code>AnnotatedElement.getAnnotationsByType()</code> 方法来获取到注解，然后进行相应的处理。</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">AnnotationTest</span> <span class="o">{</span>
+
+    <span class="nd">@Schedule</span><span class="o">(</span><span class="n">dayOfMonth</span> <span class="o">=</span> <span class="s">&quot;last&quot;</span><span class="o">)</span>
+    <span class="nd">@Schedule</span><span class="o">(</span><span class="n">dayOfWeek</span> <span class="o">=</span> <span class="s">&quot;Fri&quot;</span><span class="o">,</span> <span class="n">hour</span> <span class="o">=</span> <span class="mi">9</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">doSomethingWork</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;doSomethingWork&quot;</span><span class="o">);</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">Method</span> <span class="n">method</span> <span class="o">=</span> <span class="n">AnnotationTest</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getMethod</span><span class="o">(</span><span class="s">&quot;doSomethingWork&quot;</span><span class="o">);</span>
+            <span class="n">Schedule</span><span class="o">[]</span> <span class="n">schedules</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="na">getAnnotationsByType</span><span class="o">(</span><span class="n">Schedule</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+            <span class="k">for</span> <span class="o">(</span><span class="n">Schedule</span> <span class="n">schedule</span> <span class="o">:</span> <span class="n">schedules</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Schedule: &quot;</span> <span class="o">+</span> <span class="n">schedule</span><span class="o">.</span><span class="na">dayOfWeek</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;, &quot;</span> <span class="o">+</span> <span class="n">schedule</span><span class="o">.</span><span class="na">dayOfMonth</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;, &quot;</span> <span class="o">+</span> <span class="n">schedule</span><span class="o">.</span><span class="na">hour</span><span class="o">());</span>
+            <span class="o">}</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">NoSuchMethodException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">new</span> <span class="n">AnnotationTest</span><span class="o">().</span><span class="na">doSomethingWork</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>输出如下：</p>
+<div class="highlight"><pre>doSomethingWork
+Schedule: Mon, last, 12
+Schedule: Fri, first, 9
+</pre></div>
+
+
+<p>使用就是这么简单~</p>
+<h2>在 Android 中使用这些特性</h2>
+<p>在主 module (app) 的 <code>build.gradle</code> 里配置，开启 jack 编译器，使用 Java8 进行编译。
+如果要体验接口的默认方法等特性，minSdkVersion 需要指定为 24 (Android N)。</p>
+<div class="highlight"><pre><span class="n">android</span> <span class="o">{</span>
+    <span class="n">compileSdkVersion</span> <span class="mi">24</span>
+    <span class="n">buildToolsVersion</span> <span class="s2">&quot;24.0.0&quot;</span>
+
+    <span class="n">defaultConfig</span> <span class="o">{</span>
+        <span class="n">applicationId</span> <span class="s2">&quot;me.brucezz.sharedelementdemo&quot;</span>
+        <span class="n">minSdkVersion</span> <span class="mi">14</span>
+        <span class="n">targetSdkVersion</span> <span class="mi">24</span>
+        <span class="n">versionCode</span> <span class="mi">1</span>
+        <span class="n">versionName</span> <span class="s2">&quot;1.0&quot;</span>
+
+        <span class="c1">// 开启 jack 编译</span>
+        <span class="n">jackOptions</span> <span class="o">{</span>
+            <span class="n">enabled</span> <span class="kc">true</span>
+        <span class="o">}</span>
+
+    <span class="o">}</span>
+
+    <span class="n">compileOptions</span> <span class="o">{</span>
+        <span class="c1">// 指定用 Java8 编译</span>
+        <span class="n">sourceCompatibility</span> <span class="n">JavaVersion</span><span class="o">.</span><span class="na">VERSION_1_8</span>
+        <span class="n">targetCompatibility</span> <span class="n">JavaVersion</span><span class="o">.</span><span class="na">VERSION_1_8</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<h2>Reference</h2>
+<ul>
+<li>文中代码大部分来自于 <a href="https://docs.oracle.com/javase/tutorial/">Oracle 官方文档教程</a></li>
+<li><a href="http://blog.zhaiyifan.cn/2016/04/20/trans-java-8-in-android-n-preview/">在 Android N 预览版中使用 Java 8 的新特性</a></li>
+</ul>
+    </article>
+
+
+<div class="sharing">
+</div>
+    <hr>
+
+
+<div class="ds-thread" data-thread-key="use_java8_in_android" data-title="在 Android 中使用 Java8 的特性" data-url="http://brucezz.github.io/articles/2016/10/05/use_java8_in_android/"></div>
+<script>
+    var duoshuoQuery = {short_name:"brucezz"};
+    (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+
+        ds.src = 'http://brucezz.github.io/theme/js/embed.js';
+
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0]
+         || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+
+</script>
+
+
+
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                            <li>
+                                <a href="http://github.com/brucezz" target="_blank">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="http://weibo.com/u/1947300213" target="_blank">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://www.zhihu.com/people/zeroZh" target="_blank">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-stack-1x fa-inverse">知</i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="http://brucezz.itscoder.com/feeds/rss.xml" target="_blank">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                    </ul>
+<p class="copyright text-muted">
+    Blog powered by <a href="http://getpelican.com">Pelican</a>,
+    which takes great advantage of <a href="http://python.org">Python</a>.
+</p><div align="center"><script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1256702937'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1256702937%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+</div>                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="http://brucezz.github.io/theme/js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="http://brucezz.github.io/theme/js/bootstrap.min.js"></script>
+
+        <!-- Custom Theme JavaScript -->
+        <script src="http://brucezz.github.io/theme/js/clean-blog.min.js"></script>
+
+        <!-- Custom Theme JavaScript -->
+        <script src="http://brucezz.github.io/theme/js/high.js"></script>
+
+
+</body>
+
+</html>
