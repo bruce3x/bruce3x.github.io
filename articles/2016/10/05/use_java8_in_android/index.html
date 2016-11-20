@@ -123,7 +123,7 @@
 </ul>
 <p>其中，只有前两者可以兼容 API 23 以下的版本。</p>
 <h2>Lambda 表达式</h2>
-<p>从一个实际例子来引入 lamdba 的使用。</p>
+<p>从一个实际例子来引入 lambda 的使用。</p>
 <p>有一组 Person 对象（具体实现不复杂，参考<a href="https://docs.oracle.com/javase/tutorial/java/javaOO/examples/Person.java">这里</a>），需要通过年龄大小来过滤出满足要求的对象，然后对其进行输出操作，实现很简单，如下：</p>
 <div class="highlight"><pre><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">printPersonsOlderThan</span><span class="o">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">roster</span><span class="o">,</span> <span class="kt">int</span> <span class="n">age</span><span class="o">)</span> <span class="o">{</span>
     <span class="k">for</span> <span class="o">(</span><span class="n">Person</span> <span class="n">p</span> <span class="o">:</span> <span class="n">roster</span><span class="o">)</span> <span class="o">{</span>
@@ -284,7 +284,7 @@
 
 <h4>Lambda 写法</h4>
 <p>基本写法：</p>
-<div class="highlight"><pre><span class="n">p</span> <span class="o">-&gt;</span> <span class="n">p</span><span class="o">.</span><span class="na">getGender</span><span class="o">()</span> <span class="o">==</span> <span class="n">Person</span><span class="o">.</span><span class="na">Sex</span><span class="o">.</span><span class="na">MALE</span> 
+<div class="highlight"><pre><span class="n">p</span> <span class="o">-&gt;</span> <span class="n">p</span><span class="o">.</span><span class="na">getGender</span><span class="o">()</span> <span class="o">==</span> <span class="n">Person</span><span class="o">.</span><span class="na">Sex</span><span class="o">.</span><span class="na">MALE</span>
     <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&gt;=</span> <span class="mi">18</span>
     <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&lt;=</span> <span class="mi">25</span>
 
@@ -299,7 +299,7 @@
 <p>参数列表，如果只有一个参数，可以省略掉括号，其他情况需要写上一对括号。</p>
 <p>需要注意的是， 箭头 <code>-&gt;</code> 后面必须是一个单独的表达式（expression）或者是一个语句块（statement block）。</p>
 <div class="highlight"><pre><span class="c1">// 表达式</span>
-<span class="n">p</span> <span class="o">-&gt;</span> <span class="n">p</span><span class="o">.</span><span class="na">getGender</span><span class="o">()</span> <span class="o">==</span> <span class="n">Person</span><span class="o">.</span><span class="na">Sex</span><span class="o">.</span><span class="na">MALE</span> 
+<span class="n">p</span> <span class="o">-&gt;</span> <span class="n">p</span><span class="o">.</span><span class="na">getGender</span><span class="o">()</span> <span class="o">==</span> <span class="n">Person</span><span class="o">.</span><span class="na">Sex</span><span class="o">.</span><span class="na">MALE</span>
     <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&gt;=</span> <span class="mi">18</span>
     <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&lt;=</span> <span class="mi">25</span>
 
