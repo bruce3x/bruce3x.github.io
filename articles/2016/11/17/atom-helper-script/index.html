@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+            <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+
+        <title>Atom-Helper 小脚本</title>
+
+            <link href="http://brucezz.itscoder.com//feeds/rss.xml" type="application/rss+xml" rel="alternate" title="Brucezz's Corner Full RSS Feed" />
+
+            <link rel="shortcut icon" href="/favicon.ico">
+
+        <!-- Bootstrap Core CSS -->
+        <link href="http://brucezz.github.io/theme/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link href="http://brucezz.github.io/theme/css/clean-blog.min.css" rel="stylesheet">
+
+        <!-- Code highlight color scheme -->
+            <link href="http://brucezz.github.io/theme/css/code_blocks/colorful.css" rel="stylesheet">
+
+
+            <!-- CSS specified by the user -->
+            <link href="http://brucezz.github.io/theme/css/harlem-shake-style.css" rel="stylesheet">
+
+        <!-- Custom Fonts -->
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+
+
+
+
+
+	                <meta property="og:locale" content="">
+		<meta property="og:site_name" content="Brucezz's Corner">
+
+	<meta property="og:type" content="article">
+	<meta property="article:author" content="">
+	<meta property="og:url" content="http://brucezz.github.io/articles/2016/11/17/atom-helper-script/">
+	<meta property="og:title" content="Atom-Helper 小脚本">
+	<meta property="og:description" content="">
+	<meta property="og:image" content="http://brucezz.github.io//images/cover/atom-mark.jpg">
+	<meta property="article:published_time" content="2016-11-17 00:00:00+08:00">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="http://brucezz.github.io/">Brucezz's Corner</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                        <li><a href="javascript:go()">High 一下</a></li>
+                        <li><a href="http://itscoder.com/">itsCoder</a></li>
+                        <li><a href="/archives.html">归档</a></li>
+                        <li><a href="/categories.html">分类</a></li>
+                        <li><a href="/pages/about.html">关于我</a></li>
+
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Header -->
+        <header class="intro-header" style="background-image: url('/images/cover/atom-mark.jpg')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <div class="post-heading">
+                        <h1>Atom-Helper 小脚本</h1>
+                        <span class="meta">Posted by
+                                <a href="http://brucezz.github.io/author/brucezz.html">Brucezz</a>
+                             on 2016-11-17
+                        </span>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+    <!-- Post Content -->
+    <article>
+        <p>这几天在尝试用新的文本编辑器 Atom，上手第一件事就是装插件咯。Atom 和 Sublime 一样，社区提供了各种各样的插件，来提供酷炫的功能。 我在 Atom 网站上搜索很多插件然后看看介绍下载体验，配置了一个简单的 Python 开发环境。</p>
+<p>这个时候就想写个小脚本玩玩了，大概功能就是根据关键字搜索 Atom 的插件或者主题，然后排序展示前 N 个项目，当然直接通过命令行改变参数就更好了。</p>
+<p>Atom 插件地址：<a href="https://atom.io/packages">Packages</a></p>
+<p>Atom 主题地址：<a href="https://atom.io/themes">Themes</a></p>
+<h1>分析问题</h1>
+<p>整个脚本流程：</p>
+<ol>
+<li>根据关键字发出第一个搜索请求</li>
+<li>解析出页面中的插件数据</li>
+<li>找到「下一页」的链接，请求下一页</li>
+<li>循环 2-3，直到最后一页，即「下一页」的链接不存在</li>
+<li>对获取到的插件进行排序，然后输出 topN</li>
+</ol>
+<p>先手动搜索一个关键字，用 Chrome 开发者工具查看一下请求内容：</p>
+<p><img alt="Search" src="http://ww4.sinaimg.cn/large/006y8mN6gw1f9v6ufxhuij30m80csdgm.jpg" /></p>
+<p>这就是一个普通的 GET 请求，直接把关键字作为参数添加在 url 后面就好了。</p>
+<p>接下来查看一下页面的 HTML 元素：</p>
+<p><img alt="HTML" src="http://ww3.sinaimg.cn/large/006y8mN6gw1f9vct78948j30go0f8gmt.jpg" /></p>
+<p>可以根据 <code>class="grid-cell"</code> 这一属性，把每一个插件作为整体提取出来，然后再详细地解析出具体的字段。</p>
+<p>然后找一下 「下一页」的链接：</p>
+<p><img alt="Next" src="http://ww3.sinaimg.cn/large/006y8mN6gw1f9vcuu27iuj30m801s74c.jpg" /></p>
+<p><img alt="Next empty" src="http://ww3.sinaimg.cn/large/006y8mN6gw1f9vcvvflcaj30m801kdfs.jpg" /></p>
+<p>这也验证了前面的想法，最后一页的时候，「下一页」的链接不存在，这样就能正确地结束循环请求了。</p>
+<p>最后就是获取一下 topN 的数据，然后输出出来了。</p>
+<h1>获取数据</h1>
+<p>首先根据前面分析的结果，先写一个大概的类结构，有几个方法需要实现。</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">AtomHelper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">extract_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Extract item from cells.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Do search!&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">topN</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get topN items.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+</pre></div>
+
+
+<h2>解析字段</h2>
+<p>这个步骤直接使用 lxml 的 xpath 进行解析就好了，熟悉 xpath 的话很简单，最后把字段组装成一个字典。</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">extract_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Extract item from cells.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Extract title, url, desc, download ...</span>
+    <span class="c1"># ...</span>
+
+    <span class="n">star</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">first</span><span class="p">(</span><span class="n">cell</span><span class="o">.</span><span class="n">xpath</span><span class="p">(</span><span class="s1">&#39;.//a[@class=&quot;social-count&quot;]/text()&#39;</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>
+        <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span>
+        <span class="s1">&#39;desc&#39;</span><span class="p">:</span> <span class="n">desc</span><span class="p">,</span>
+        <span class="s1">&#39;download&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_format</span><span class="p">(</span><span class="n">download</span><span class="p">),</span>
+        <span class="s1">&#39;star&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_format</span><span class="p">(</span><span class="n">star</span><span class="p">),</span>
+    <span class="p">}</span>
+</pre></div>
+
+
+<p>需要注意的是，<code>xpath</code> 方法返回的通常都是 <code>list</code> 对象，通常都只需要第一项。所以这里写了一个方法来从序列中提取第一个元素，提供默认值避免每次判空。</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">first</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Extract first item in sequence, or default value.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">seq</span> <span class="k">else</span> <span class="n">default</span>
+</pre></div>
+
+
+<p>另外网站上的数字是格式化后的，即 <code>2,333</code> 的形式，需要转换成正常的数字。</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">number_format</span><span class="p">(</span><span class="n">num_str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert number string like &#39;2,333&#39; to integer.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">if</span> <span class="n">num_str</span> <span class="k">else</span> <span class="n">num_str</span>
+</pre></div>
+
+
+<h2>循环请求页面</h2>
+<p>这一部分就是一个循环，不断地请求「下一页」的地址，同时解析页面中的数据和下一个链接。</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Do search!&quot;&quot;&quot;</span>
+
+    <span class="n">next_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_url</span>
+    <span class="k">while</span> <span class="n">next_url</span><span class="p">:</span>
+        <span class="n">html</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">HTML</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">next_url</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+
+        <span class="c1"># Extract cells, next_url</span>
+        <span class="c1"># ...</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extract_item</span><span class="p">,</span> <span class="n">cells</span><span class="p">))</span>
+</pre></div>
+
+
+<h2>获取 topN</h2>
+<p>这个用一下内置函数 <code>sorted</code> 就好了。</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">topN</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="s1">&#39;download&#39;</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="n">by</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)[:</span><span class="n">N</span><span class="p">]</span>
+</pre></div>
+
+
+<p>然后把具体实现的代码组装起来，添加一些必要的输出提示，主体功能就完成了。</p>
+<h1>添加命令行参数</h1>
+<p>脚本可以搜索「插件」或者「主题」，这个需要枚举参数来控制；输出多少个结果，也是需要一个参数；是按下载量排序还是星星数量排序，还需要一个枚举参数。</p>
+<blockquote>
+<p><code>argparse</code> 模块使得编写用户友好的命令行接口非常容易。程序只需定义好它要求的参数，然后 <code>argparse</code> 将负责如何从 <code>sys.argv</code> 中解析出这些参数。<code>argparse</code> 模块还会自动生成帮助和使用信息并且当用户赋给程序非法的参数时产生错误信息。</p>
+</blockquote>
+<p><code>argparse</code> 这个库简单易用，文档写得很详细，还有各种示例。<a href="http://python.usyiyi.cn/python_278/library/argparse.html">戳这里</a></p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">process_arg</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Atom helper to search packages or themes.&#39;</span><span class="p">,</span>
+        <span class="n">epilog</span><span class="o">=</span><span class="s1">&#39;Have fun :)&#39;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;keyword&#39;</span><span class="p">,</span>
+                        <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The keyword to search.&#39;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Show top N items.(default 5)&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-t&#39;</span><span class="p">,</span> <span class="s1">&#39;--type&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;packages&#39;</span><span class="p">,</span> <span class="s1">&#39;themes&#39;</span><span class="p">),</span>
+                        <span class="n">default</span><span class="o">=</span><span class="s1">&#39;packages&#39;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The type to search.(default packages)&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-s&#39;</span><span class="p">,</span> <span class="s1">&#39;--sort&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;download&#39;</span><span class="p">,</span> <span class="s1">&#39;star&#39;</span><span class="p">),</span>
+                        <span class="n">default</span><span class="o">=</span><span class="s1">&#39;download&#39;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Sort items by.(default download)&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="s1">&#39;--verbose&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Show debug messages.&#39;</span><span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">keyword</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;keyword&#39;</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">args</span>
+</pre></div>
+
+
+<p>这里主要的几个参数：</p>
+<p><img alt="args" src="http://ww1.sinaimg.cn/large/006y8mN6gw1f9vcnvzmjrj30go09z3zg.jpg" /></p>
+<ul>
+<li><code>-t</code> 指定搜索类型</li>
+<li><code>-s</code> 指定排序规则</li>
+<li><code>-n</code> 指定输出多少个数据</li>
+<li><code>-v</code> 显示 debug 信息</li>
+<li><code>-g</code> 显示帮助信息</li>
+</ul>
+<h1>最终结果</h1>
+<p><img alt="final" src="http://ww1.sinaimg.cn/large/006y8mN6gw1f9vcmj4wt9j30m80bv0tv.jpg" /></p>
+<p>花时间写完这个脚本，发现并没有什么卵用😂，还不如自己去网站上搜搜呢。</p>
+<p>不过第一次写命令行参数，感觉还是挺好玩的，熟悉了下 <code>argparse</code> 模块，以后用 Python 写小工具更方便了。</p>
+<p>完整脚本地址: <a href="https://github.com/brucezz/SomeScripts/blob/master/atom_helper.py">atom_helper.py</a>, 欢迎拍砖评论。</p>
+<h1>Reference</h1>
+<ul>
+<li><a href="http://python.usyiyi.cn/python_278/library/argparse.html">argparse 官网文档</a></li>
+<li><a href="http://blog.xiayf.cn/2013/03/30/argparse/">argparse - 命令行选项与参数解析（译）</a></li>
+</ul>
+    </article>
+
+
+<div class="sharing">
+</div>
+    <hr>
+
+
+<div class="ds-thread" data-thread-key="atom-helper-script" data-title="Atom-Helper 小脚本" data-url="http://brucezz.github.io/articles/2016/11/17/atom-helper-script/"></div>
+<script>
+    var duoshuoQuery = {short_name:"brucezz"};
+    (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+
+        ds.src = 'http://brucezz.github.io/theme/js/embed.js';
+
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0]
+         || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+
+</script>
+
+
+
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                            <li>
+                                <a href="http://github.com/brucezz" target="_blank">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="http://weibo.com/u/1947300213" target="_blank">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://www.zhihu.com/people/zeroZh" target="_blank">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-stack-1x fa-inverse">知</i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="http://brucezz.itscoder.com/feeds/rss.xml" target="_blank">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                    </ul>
+<p class="copyright text-muted">
+    Blog powered by <a href="http://getpelican.com">Pelican</a>,
+    which takes great advantage of <a href="http://python.org">Python</a>.
+</p><div align="center"><script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1256702937'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1256702937%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+</div>                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="http://brucezz.github.io/theme/js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="http://brucezz.github.io/theme/js/bootstrap.min.js"></script>
+
+        <!-- Custom Theme JavaScript -->
+        <script src="http://brucezz.github.io/theme/js/clean-blog.min.js"></script>
+
+        <!-- Custom Theme JavaScript -->
+        <script src="http://brucezz.github.io/theme/js/high.js"></script>
+
+
+</body>
+
+</html>
