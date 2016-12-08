@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+            <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+
+        <title>在 Android 中使用 UIAutomator 执行自动化任务</title>
+
+            <link href="http://brucezz.itscoder.com//feeds/rss.xml" type="application/rss+xml" rel="alternate" title="Brucezz's Corner Full RSS Feed" />
+
+            <link rel="shortcut icon" href="/favicon.ico">
+
+        <!-- Bootstrap Core CSS -->
+        <link href="http://brucezz.github.io/theme/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link href="http://brucezz.github.io/theme/css/clean-blog.min.css" rel="stylesheet">
+
+        <!-- Code highlight color scheme -->
+            <link href="http://brucezz.github.io/theme/css/code_blocks/colorful.css" rel="stylesheet">
+
+
+            <!-- CSS specified by the user -->
+            <link href="http://brucezz.github.io/theme/css/harlem-shake-style.css" rel="stylesheet">
+
+        <!-- Custom Fonts -->
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+
+
+
+
+    <link href="http://brucezz.github.io/theme/css/ipynb.css" rel="stylesheet">
+    
+
+	                <meta property="og:locale" content="">
+		<meta property="og:site_name" content="Brucezz's Corner">
+
+	<meta property="og:type" content="article">
+	<meta property="article:author" content="">
+	<meta property="og:url" content="http://brucezz.github.io/articles/2016/12/05/use-uiautomator-in-android/">
+	<meta property="og:title" content="在 Android 中使用 UIAutomator 执行自动化任务">
+	<meta property="og:description" content="">
+	<meta property="og:image" content="http://brucezz.github.io/">
+	<meta property="article:published_time" content="2016-12-05 00:00:00+08:00">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="http://brucezz.github.io/">Brucezz's Corner</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                        <li><a href="javascript:go()">High 一下</a></li>
+                        <li><a href="http://itscoder.com/">itsCoder</a></li>
+                        <li><a href="/archives.html">归档</a></li>
+                        <li><a href="/categories.html">分类</a></li>
+                        <li><a href="/pages/about.html">关于我</a></li>
+
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Header -->
+        <header class="intro-header" style="background-image: url('/images/cover/home-bg.jpg')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <div class="post-heading">
+                        <h1>在 Android 中使用 UIAutomator 执行自动化任务</h1>
+                        <span class="meta">Posted by
+                                <a href="http://brucezz.github.io/author/brucezz.html">Brucezz</a>
+                             on 2016-12-05
+                        </span>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+    <!-- Post Content -->
+    <article>
+        <p>用代码来替代任何重复性的工作，一直是我的追求。这周，我又写了一段脚本，让我从无尽的重复工作中解脱了出来。</p>
+<h2>问题 &amp; 需求</h2>
+<p>最近在修 bug 的时候，为了达到一个合适的测试环境，我需要一直要重复执行这些操作：</p>
+<ul>
+<li>完全关闭 App</li>
+<li>打开应用设置页清空 App 数据</li>
+<li>在权限界面打开「存储空间」权限</li>
+<li>启动 App，登录帐号</li>
+</ul>
+<p>主要过程就是不断地点击屏幕，等待界面切换，输入内容。我就想让代码来帮忙点击这些固定的位置，然后输入预设的内容，自动化完成这些无聊的操作。</p>
+<p>整理一下，需要实现的功能大概就是：</p>
+<ul>
+<li>根据文本信息确定点击位置</li>
+<li>执行点击操作</li>
+<li>执行输入操作</li>
+<li>启动一些界面</li>
+</ul>
+<h2>解决方案</h2>
+<p>要用命令来控制 Android 设备，那肯定是选用 adb 了。GitHub 上有个叫 <a href="https://github.com/mzlogin/awesome-adb">awesome-adb</a> 的项目，列举了 <code>adb</code> 的各种用法，其中有提到 <a href="https://github.com/mzlogin/awesome-adb#%E8%B0%83%E8%B5%B7-activity">调起 Activity</a> 和 <a href="https://github.com/mzlogin/awesome-adb#%E6%A8%A1%E6%8B%9F%E6%8C%89%E9%94%AE%E8%BE%93%E5%85%A5">模拟按键输入</a> 的操作。另外查阅资料得知 <code>uiautomator</code> 命令可以获取屏幕中的控件信息，从中可以提取到控件的位置，用于模拟点击。下面用 Python 来实现整个流程。</p>
+<p>这里先提一下两个工具函数，方便后续的代码展示。一个是用来执行 <code>adb</code>的，另外一个是装饰器，在目标函数执行完之后休眠一会，等待 UI 的响应。</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;执行 adb 命令&quot;&quot;&quot;</span>
+    <span class="c1"># adb &lt;CMD&gt;</span>
+    <span class="k">return</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">((</span><span class="s1">&#39;adb </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">cmd</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">sleep_later</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;装饰器：在函数执行完成之后休眠等待一段时间&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">do</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;duration&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;duration&#39;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">do</span>
+    <span class="k">return</span> <span class="n">wrapper</span>
+</pre></div>
+
+
+<h3>根据文本信息点击屏幕</h3>
+<p>需要先用 <code>uiautomator</code> 命令来获取屏幕信息。</p>
+<div class="highlight"><pre><span class="n">dump_file</span> <span class="o">=</span> <span class="s1">&#39;/sdcard/window_dump.xml&#39;</span>
+
+<span class="k">def</span> <span class="nf">dump_layout</span><span class="p">():</span>
+    <span class="k">print</span> <span class="s1">&#39;Dump window layouts&#39;</span>
+    <span class="c1"># adb shell uiautomator dump &lt;FILE&gt;</span>
+    <span class="n">run</span><span class="p">(</span><span class="s1">&#39;shell uiautomator dump </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">dump_file</span><span class="p">)</span>
+</pre></div>
+
+
+<p>得到的 XML 文件是由 <code>node</code> 节点组成的，其中的 <code>text</code> 和 <code>bounds</code> 属性是我们需要的。可以根据文本去匹配到相应的 <code>node</code> 节点，然后解析出控件的边界信息，后续只要在这个边界内点击就可以模拟真实的操作了。</p>
+<div class="highlight"><pre><span class="cp">&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39; standalone=&#39;yes&#39; ?&gt;</span>
+<span class="nt">&lt;hierarchy</span> <span class="na">rotation=</span><span class="s">&quot;0&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;node</span>
+        <span class="na">index=</span><span class="s">&quot;0&quot;</span>
+        <span class="na">text=</span><span class="s">&quot;&quot;</span>
+        <span class="na">resource-id=</span><span class="s">&quot;&quot;</span>
+        <span class="na">class=</span><span class="s">&quot;android.widget.FrameLayout&quot;</span>
+        <span class="na">package=</span><span class="s">&quot;com.teslacoilsw.launcher&quot;</span>
+        <span class="na">content-desc=</span><span class="s">&quot;&quot;</span>
+        <span class="na">checkable=</span><span class="s">&quot;false&quot;</span>
+        <span class="na">checked=</span><span class="s">&quot;false&quot;</span>
+        <span class="na">clickable=</span><span class="s">&quot;false&quot;</span>
+        <span class="na">enabled=</span><span class="s">&quot;true&quot;</span>
+        <span class="na">focusable=</span><span class="s">&quot;false&quot;</span>
+        <span class="na">focused=</span><span class="s">&quot;false&quot;</span>
+        <span class="na">scrollable=</span><span class="s">&quot;false&quot;</span>
+        <span class="na">long-clickable=</span><span class="s">&quot;false&quot;</span>
+        <span class="na">password=</span><span class="s">&quot;false&quot;</span>
+        <span class="na">selected=</span><span class="s">&quot;false&quot;</span>
+        <span class="na">bounds=</span><span class="s">&quot;[0,0][1080,1920]&quot;</span><span class="nt">&gt;</span>
+
+        <span class="c">&lt;!-- many nodes --&gt;</span>
+
+    <span class="nt">&lt;/node&gt;</span>
+<span class="nt">&lt;/hierarchy&gt;</span>
+</pre></div>
+
+
+<p>这里先用了 <code>cat</code> 命令直接读出 XML 的内容，然后用 <code>lxml</code> 解析匹配目标节点。后面用正则表达式提取出边界的坐标点，然后直接计算出边界矩形的中心点。</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">parse_bounds</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="c1"># adb shell cat /sdcard/window_dump.xml</span>
+    <span class="n">dumps</span> <span class="o">=</span> <span class="n">run</span><span class="p">(</span><span class="s1">&#39;shell cat </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">dump_file</span><span class="p">)</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">XML</span><span class="p">(</span><span class="n">dumps</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">nodes</span><span class="o">.</span><span class="n">xpath</span><span class="p">(</span><span class="s1">u&#39;//node[@text=&quot;</span><span class="si">%s</span><span class="s1">&quot;]/@bounds&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">text</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">bounds_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">r&#39;\[(\d+),(\d+)\]\[(\d+),(\d+)\]&#39;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">point_in_bounds</span><span class="p">(</span><span class="n">bounds</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &#39;[42,1023][126,1080]&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">bounds_pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">points</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">points</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">points</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+</pre></div>
+
+
+<p>再用 <code>input</code> 命令，结合上面的几个函数，可以完成这个需求了。</p>
+<div class="highlight"><pre><span class="nd">@sleep_later</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">click_with_keyword</span><span class="p">(</span><span class="n">keyword</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="c1"># 有的屏幕需要多次点击时，dump 可以设置为 False，使用上一次的屏幕数据</span>
+    <span class="k">if</span> <span class="n">dump</span><span class="p">:</span>
+        <span class="n">dump_layout</span><span class="p">()</span>
+    <span class="n">bounds</span> <span class="o">=</span> <span class="n">parse_bounds</span><span class="p">(</span><span class="n">keyword</span><span class="p">)</span>
+    <span class="n">point</span> <span class="o">=</span> <span class="n">point_in_bounds</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
+
+    <span class="k">print</span> <span class="s1">&#39;Click &quot;</span><span class="si">%s</span><span class="s1">&quot; (</span><span class="si">%d</span><span class="s1">, </span><span class="si">%d</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">keyword</span><span class="p">,</span> <span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="c1"># adb shell input tap &lt;x&gt; &lt;y&gt;</span>
+    <span class="n">run</span><span class="p">(</span><span class="s1">&#39;shell input tap </span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">point</span><span class="p">)</span>
+</pre></div>
+
+
+<h3>模拟输入</h3>
+<p>这个比较简单，直接使用 <code>input text</code> 命令。另外还实现了模拟按返回键。</p>
+<div class="highlight"><pre><span class="nd">@sleep_later</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">keyboard_input</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="c1"># adb shell input text &lt;string&gt;</span>
+    <span class="n">run</span><span class="p">(</span><span class="s1">&#39;shell input text </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">text</span><span class="p">)</span>
+
+
+<span class="nd">@sleep_later</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">keyboard_back</span><span class="p">():</span>
+    <span class="c1"># adb shell input keyevent 4</span>
+    <span class="n">run</span><span class="p">(</span><span class="s1">&#39;shell input keyevent 4&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<h3>停止应用、清除数据、启动 Activity</h3>
+<p>这一些命令操作，按照 <a href="https://github.com/mzlogin/awesome-adb">awesome-adb</a> 的文档执行就好。</p>
+<div class="highlight"><pre><span class="nd">@sleep_later</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">force_stop</span><span class="p">(</span><span class="n">package</span><span class="p">):</span>
+    <span class="k">print</span> <span class="s1">&#39;Force stop </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">package</span>
+    <span class="c1"># adb shell am force-stop &lt;package&gt;</span>
+    <span class="n">run</span><span class="p">(</span><span class="s1">&#39;shell am force-stop </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">package</span><span class="p">)</span>
+
+
+<span class="nd">@sleep_later</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">start_activity</span><span class="p">(</span><span class="n">activity</span><span class="p">):</span>
+    <span class="k">print</span> <span class="s1">&#39;Start activity </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">activity</span>
+    <span class="c1"># adb shell am start -n &lt;activity&gt;</span>
+    <span class="n">run</span><span class="p">(</span><span class="s1">&#39;shell am start -n </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">activity</span><span class="p">)</span>
+
+
+<span class="nd">@sleep_later</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">clear_data</span><span class="p">(</span><span class="n">package</span><span class="p">):</span>
+    <span class="k">print</span> <span class="s1">&#39;Clear app data: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">package</span>
+    <span class="c1"># adb shell pm clear &lt;package&gt;</span>
+    <span class="n">run</span><span class="p">(</span><span class="s1">&#39;shell pm clear </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">package</span><span class="p">)</span>
+</pre></div>
+
+
+<p>另外，打开指定应用的设置界面，需要指定 ACTION 和 DATA。</p>
+<div class="highlight"><pre><span class="nd">@sleep_later</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">open_app_detail</span><span class="p">(</span><span class="n">package</span><span class="p">):</span>
+    <span class="k">print</span> <span class="s1">&#39;Open application detail setting: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">package</span>
+    <span class="c1"># adb shell am start -a ACTION -d DATA</span>
+    <span class="n">intent_action</span> <span class="o">=</span> <span class="s1">&#39;android.settings.APPLICATION_DETAILS_SETTINGS&#39;</span>
+    <span class="n">intent_data</span> <span class="o">=</span> <span class="s1">&#39;package:</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">package</span>
+
+    <span class="n">run</span><span class="p">(</span><span class="s1">&#39;shell am start -a </span><span class="si">%s</span><span class="s1"> -d </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">intent_action</span><span class="p">,</span> <span class="n">intent_data</span><span class="p">))</span>
+</pre></div>
+
+
+<h3>拼装整个流程</h3>
+<div class="highlight"><pre><span class="n">target_package</span> <span class="o">=</span> <span class="s1">&#39;com.mingdao&#39;</span>
+<span class="n">launcher_activity</span> <span class="o">=</span> <span class="s1">&#39;com.mingdao/.presentation.ui.login.WelcomeActivity&#39;</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">username</span><span class="p">,</span> <span class="n">password</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+    <span class="c1"># 停止应用</span>
+    <span class="n">force_stop</span><span class="p">(</span><span class="n">target_package</span><span class="p">)</span>
+    <span class="c1"># 清除数据</span>
+    <span class="n">clear_data</span><span class="p">(</span><span class="n">target_package</span><span class="p">)</span>
+    <span class="c1"># 启动应用设置页</span>
+    <span class="n">open_app_detail</span><span class="p">(</span><span class="n">target_package</span><span class="p">)</span>
+    <span class="c1"># 进入权限页</span>
+    <span class="n">click_with_keyword</span><span class="p">(</span><span class="s1">u&#39;权限&#39;</span><span class="p">)</span>
+    <span class="c1"># 打开「存储控件权限」</span>
+    <span class="n">click_with_keyword</span><span class="p">(</span><span class="s1">u&#39;存储空间&#39;</span><span class="p">)</span>
+    <span class="c1"># 按一下返回</span>
+    <span class="n">keyboard_back</span><span class="p">()</span>
+    <span class="c1"># 启动 app</span>
+    <span class="n">start_activity</span><span class="p">(</span><span class="n">launcher_activity</span><span class="p">)</span>
+    <span class="c1"># 欢迎页跳过</span>
+    <span class="n">click_with_keyword</span><span class="p">(</span><span class="s1">u&#39;跳过&#39;</span><span class="p">)</span>
+    <span class="c1"># 选中「帐号」输入框</span>
+    <span class="n">click_with_keyword</span><span class="p">(</span><span class="s1">u&#39;手机或邮箱&#39;</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># 输入帐号</span>
+    <span class="n">keyboard_input</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+    <span class="c1"># 选中「密码」输入框</span>
+    <span class="n">click_with_keyword</span><span class="p">(</span><span class="s1">u&#39;密码&#39;</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># 输入密码</span>
+    <span class="n">keyboard_input</span><span class="p">(</span><span class="n">password</span><span class="p">)</span>
+    <span class="c1"># 点一下登录按钮</span>
+    <span class="n">click_with_keyword</span><span class="p">(</span><span class="s1">u&#39;登录&#39;</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+
+
+<p>前面把各种操作写好，主流程就很清晰啦，照着手动操作的过程，一步一步调函数就好了。</p>
+<h3>效果图</h3>
+<p><img alt="screenshot" src="http://ww2.sinaimg.cn/large/65e4f1e6jw1faf8l8gwbng20ry0i2e7c.gif" /></p>
+<h2>后记</h2>
+<p>脚本实现后的第二天，我就用了它不下 20 次，感觉爽极了。不用做那么多重复的操作，趁着空闲喝点水，刷个知乎，太美好了😄~</p>
+<blockquote>
+<p>源码地址：<a href="https://github.com/brucezz/SomeScripts/blob/master/ui_automator.py">ui_automator.py · brucezz/SomeScripts</a></p>
+</blockquote>
+<h2>Reference</h2>
+<ul>
+<li><a href="https://github.com/mzlogin/awesome-adb">awesome-adb</a></li>
+<li><a href="https://testerhome.com/topics/1047">通过 python 调用 adb 命令实现用元素名称、id、class 定位元素 · TesterHome</a></li>
+</ul>
+    </article>
+
+
+<div class="sharing">
+</div>
+    <hr>
+
+
+<div class="ds-thread" data-thread-key="use-uiautomator-in-android" data-title="在 Android 中使用 UIAutomator 执行自动化任务" data-url="http://brucezz.github.io/articles/2016/12/05/use-uiautomator-in-android/"></div>
+<script>
+    var duoshuoQuery = {short_name:"brucezz"};
+    (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+
+        ds.src = 'http://brucezz.github.io/theme/js/embed.js';
+
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0]
+         || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+
+</script>
+
+
+
+
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                            <li>
+                                <a href="http://github.com/brucezz" target="_blank">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="http://weibo.com/u/1947300213" target="_blank">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://www.zhihu.com/people/zeroZh" target="_blank">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-stack-1x fa-inverse">知</i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="http://brucezz.itscoder.com/feeds/rss.xml" target="_blank">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                    </ul>
+<p class="copyright text-muted">
+    Blog powered by <a href="http://getpelican.com">Pelican</a>,
+    which takes great advantage of <a href="http://python.org">Python</a>.
+</p><div align="center"><script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1256702937'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1256702937%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+</div>                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="http://brucezz.github.io/theme/js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="http://brucezz.github.io/theme/js/bootstrap.min.js"></script>
+
+        <!-- Custom Theme JavaScript -->
+        <script src="http://brucezz.github.io/theme/js/clean-blog.min.js"></script>
+
+        <!-- Custom Theme JavaScript -->
+        <script src="http://brucezz.github.io/theme/js/high.js"></script>
+
+
+</body>
+
+</html>
