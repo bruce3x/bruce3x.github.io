@@ -1,0 +1,20 @@
+.yue a {
+    text-decoration: none;
+}
+
+.contact>ul.unstyled {
+    width: 300px;
+    margin: 0 auto;
+}
+
+.contact ul>li {
+    line-height: 52px;
+    display: block;
+    float: left;
+    font-size: 32px;
+    margin: 0 22px;
+}
+
+time {
+    margin-right: 10px;
+}

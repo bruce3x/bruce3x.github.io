@@ -1,0 +1,20 @@
+---
+layout: base
+---
+
+<div class="container">
+    <div class="yue entry-content">
+        <h2 class="title">articles</h2>
+        <ul class="unstyled">
+            {% for post in site.posts %}
+            <li>
+                <time>{{ post.date | date: '%Y-%m-%d' }}</time>
+                <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+
+        {% include contact.html %}
+
+    </div>
+</div>

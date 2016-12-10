@@ -1,0 +1,22 @@
+---
+layout: base
+title: 404
+---
+
+<div class="container">
+    <p>
+        <span id="time">5</span> 秒后会回到首页。
+    </p>
+</div>
+<script type="text/javascript" charset="utf-8">
+    var el = document.getElementById('time')
+    var n = 5
+    setInterval(function() {
+        n = n - 1
+        if (n == 0) {
+            window.location.href = '/'
+        } else {
+            el.innerHTML = n
+        }
+    }, 1000)
+</script>
