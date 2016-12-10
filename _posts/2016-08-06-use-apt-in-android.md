@@ -34,7 +34,7 @@ text.setOnClickListener(new View.OnClickListener() {
 
 天天写这么冗长又无脑的代码，还能不能愉快地玩耍啦。所以，我打算通过 `ViewFinder` 这个项目替代这重复的工作，只需要简单地标注上注解即可。通过控件 id 进行注解，并且 `@OnClick` 可以对多个控件注解同一个方法。就像下面这样子咯：
 
-```Java
+```java
 @BindView(R.id.tv) TextView mTextView;
 @OnClick({R.id.tv, R.id.btn})
 public void onSomethingClick() {
@@ -255,7 +255,7 @@ public class ViewFinderProcesser extends AbstractProcessor {
 
 `Element` 元素，源代码中的每一部分都是一个特定的元素类型，分别代表了包、类、方法等等，具体看 Demo。
 
-```Java
+```java
 package com.example;
 
 public class Foo { // TypeElement

@@ -322,5 +322,5 @@ ver@=20150929/. # 版本号
 参考：
 
 1. [如何获取斗鱼直播间的弹幕信息？ - 天白才痴 的回答](https://www.zhihu.com/question/29027665/answer/75117632)
-2. [斗鱼弹幕抓取 | 霹雳啪啦程序汪](http://ndrlslz.github.io/2015/12/26/%E6%96%97%E9%B1%BC%E5%BC%B9%E5%B9%95%E6%8A%93%E5%8F%96/)
+2. [斗鱼弹幕抓取 \| 霹雳啪啦程序汪](http://ndrlslz.github.io/2015/12/26/%E6%96%97%E9%B1%BC%E5%BC%B9%E5%B9%95%E6%8A%93%E5%8F%96/)
 3. [reusu/DouyuAssistant - Github](https://github.com/reusu/DouyuAssistant)

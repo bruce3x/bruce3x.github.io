@@ -99,9 +99,9 @@ Picasso.setSingletonInstance(picasso);
 
 在 Retrofit 1.9.x 中，通过 `RestAdapter` 使用你的 `OkHttpClient` 实例，把 `OkHttpClient` 实例包装到一个 `OkClient` 实例中，然后传递给 `RestAdapter.Builder` 实例的 `setClient` 方法：
 
-
-    restAdapterBuilder.setClient(new OkClient(httpClient));
-
+```java
+restAdapterBuilder.setClient(new OkClient(httpClient));
+```
 
 在 Retrofit 2.0 中，直接把 `OkHttpClient` 实例传递给 `Retrofit.Builder` 实例的 `client` 即可。
 

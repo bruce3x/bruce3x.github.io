@@ -117,5 +117,5 @@ public class RxBusActivity extends AppCompatActivity {
 
 ### Reference
 
-- [翻译：通过 RxJava 实现一个 Event Bus – RxBus | Drakeet的个人博客](https://drakeet.me/rxbus)
+- [翻译：通过 RxJava 实现一个 Event Bus – RxBus \| Drakeet的个人博客](https://drakeet.me/rxbus)
 - [用RxJava实现事件总线(Event Bus) - 简书](http://www.jianshu.com/p/ca090f6e2fe2/)

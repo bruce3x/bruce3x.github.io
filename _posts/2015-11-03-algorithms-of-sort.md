@@ -27,7 +27,8 @@ category: Algorithms
 
 ---
 
-<a name="冒泡排序稳定"></a>
+<a name="冒泡排序稳定"/>
+
 # 冒泡排序(稳定)
 
 ### 基本思想
@@ -42,7 +43,7 @@ category: Algorithms
 
 ### 实现
 
-```Java
+```java
 
 /**
  * Created by zero on 2015/11/03.
@@ -80,7 +81,8 @@ public class Bubble {
 
 ---
 
-<a name="选择排序"></a>
+<a name="选择排序"/>
+
 # 选择排序
 
 ### 基本思想：
@@ -98,7 +100,7 @@ public class Bubble {
 
 ### 实现
 
-```Java
+```java
 /**
  * Created by zero on 2015/11/03.
  * SimpleCodeDemo
@@ -139,7 +141,8 @@ public class Selection {
 ---
 
 
-<a name="插入排序稳定"></a>
+<a name="插入排序稳定"/>
+
 # 插入排序(稳定)
 
 ### 基本思想：
@@ -154,7 +157,7 @@ public class Selection {
 
 ### 实现
 
-```Java
+```java
 
 /**
  * Created by zero on 2015/11/03.
@@ -186,7 +189,8 @@ public class Insertion {
 ---
 
 
-<a name="快速排序"></a>
+<a name="快速排序"/>
+
 # 快速排序
 
 ### 基本思想：
@@ -201,7 +205,7 @@ public class Insertion {
 
 ### 实现
 
-```Java
+```java
 
 /**
  * Created by zero on 2015/11/03.
@@ -273,7 +277,8 @@ public class Quick {
 ---
 
 
-<a name="归并排序稳定"></a>
+<a name="归并排序稳定"/>
+
 # 归并排序(稳定)
 
 ### 基本思想：
@@ -286,7 +291,7 @@ public class Quick {
 
 ### 实现
 
-```Java
+```java
 
 /**
  * Created by zero on 2015/11/03.
@@ -338,7 +343,8 @@ public class Merge {
 ---
 
 
-<a name="堆排序"></a>
+<a name="堆排序"/>
+
 # 堆排序
 
 ### 基本思想：
@@ -354,7 +360,7 @@ public class Merge {
 
 ### 实现
 
-```Java
+```java
 
 /**
  * Created by zero on 2015/11/03.
@@ -404,4 +410,4 @@ public class Heap {
 
 ### 性能
 
-时间复杂度O(NlgN), 空间复杂度O(1)
+时间复杂度 O(NlgN), 空间复杂度 O(1)。

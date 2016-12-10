@@ -30,7 +30,7 @@ tags:
 
 强引用是最常用的引用方式，如果一个对象具有强引用，那么垃圾回收器绝不会回收它。
 
-```Java
+```java
 /**
  * Created by zero on 2015/11/23.
  * SimpleCodeDemo
@@ -48,7 +48,7 @@ public class StrongReferenceDemo {
 
 当内存不足时，Java虚拟器宁愿跑出`OutOfMemoryError`错误，终止程序，也不会靠随意回收强引用对象来解决内存不足的问题。
 
-```Java
+```java
 Object o = new Object();//强引用
 o = null;//显式置为null
 ```
@@ -60,7 +60,7 @@ o = null;//显式置为null
 
 如果一个对象具有软引用，内存足够时，gc不会回收它；内存不足时，gc就会回收这个对象的内存。只要垃圾回收器没有回收它，该对象就可以被程序使用。**软引用可用来实现内存敏感的高速缓存。**
 
-```Java
+```java
 /**
  * Created by zero on 2015/11/23.
  * SimpleCodeDemo
@@ -81,7 +81,7 @@ public class SoftReferenceDemo {
 
 由于图片占用内存较大，缓存图片很多的话容易发生OOM，可以用软引用来避免这一问题。
 
-```Java
+```java
 /**
  * Created by zero on 2015/11/23.
  * SimpleCodeDemo
@@ -126,7 +126,7 @@ public class ImageCacheDemo {
 
 由于垃圾回收器是一个优先级很低的线程，因此不一定会很快发现那些只具有弱引用的对象。
 
-```Java
+```java
 
 /**
  * Created by zero on 2015/11/23.
@@ -152,7 +152,6 @@ public class WeakReferenceDemo {
 ```
 WeakReference
 null
-
 ```
 
 <a name="4虚引用（phantomreference）"></a>

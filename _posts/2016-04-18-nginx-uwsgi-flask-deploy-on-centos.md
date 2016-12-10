@@ -304,18 +304,22 @@ esac
 
 添加可执行属性
 
-`sudo chmod +x /etc/init.d/uwsgi`
+```bash
+sudo chmod +x /etc/init.d/uwsgi
+```
 
 添加为系统服务
 
-```
+```bash
 sudo chkconfig --add uwsgi
 sudo chkconfig uwsgi on
 ```
 
 启动 uWSGI 服务
 
-`sudo service uwsgi start`
+```bash
+sudo service uwsgi start
+```
 
 
 注：脚本开头要写上 `# chkconfig: - 85 15` ，不然无法添加为系统服务（网上有的代码少了这句话）。
@@ -335,8 +339,8 @@ sudo chkconfig uwsgi on
 
 
 ## Reference
-[Linux配置Nginx+uWsgi环境 - SagerXiao's Blog](http://sagerblog.github.io/blog/2013/01/15/linux-nginx-uwsgi/)
+- [Linux配置Nginx+uWsgi环境 - SagerXiao's Blog](http://sagerblog.github.io/blog/2013/01/15/linux-nginx-uwsgi/)
 
-[配置Nginx和uWsig服务开机自动启动 - SagerXiao's Blog](http://sagerblog.github.io/blog/2013/01/15/linux-service-auto-startup/)
+- [配置Nginx和uWsig服务开机自动启动 - SagerXiao's Blog](http://sagerblog.github.io/blog/2013/01/15/linux-service-auto-startup/)
 
-[在 CentOS 上使用 Nginx/uWSGI 部署 Flask 网站应用](http://fedepot.com/zai-centos-shang-shi-yong-nginx/)
+- [在 CentOS 上使用 Nginx/uWSGI 部署 Flask 网站应用](http://fedepot.com/zai-centos-shang-shi-yong-nginx/)
