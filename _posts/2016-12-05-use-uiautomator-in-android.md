@@ -1,5 +1,5 @@
 ---
-title: 在 Android 中使用 UIAutomator 执行自动化任务
+title: Android 中使用 UIAutomator 执行自动化任务
 date: 2016-12-05T00:00:00.000Z
 categories: Dev
 ---
