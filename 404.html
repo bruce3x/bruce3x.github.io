@@ -1,7 +1,4 @@
----
-layout: base
-title: 404
----
+--- layout: base title: 404 ---
 
 <div class="container">
     <p>
@@ -9,6 +6,27 @@ title: 404
     </p>
 </div>
 <script type="text/javascript" charset="utf-8">
+    url_mapper = {
+        "/articles/2015/11/03/algorithms-of-sort/index.html": "/algorithms-of-sort",
+        "/articles/2016/06/02/a-simple-rxbus-implementation/index.html": "/a-simple-rxbus-implementation",
+        "/articles/2016/09/19/usage_and_principle_of_rxlifecycle/index.html": "/usage-and-principle-of-rxlifecycle",
+        "/articles/2016/01/29/solution-of-sublime-text-package-download-fail/index.html": "/solution-of-sublime-text-package-download-fail",
+        "/articles/2016/08/28/design_pattern_practice_1/index.html": "/design-pattern-practice-1",
+        "/articles/2016/03/05/start-with-leanengine/index.html": "/start-with-leanengine",
+        "/articles/2016/01/11/douyu-crawler/index.html": "/douyu-crawler",
+        "/articles/2016/08/06/use-apt-in-android/index.html": "/use-apt-in-android",
+        "/articles/2016/11/17/atom-helper-script/index.html": "/atom-helper-script",
+        "/articles/2015/11/23/four-kind-of-reference-in-java/index.html": "/four-kind-of-reference-in-java",
+        "/articles/2016/04/18/nginx-uwsgi-flask-deploy-on-centos/index.html": "/nginx-uwsgi-flask-deploy-on-centos",
+        "/articles/2016/12/07/kaggle-titanic/index.html": "/kaggle-titanic",
+        "/articles/2015/10/28/play-with-blog/index.html": "/play-with-blog",
+        "/articles/2016/12/05/use-uiautomator-in-android/index.html": "/use-uiautomator-in-android",
+        "/articles/2016/02/21/effective-okhttp/index.html": "/effective-okhttp",
+        "/articles/2016/10/05/use_java8_in_android/index.html": "/use-java8-in-android"
+    }
+
+    var path = location.href.substring(location.href.lastIndexOf('/'))
+
     var el = document.getElementById('time')
     var n = 5
     setInterval(function() {
