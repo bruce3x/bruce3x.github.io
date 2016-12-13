@@ -1,4 +1,7 @@
---- layout: base title: 404 ---
+---
+layout: base
+title: 404
+---
 
 <div class="container">
     <p>
@@ -18,23 +21,26 @@
         "/articles/2016/11/17/atom-helper-script/index.html": "/atom-helper-script",
         "/articles/2015/11/23/four-kind-of-reference-in-java/index.html": "/four-kind-of-reference-in-java",
         "/articles/2016/04/18/nginx-uwsgi-flask-deploy-on-centos/index.html": "/nginx-uwsgi-flask-deploy-on-centos",
-        "/articles/2016/12/07/kaggle-titanic/index.html": "/kaggle-titanic",
         "/articles/2015/10/28/play-with-blog/index.html": "/play-with-blog",
         "/articles/2016/12/05/use-uiautomator-in-android/index.html": "/use-uiautomator-in-android",
         "/articles/2016/02/21/effective-okhttp/index.html": "/effective-okhttp",
         "/articles/2016/10/05/use_java8_in_android/index.html": "/use-java8-in-android"
     }
 
-    var path = location.href.substring(location.href.lastIndexOf('/'))
+    var path = location.pathname
 
-    var el = document.getElementById('time')
-    var n = 5
-    setInterval(function() {
-        n = n - 1
-        if (n == 0) {
-            window.location.href = '/'
-        } else {
-            el.innerHTML = n
-        }
-    }, 1000)
+    if (path in url_mapper) {
+        window.location.href = url_mapper[path]
+    } else {
+        var el = document.getElementById('time')
+        var n = 5
+        setInterval(function() {
+            n = n - 1
+            if (n == 0) {
+                window.location.href = '/'
+            } else {
+                el.innerHTML = n
+            }
+        }, 1000)
+    }
 </script>
