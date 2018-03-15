@@ -1,6 +1,6 @@
 ---
 title: Android 启动模式
-date: 2018-03-15
+date: 2018-03-14
 category: Android
 tags:
     - LaunchMode
@@ -25,9 +25,9 @@ Activity 的默认启动模式。每次启动 Activity 都会去创建一个新�
 
 假设任务栈为 `A > B > C`，其中 C 是 singleTop 模式，此时再启动一个 C，不会创建新的实例，任务栈还是 `A > B > C`。
 
-任务栈 `A > B > C` ，其中 B 是 singleTop 模式，此时再启动一个 B，由于它不在栈顶，会新创建一个实例，任务栈变为 `A > B > C > B`。
+任务栈 `A > B > C`，其中 B 是 singleTop 模式，此时再启动一个 B，由于它不在栈顶，会新创建一个实例，任务栈变为 `A > B > C > B`。
 
-任务栈 `A > B > C` ，其中 D 是 singleTop 模式，此时启动一个 D，任务栈会变为 `A > B > C > D`。
+任务栈 `A > B > C`，其中 D 是 singleTop 模式，此时启动一个 D，任务栈会变为 `A > B > C > D`。
 
 ### singleTask
 
@@ -37,7 +37,7 @@ Activity 的默认启动模式。每次启动 Activity 都会去创建一个新�
 
 任务栈为 `A > B > C`，其中 D 是 singleTask 模式，此时启动一个 D，任务栈变为 `A > B > C > D`。
 
-> 还可能有通过指定 taskAffinity 在别的栈中启动 singleTask Activity 的情况
+> 还可能有通过指定 taskAffinity 在别的栈中启动 singleTask 模式的 Activity 的情况
 
 ### singleInstance
 
@@ -48,12 +48,14 @@ Activity 的默认启动模式。每次启动 Activity 都会去创建一个新�
 - `Intent#FLAG_ACTIVITY_SINGLE_TOP`
 
   为 Activity 指定 singleTop 启动模式，与 XML 中指定作用相同
+  
 - `Intent#FLAG_ACTIVITY_NEW_TASK` 
 
   为 Activity 指定 singleTask 启动模式，与 XML 中指定作用相同
+  
 - `Intent#FLAG_ACTIVITY_CLEAR_TOP` 
 
-  通常和 singleTask 模式一起使用，可以使目标 Activity 之上的 Activity 都出栈；如果目标 Activity 是 standard 启动模式，则它自身的实例也会被销毁然后重建；如果是 singleTop 模式，则不会被销毁，而是回调  `Activity#onNewIntent(Intent intent)` 方法。
+  通常和 singleTask 模式一起使用，可以使目标 Activity 之上的 Activity 都出栈；如果目标 Activity 是 standard 启动模式，则它自身的实例也会被销毁然后重建；如果是 singleTop 模式，则不会被销毁，而是回调 `Activity#onNewIntent(Intent intent)` 方法。
 
 ### 注意事项
 
@@ -65,7 +67,7 @@ Activity 的默认启动模式。每次启动 Activity 都会去创建一个新�
 
 ---
 
-### 对 Android官网文档的两点疑问
+### 对 Android 官网文档的两点疑问
 
 #### 1. 启动 singleTask 模式的 Activity 是否会直接创建新的任务栈
 
